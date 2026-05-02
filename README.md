@@ -9,51 +9,76 @@
 Le backend est structuré pour séparer les responsabilités, facilitant le travail en équipe et la maintenance.
 
 ### 📂 Structure des Dossiers (`/backend/AppEmit.API/`)
-*   **Entities/** : Contient les modèles de données (POCO) qui représentent les tables PostgreSQL.
-*   **Data/** : Contient le `ApplicationDbContext` (Configuration Entity Framework).
-*   **Repositories/** : Contient la logique d'accès aux données (Requêtes SQL via EF Core).
-*   **Interfaces/** : Définit les contrats (Interfaces) pour les services et repositories.
-*   **Services/** : Contient la logique métier (calculs, vérification de collisions).
-*   **Controllers/** : Points d'entrée de l'API (Gestion des requêtes HTTP).
-*   **DTOs/** : Objets de transfert de données pour sécuriser les échanges API.
-*   **Mappers/** : Logique de conversion entre Entities et DTOs.
+*   **Entities/** : Modèles de données (POCO) représentant les tables PostgreSQL.
+*   **Data/** : Configuration Entity Framework (`AppDbContext`).
+*   **Repositories/** : Logique d'accès aux données (Requêtes SQL via EF Core).
+*   **Interfaces/** : Contrats pour les services et repositories.
+*   **Services/** : Logique métier (calculs, anti-collision).
+*   **Controllers/** : Points d'entrée de l'API (Routes HTTP).
+*   **DTOs/** : Objets de transfert pour la sécurité des données.
+*   **Mappers/** : Conversion entre Entities et DTOs.
 
-### 🤝 Répartition de l'Équipe Backend
+### 🤝 Répartition de l'Équipe
 | Membre | Couche assignée | Responsabilités |
 | :--- | :--- | :--- |
 | **Brunel** | `Entities` & `Repositories` | Modélisation BDD et accès aux données. |
-| **Romuald** | `Services` | Algorithme d'anti-collision et gestion des exceptions. |
-| **Samson** | `Controllers` & `DTOs` | Création des endpoints API et validation des entrées. |
-| **Djenidi** | `Infrastructure` & `Data` | Configuration globale, Sécurité JWT et SignalR. |
+| **Romuald** | `Services` | Algorithme d'anti-collision et exceptions. |
+| **Samson** | `Controllers` & `DTOs` | Endpoints API et validation des entrées. |
+| **Djenidi** | `Infrastructure` & `Data` | Sécurité JWT, SignalR et coordination. |
 
 ---
 
-## 🛠️ Stack Technique
-*   **Backend** : ASP.NET Core 10 (C#) - Pattern Repository/Service.
-*   **Frontend** : Next.js 14+ (TypeScript) - Tailwind CSS & FullCalendar.
-*   **Base de Données** : PostgreSQL.
-*   **Temps Réel** : SignalR pour les notifications instantanées.
-*   **Authentification** : JWT (JSON Web Tokens).
+## 🛡️ Protocole Git & Workflow (Obligatoire)
 
----
+Pour garantir la stabilité du projet, nous utilisons une stratégie de branches stricte. **La branche `main` est protégée** : personne ne peut y pousser du code directement.
 
-## 🏗️ Conception & Diagrammes
+### 1. Création d'une branche (Une branche = Une Feature)
+Avant de coder, créez toujours une branche dédiée à votre tâche :
+```bash
+# Se synchroniser avec le serveur
+git checkout main
+git pull origin main
 
-### Modèle Logique de Données (MLD)
-![Modèle Logique de Données](./conception/MLD.png)
+# Créer une branche locale (ex: feature/gestion-salles)
+git checkout -b feature/nom-de-la-tache
+```
+### 2. Validation et Fermeture de tâche (Automation)
 
-### Diagrammes de Conception
-*   **Cas d'Utilisation** : ![Diagramme de Cas d'Utilisation](./conception/Diagrammes%20de%20Cas%20d'Utilisation-G-Salles%20EMIT%20Management.png)
-*   **Séquence** : ![Diagramme de Séquence](./conception/mermaid-diagram-2026-05-02-212849.png)
-*   **Classes** : ![Diagramme de Classes](./conception/Diagramme%20de%20classe.png)
+Pour valider une tâche et la lier à une "Issue" GitHub, utilisez les mots-clés fix, close ou resolve suivis du numéro de l'issue dans votre commit.
+```bash
+# Ajouter vos modifications
+git add .
 
----
+# Valider avec lien vers l'issue (ex: Issue #12)
+git commit -m "Description du travail - fix #12"
 
+# Envoyer sur GitHub
+git push origin feature/nom-de-la-tache
+```
 ## 📦 Installation et Lancement
 
 ### Backend
 ```bash
 cd backend/AppEmit.API
+
+# Installation des outils EF Core
+dotnet tool install --global dotnet-ef
+
+# Restauration et mise à jour BDD
 dotnet restore
 dotnet ef database update
+
+# Lancement
 dotnet run
+```
+## Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+## 🛠️ Stack Technique
+- Backend : ASP.NET Core 10 (C#).
+- Frontend : Next.js 14+ (TypeScript).
+- Base de Données : PostgreSQL.
+- Temps Réel : SignalR.
