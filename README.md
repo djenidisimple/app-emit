@@ -51,7 +51,7 @@
 
 ### Modèle Conceptuel de Données (MCD)
 
-![Modèle Conceptuel](MCD.png)
+![Modèle Conceptuel de Données](./conception/MCD.png)
 
 Le MCD définit les entités principales du système :
 - **FORMATION** : Programmes de formation/enseignement
@@ -66,7 +66,7 @@ Le MCD définit les entités principales du système :
 
 ### Modèle Logique de Données (MLD)
 
-![Modèle Logique](MLD.png)
+![Modèle Logique de Données](./conception/MLD.png)
 
 Le MLD présente la structure relationnelle complète avec :
 - **FORMATION** : Code, mention, parcours, niveau, année universitaire
@@ -84,7 +84,7 @@ Le MLD présente la structure relationnelle complète avec :
 
 ## 📊 Diagramme de Cas d'Utilisation
 
-![Cas d'Utilisation](Diagrammes%20de%20Cas%20d'Utilisation.png)
+![Diagramme de Cas d'Utilisation](./conception/Diagrammes%20de%20Cas%20d'Utilisation-G-Salles%20EMIT%20Management.png)
 
 ### Principaux Cas d'Usage
 
@@ -118,7 +118,7 @@ Le MLD présente la structure relationnelle complète avec :
 
 ## 🔄 Diagramme de Séquence - Demande de Réservation
 
-![Diagramme de Séquence](Diagramme%20de%20sequence.png)
+![Diagramme de Séquence](./conception/mermaid-diagram-2026-05-02-212849.png)
 
 ### Processus Complet :
 
@@ -147,7 +147,7 @@ Le MLD présente la structure relationnelle complète avec :
 
 ## 📐 Diagramme de Classes
 
-![Diagramme de Classes](Diagramme%20de%20classe.png)
+![Diagramme de Classes](./conception/Diagramme%20de%20classe.png)
 
 ### Relations Principales :
 
