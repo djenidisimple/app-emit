@@ -1,74 +1,51 @@
 # 📅 App-EMIT - Système de Gestion des Salles et de l'Emploi du Temps
 
 ## 📌 Vue d'ensemble
-
-**App-EMIT** est une solution logicielle intégrée conçue pour l'EMIT, permettant de piloter le patrimoine immobilier (salles) et la planification pédagogique. Contrairement à un calendrier statique, le système intègre un **moteur d'exceptions intelligent** qui gère les imprévus (absences, travaux, reports) de manière automatisée sans intervention manuelle répétitive.
-
----
-
-## 🎯 Objectifs Principaux
-
-- ✅ **Automatisation des Exceptions** : Réinitialisation automatique des créneaux après une annulation définie ou gestion des blocages indéterminés.
-- ✅ **Gestion de Conflits** : Moteur d'anti-collision empêchant les doubles réservations de salles ou de professeurs.
-- ✅ **Multi-Acteurs** : Interfaces et permissions dédiées pour l'administration, les enseignants et les étudiants.
-- ✅ **Traçabilité (Logs)** : Historique complet des modifications pour un audit interne et une sécurité accrue.
-- ✅ **Export Professionnel** : Génération de plannings et d'avis officiels au format PDF.
+**App-EMIT** est une solution logicielle intégrée conçue pour l'EMIT, permettant de piloter le patrimoine immobilier (salles) et la planification pédagogique. Le système intègre un **moteur d'exceptions intelligent** qui gère les imprévus (absences, travaux, reports) de manière automatisée.
 
 ---
 
-## 👥 Acteurs du Système
+## 🏗️ Architecture Backend (N-Tier / Clean Architecture)
+Le backend est structuré pour séparer les responsabilités, facilitant le travail en équipe et la maintenance.
 
-### 1. **Administrateur** (Super-User)
-- Gestion du référentiel (Filières, Parcours, Niveaux, Salles).
-- Configuration de la routine hebdomadaire (Emploi du temps fixe).
-- Validation des demandes de réservation et gestion globale des exceptions.
+### 📂 Structure des Dossiers (`/backend/AppEmit.API/`)
+*   **Entities/** : Contient les modèles de données (POCO) qui représentent les tables PostgreSQL.
+*   **Data/** : Contient le `ApplicationDbContext` (Configuration Entity Framework).
+*   **Repositories/** : Contient la logique d'accès aux données (Requêtes SQL via EF Core).
+*   **Interfaces/** : Définit les contrats (Interfaces) pour les services et repositories.
+*   **Services/** : Contient la logique métier (calculs, vérification de collisions).
+*   **Controllers/** : Points d'entrée de l'API (Gestion des requêtes HTTP).
+*   **DTOs/** : Objets de transfert de données pour sécuriser les échanges API.
+*   **Mappers/** : Logique de conversion entre Entities et DTOs.
 
-### 2. **Professeur**
-- Consultation de son emploi du temps personnel en temps réel.
-- Déclaration d'indisponibilité (génère une exception automatique au planning).
-- Clôture de matière pour libérer prématurément une salle en fin de semestre.
-
-### 3. **Étudiant**
-- Consultation du planning dynamique (incluant les cours annulés ou déplacés).
-- Réservation de salles pour les travaux de groupe ou activités de clubs.
-- Réception de notifications instantanées lors d'un changement d'horaire ou de salle.
-
----
-
-## 🏗️ Architecture et Conception
-
-### Modèle Conceptuel de Données (MCD)
-![Modèle Conceptuel de Données](./conception/MCD.png)
-
-### Modèle Logique de Données (MLD) - PostgreSQL
-![Modèle Logique de Données](./conception/MLD.png)
-
-**Éléments Clés :**
-*   **EXCEPTION_PLANNING** : Gère les annulations temporaires avec `date_debut` et `date_fin` (si `NULL`, l'annulation est considérée comme indéterminée).
-*   **SEANCE_COURS** : Stocke la routine fixe avec des métadonnées de cycle de vie (`date_debut_annee`, `date_fin_annee`).
-
----
-
-## 📊 Diagrammes de Conception
-
-### Cas d'Utilisation
-![Diagramme de Cas d'Utilisation](./conception/Diagrammes%20de%20Cas%20d'Utilisation-G-Salles%20EMIT%20Management.png)
-
-### Séquence : Annulation et Notification
-![Diagramme de Séquence](./conception/mermaid-diagram-2026-05-02-212849.png)
-
-### Classes (Entity Framework Core)
-![Diagramme de Classes](./conception/Diagramme%20de%20classe.png)
+### 🤝 Répartition de l'Équipe Backend
+| Membre | Couche assignée | Responsabilités |
+| :--- | :--- | :--- |
+| **Brunel** | `Entities` & `Repositories` | Modélisation BDD et accès aux données. |
+| **Romuald** | `Services` | Algorithme d'anti-collision et gestion des exceptions. |
+| **Samson** | `Controllers` & `DTOs` | Création des endpoints API et validation des entrées. |
+| **Djenidi** | `Infrastructure` & `Data` | Configuration globale, Sécurité JWT et SignalR. |
 
 ---
 
 ## 🛠️ Stack Technique
-
-*   **Backend** : ASP.NET Core 8+ (C#) - Clean Architecture.
+*   **Backend** : ASP.NET Core 10 (C#) - Pattern Repository/Service.
 *   **Frontend** : Next.js 14+ (TypeScript) - Tailwind CSS & FullCalendar.
-*   **Base de Données** : PostgreSQL (Hébergement Supabase ou local).
+*   **Base de Données** : PostgreSQL.
 *   **Temps Réel** : SignalR pour les notifications instantanées.
 *   **Authentification** : JWT (JSON Web Tokens).
+
+---
+
+## 🏗️ Conception & Diagrammes
+
+### Modèle Logique de Données (MLD)
+![Modèle Logique de Données](./conception/MLD.png)
+
+### Diagrammes de Conception
+*   **Cas d'Utilisation** : ![Diagramme de Cas d'Utilisation](./conception/Diagrammes%20de%20Cas%20d'Utilisation-G-Salles%20EMIT%20Management.png)
+*   **Séquence** : ![Diagramme de Séquence](./conception/mermaid-diagram-2026-05-02-212849.png)
+*   **Classes** : ![Diagramme de Classes](./conception/Diagramme%20de%20classe.png)
 
 ---
 
@@ -76,6 +53,7 @@
 
 ### Backend
 ```bash
+cd backend/AppEmit.API
 dotnet restore
 dotnet ef database update
 dotnet run

@@ -1,0 +1,6 @@
+@AppEmit.API_HostAddress = http://localhost:5011
+
+GET {{AppEmit.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
