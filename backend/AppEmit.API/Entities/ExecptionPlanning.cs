@@ -1,18 +1,28 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class ExceptionPlanning
 {
-    public class ExceptionPlanning
-    {
-        public int Id { get; set; }
-        public int SeanceCoursId { get; set; }
-        public DateTime DateDebut { get; set; }
-        public DateTime? DateFin { get; set; }
-        public string TypeException { get; set; }
-        public string Motif { get; set; }
-        public int? NouvelleSalleId { get; set; }
-        public virtual SeanceCours SeanceCours { get; set; }
-        public virtual Salle NouvelleSalle { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public int SeanceCoursId { get; set; }
+    [ForeignKey("SeanceCoursId")]
+    public SeanceCours SeanceOriginale { get; set; } = null!;
+
+    [Required]
+    public DateTime DateDebut { get; set; }
+    
+    // Si Null, l'annulation est indéterminée
+    public DateTime? DateFin { get; set; }
+
+    [Required, StringLength(50)]
+    public string TypeException { get; set; } = "Annulation"; // Annulation, Report, Deplacement
+
+    public string? Motif { get; set; }
+
+    public int? NouvelleSalleId { get; set; }
 }

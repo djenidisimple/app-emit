@@ -1,12 +1,15 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class Filiere
 {
-    public class Filiere
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; }
-        public virtual ICollection<Parcours> Parcours { get; set; } = new List<Parcours>();
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required, StringLength(100)]
+    public string Nom { get; set; } = string.Empty;
+
+    // Navigation
+    public virtual ICollection<Parcours> Parcours { get; set; } = new HashSet<Parcours>();
 }

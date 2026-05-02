@@ -1,20 +1,31 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class Utilisateur
 {
-    public class Utilisateur
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; }
-        public string Prenom { get; set; }
-        public string Email { get; set; } // UNIQUE
-        public string Role { get; set; }
-        public string Matricule { get; set; }
-        public int? NiveauId { get; set; }
-        public virtual Niveau Niveau { get; set; }
-        public virtual ICollection<EvenementReservation> EvenementReservations { get; set; }
-        public virtual ICollection<Notification> Notifications { get; set; }
-        public virtual ICollection<SeanceCours> Seances { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required, StringLength(20)]
+    public string Matricule { get; set; } = string.Empty;
+
+    [Required, StringLength(100)]
+    public string Nom { get; set; } = string.Empty;
+
+    [Required, StringLength(100)]
+    public string Prenom { get; set; } = string.Empty;
+
+    [Required, EmailAddress, StringLength(150)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string MotDePasseHash { get; set; } = string.Empty;
+
+    [Required, StringLength(20)]
+    public string Role { get; set; } = string.Empty; // Admin, Professeur, Etudiant
+
+    // Relations
+    public ICollection<SeanceCours> SeancesAnimees { get; set; } = new List<SeanceCours>();
+    public ICollection<EvenementReservation> Reservations { get; set; } = new List<EvenementReservation>();
 }

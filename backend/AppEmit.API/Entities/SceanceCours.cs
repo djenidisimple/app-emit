@@ -1,24 +1,38 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class SeanceCours
 {
-    public class SeanceCours
-    {
-        public int Id { get; set; }
-        public int MatiereId { get; set; }
-        public int ProfId { get; set; }
-        public int SalleId { get; set; }
-        public int CreneauId { get; set; }
-        public int NiveauId { get; set; }
-        public DateTime DateDebutAnnee { get; set; }
-        public DateTime DateFinAnnee { get; set; }
-        public bool EstTermine { get; set; }
-        public string CouleurAffichage { get; set; } 
-        public virtual Matiere Matiere { get; set; }
-        public virtual Utilisateur Prof { get; set; }
-        public virtual Salle Salle { get; set; }
-        public virtual Creneau Creneau { get; set; }
-        public virtual Niveau Niveau { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public int MatiereId { get; set; }
+    [ForeignKey("MatiereId")]
+    public Matiere Matiere { get; set; } = null!;
+
+    [Required]
+    public int ProfesseurId { get; set; }
+    [ForeignKey("ProfesseurId")]
+    public Utilisateur Professeur { get; set; } = null!;
+
+    [Required]
+    public int SalleId { get; set; }
+    [ForeignKey("SalleId")]
+    public Salle Salle { get; set; } = null!;
+
+    [Required]
+    public int CreneauId { get; set; }
+    [ForeignKey("CreneauId")]
+    public Creneau Creneau { get; set; } = null!;
+
+    public DateTime DateDebutAnnee { get; set; }
+    public DateTime DateFinAnnee { get; set; }
+    
+    public bool EstTerminee { get; set; } = false;
+
+    // Lien vers les annulations/reports
+    public ICollection<ExceptionPlanning> Exceptions { get; set; } = new List<ExceptionPlanning>();
 }

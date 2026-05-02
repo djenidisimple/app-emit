@@ -1,15 +1,25 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class Salle
 {
-    public class Salle
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; }
-        public int Capacite { get; set; }
-        public string Type { get; set; }
-        public bool EstDisponible { get; set; }
-        public virtual ICollection<SeanceCours> Seances { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required, StringLength(20)]
+    public string CodeSalle { get; set; } = string.Empty;
+
+    [Required, StringLength(100)]
+    public string Libelle { get; set; } = string.Empty;
+
+    [Required]
+    public int Capacite { get; set; }
+
+    public string? Equipements { get; set; }
+
+    public bool EstActive { get; set; } = true;
+
+    // Relations
+    public ICollection<SeanceCours> Seances { get; set; } = new List<SeanceCours>();
 }

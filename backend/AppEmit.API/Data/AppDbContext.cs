@@ -7,7 +7,7 @@ namespace AppEmit.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // Liste des tables de la base de données
+        // Liste des tables
         public DbSet<Filiere> Filieres { get; set; }
         public DbSet<Parcours> Parcours { get; set; }
         public DbSet<Niveau> Niveaux { get; set; }
@@ -29,11 +29,19 @@ namespace AppEmit.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Configuration de la relation spécifique "ProfId" -> "Utilisateur"
+            // Configuration de la relation Professeur -> SeanceCours
+            // Note : On utilise "ProfesseurId" car c'est le nom dans l'entité SeanceCours
             modelBuilder.Entity<SeanceCours>()
-                .HasOne(s => s.Prof)
-                .WithMany(u => u.Seances)
-                .HasForeignKey(s => s.ProfId)
+                .HasOne(s => s.Professeur)
+                .WithMany(u => u.SeancesAnimees)
+                .HasForeignKey(s => s.ProfesseurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configuration pour éviter les cycles de suppression sur les réservations
+            modelBuilder.Entity<EvenementReservation>()
+                .HasOne(r => r.Demandeur)
+                .WithMany(u => u.Reservations)
+                .HasForeignKey(r => r.DemandeurId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

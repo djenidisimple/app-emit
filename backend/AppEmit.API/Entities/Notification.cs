@@ -1,15 +1,23 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities
+namespace AppEmit.Entities;
+
+public class Notification
 {
-    public class Notification
-    {
-        public int Id { get; set; }
-        public int UtilisateurId { get; set; }
-        public string Message { get; set; }
-        public DateTime DateEnvoi { get; set; }
-        public bool EstLu { get; set; }
-        public virtual Utilisateur Utilisateur { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public int UtilisateurId { get; set; }
+
+    [ForeignKey("UtilisateurId")]
+    public virtual Utilisateur Utilisateur { get; set; } = null!;
+
+    [Required]
+    public string Message { get; set; } = string.Empty;
+
+    public DateTime DateEnvoi { get; set; } = DateTime.UtcNow;
+
+    public bool EstLu { get; set; } = false;
 }
