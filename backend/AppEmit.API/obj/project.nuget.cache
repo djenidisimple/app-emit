@@ -1,5 +1,24 @@
 {
   "version": 2,
+<<<<<<< HEAD
+  "dgSpecHash": "SpD24PVDR7Y=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Microsoft.AspNetCore.OpenApi. No packages exist with this id in source(s): Microsoft Visual Studio Offline Packages",
+      "projectPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "filePath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "libraryId": "Microsoft.AspNetCore.OpenApi",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+=======
   "dgSpecHash": "3G+FiNku/Ns=",
   "success": true,
   "projectFilePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
@@ -34,4 +53,5 @@
     "C:\\Users\\Djenidi\\.nuget\\packages\\system.composition.typedparts\\9.0.0\\system.composition.typedparts.9.0.0.nupkg.sha512"
   ],
   "logs": []
+>>>>>>> d3520acd6653bbb44f80875ac211c432b8838311
 }
