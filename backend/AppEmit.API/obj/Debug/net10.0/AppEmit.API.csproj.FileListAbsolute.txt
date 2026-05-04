@@ -121,3 +121,6 @@ D:\djenidi\app-emit\backend\AppEmit.API\obj\Debug\net10.0\refint\AppEmit.API.dll
 D:\djenidi\app-emit\backend\AppEmit.API\obj\Debug\net10.0\AppEmit.API.pdb
 D:\djenidi\app-emit\backend\AppEmit.API\obj\Debug\net10.0\AppEmit.API.genruntimeconfig.cache
 D:\djenidi\app-emit\backend\AppEmit.API\obj\Debug\net10.0\ref\AppEmit.API.dll
+D:\djenidi\app-emit\backend\AppEmit.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\djenidi\app-emit\backend\AppEmit.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\djenidi\app-emit\backend\AppEmit.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
