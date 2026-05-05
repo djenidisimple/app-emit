@@ -1,66 +1,63 @@
+using AppEmit.DTOs.Salle;
 using AppEmit.Entities;
 using AppEmit.Interfaces;
+using AppEmit.Mappers;
 
-namespace AppEmit.Services
+namespace AppEmit.Services;
+
+public class SalleService : ISalleService
 {
-    public class SalleService : ISalleService
+    private readonly ISalleRepository _salleRepository;
+
+    public SalleService(ISalleRepository salleRepository)
     {
-        private readonly ISalleRepository _salleRepository;
+        _salleRepository = salleRepository;
+    }
 
-        public SalleService(ISalleRepository salleRepository)
-        {
-            _salleRepository = salleRepository;
-        }
+    public async Task<IEnumerable<SalleDto>> GetAllAsync()
+    {
+        var salles = await _salleRepository.GetAllAsync();
+        return salles.Select(SalleMapper.ToDto);
+    }
 
-        public async Task<IEnumerable<Salle>> ObtenirToutesLesSallesAsync()
-        {
-            return await _salleRepository.GetAllAsync();
-        }
+    public async Task<SalleDto?> GetByIdAsync(int id)
+    {
+        var salle = await _salleRepository.GetByIdAsync(id);
+        return salle == null ? null : SalleMapper.ToDto(salle);
+    }
 
-        public async Task<Salle?> ObtenirSalleParIdAsync(int id)
-        {
-            return await _salleRepository.GetByIdAsync(id);
-        }
+    public async Task<SalleDto> CreateAsync(SalleCreateDto createDto)
+    {
+        if (await _salleRepository.ExistsByCodeAsync(createDto.CodeSalle))
+            throw new Exception("Une salle avec ce code existe déjà.");
 
-        public async Task<Salle> CreerSalleAsync(Salle salle)
-        {
-            // Logique métier : On s'assure que la salle est active par défaut
-            salle.EstActive = true;
-            
-            await _salleRepository.AddAsync(salle);
-            await _salleRepository.SaveChangesAsync();
-            return salle;
-        }
+        var entity = SalleMapper.ToEntity(createDto);
+        var created = await _salleRepository.AddAsync(entity);
+        return SalleMapper.ToDto(created);
+    }
 
-        public async Task<bool> ModifierSalleAsync(int id, Salle salle)
-        {
-            var existingSalle = await _salleRepository.GetByIdAsync(id);
-            if (existingSalle == null) return false;
+    public async Task<SalleDto?> UpdateAsync(int id, SalleCreateDto updateDto)
+    {
+        var existing = await _salleRepository.GetByIdAsync(id);
+        if (existing == null) return null;
 
-            // Mise à jour des propriétés
-            existingSalle.CodeSalle = salle.CodeSalle;
-            existingSalle.Libelle = salle.Libelle;
-            existingSalle.Capacite = salle.Capacite;
-            existingSalle.Equipements = salle.Equipements;
-            existingSalle.EstActive = salle.EstActive;
+        SalleMapper.UpdateEntity(existing, updateDto);
+        var updated = await _salleRepository.UpdateAsync(existing);
+        return SalleMapper.ToDto(updated);
+    }
 
-            _salleRepository.Update(existingSalle);
-            return await _salleRepository.SaveChangesAsync();
-        }
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var salle = await _salleRepository.GetByIdAsync(id);
+        if (salle == null) return false;
 
-        public async Task<bool> SupprimerSalleAsync(int id)
-        {
-            var salle = await _salleRepository.GetByIdAsync(id);
-            if (salle == null) return false;
+        await _salleRepository.DeleteAsync(salle);
+        return true;
+    }
 
-            _salleRepository.Delete(salle);
-            return await _salleRepository.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Salle>> ObtenirSallesDisponiblesAsync()
-        {
-            // Utilise la méthode spécifique que nous avons créée dans le Repository
-            return await _salleRepository.GetSallesActivesAsync();
-        }
+    public async Task<bool> IsSalleDisponibleAsync(int salleId, DateTime date, TimeSpan debut, TimeSpan fin)
+    {
+        var sallesDispo = await _salleRepository.GetSallesDisponiblesAsync(date, debut, fin);
+        return sallesDispo.Any(s => s.Id == salleId);
     }
 }
