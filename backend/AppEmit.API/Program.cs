@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using AppEmit.Data;
-using AppEmit.Interfaces;
-using AppEmit.Repositories;
-using AppEmit.Services;
+using AppEmit.API.Interfaces;
+using AppEmit.API.Repositories;
+using AppEmit.API.Services;        // ← AJOUT OBLIGATOIRE pour PlanningHebdoService
+using AppEmit.Services;            // services existants (SalleService...)
+using AppEmit.Interfaces;          // interfaces existantes
+using AppEmit.Repositories;        // repositories existants
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,16 +13,21 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Dépendances existantes
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ISalleRepository, SalleRepository>();
 builder.Services.AddScoped<ISalleService, SalleService>();
+
+// Tâche #38
+builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
+builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
+builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -30,28 +38,4 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
