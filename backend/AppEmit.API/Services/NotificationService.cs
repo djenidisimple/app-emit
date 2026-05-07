@@ -4,65 +4,104 @@ using AppEmit.API.Hubs;
 using AppEmit.API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
-namespace AppEmit.API.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-public class NotificationService : INotificationService
+namespace AppEmit.API.Services
 {
-    private readonly INotificationRepository _repo;
-    private readonly IMapper _mapper;
-    private readonly ILogger<NotificationService> _logger;
-    private readonly IHubContext<NotificationHub> _hubContext;
-
-    public NotificationService(
-        INotificationRepository repo,
-        IMapper mapper,
-        ILogger<NotificationService> logger,
-        IHubContext<NotificationHub> hubContext)
+    public class NotificationService : INotificationService
     {
-        _repo = repo;
-        _mapper = mapper;
-        _logger = logger;
-        _hubContext = hubContext;
-    }
+        private readonly INotificationRepository _repo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<NotificationService> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-    public async Task<IEnumerable<NotificationReadDto>> GetNotificationsUtilisateurAsync(int utilisateurId, int page, int pageSize)
-    {
-        var notifications = await _repo.GetByUtilisateurIdAsync(utilisateurId, page, pageSize);
-        return _mapper.Map<IEnumerable<NotificationReadDto>>(notifications);
-    }
+        public NotificationService(
+            INotificationRepository repo,
+            IMapper mapper,
+            ILogger<NotificationService> logger,
+            IHubContext<NotificationHub> hubContext)
+        {
+            _repo = repo;
+            _mapper = mapper;
+            _logger = logger;
+            _hubContext = hubContext;
+        }
 
-    public async Task<NotificationReadDto?> GetByIdAsync(int id)
-    {
-        var notification = await _repo.GetByIdAsync(id);
-        return notification is null ? null : _mapper.Map<NotificationReadDto>(notification);
-    }
+        // ======================================================
+        // GET NOTIFICATIONS (PAGINATION)
+        // ======================================================
+        public async Task<IEnumerable<NotificationReadDto>> GetNotificationsUtilisateurAsync(
+            int utilisateurId,
+            int page,
+            int pageSize)
+        {
+            var notifications = await _repo.GetByUtilisateurIdAsync(utilisateurId, page, pageSize);
+            return _mapper.Map<IEnumerable<NotificationReadDto>>(notifications);
+        }
 
-    public async Task<NotificationReadDto> CreateNotificationAsync(NotificationCreateDto dto)
-    {
-        var entity = _mapper.Map<Notification>(dto);
-        var created = await _repo.CreateAsync(entity);
-        var result = _mapper.Map<NotificationReadDto>(created);
+        // ======================================================
+        // GET BY ID
+        // ======================================================
+        public async Task<NotificationReadDto?> GetByIdAsync(int id)
+        {
+            var notification = await _repo.GetByIdAsync(id);
+            return notification is null
+                ? null
+                : _mapper.Map<NotificationReadDto>(notification);
+        }
 
-        await _hubContext.Clients.Group($"user_{dto.UtilisateurId}")
-            .SendAsync("NouvelleNotification", result);
+        // ======================================================
+        // CREATE NOTIFICATION + SIGNALR
+        // ======================================================
+        public async Task<NotificationReadDto> CreateNotificationAsync(NotificationCreateDto dto)
+        {
+            var entity = _mapper.Map<Notification>(dto);
 
-        _logger.LogInformation("Notification envoyée en temps réel à l'utilisateur {Id}", dto.UtilisateurId);
-        return result;
-    }
+            entity.DateEnvoi = DateTime.UtcNow;
+            entity.EstLu = false;
 
-    public async Task<bool> MarquerCommeLuAsync(int id)
-    {
-        return await _repo.MarquerCommeLuAsync(id);
-    }
+            var created = await _repo.CreateAsync(entity);
+            var result = _mapper.Map<NotificationReadDto>(created);
 
-    public async Task<bool> DeleteNotificationAsync(int id)
-    {
-        return await _repo.DeleteAsync(id);
-    }
+            // REAL-TIME NOTIFICATION
+            await _hubContext.Clients
+                .Group($"user_{dto.UtilisateurId}")
+                .SendAsync("NouvelleNotification", result);
 
-    public async Task<int> GetCountNonLuesAsync(int utilisateurId)
-    {
-        return await _repo.CountNonLuesAsync(utilisateurId);
+            _logger.LogInformation(
+                "Notification envoyée à l'utilisateur {UserId}",
+                dto.UtilisateurId
+            );
+
+            return result;
+        }
+
+        // ======================================================
+        // MARK AS READ
+        // ======================================================
+        public async Task<bool> MarquerCommeLuAsync(int id)
+        {
+            return await _repo.MarquerCommeLuAsync(id);
+        }
+
+        // ======================================================
+        // DELETE
+        // ======================================================
+        public async Task<bool> DeleteNotificationAsync(int id)
+        {
+            return await _repo.DeleteAsync(id);
+        }
+
+        // ======================================================
+        // COUNT UNREAD
+        // ======================================================
+        public async Task<int> GetCountNonLuesAsync(int utilisateurId)
+        {
+            return await _repo.CountNonLuesAsync(utilisateurId);
+        }
     }
 }
