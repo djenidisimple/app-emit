@@ -2,10 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using AppEmit.Data;
 using AppEmit.API.Interfaces;
 using AppEmit.API.Repositories;
-using AppEmit.API.Services;        // ← AJOUT OBLIGATOIRE pour PlanningHebdoService
-using AppEmit.Services;            // services existants (SalleService...)
-using AppEmit.Interfaces;          // interfaces existantes
-using AppEmit.Repositories;        // repositories existants
+using AppEmit.API.Services;
+using AppEmit.Interfaces;
+using AppEmit.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +14,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Dépendances existantes
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<ISalleRepository, SalleRepository>();
-builder.Services.AddScoped<ISalleService, SalleService>();
+
+// Repository pour l'interface simple de la tâche #39 (évite conflit avec l'autre ISalleRepository)
+builder.Services.AddScoped<AppEmit.API.Interfaces.ISalleRepository, AppEmit.API.Repositories.SalleRepository>();
 
 // Tâche #38
 builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
 builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
 builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
+
+// Tâche #39
+builder.Services.AddScoped<IExceptionService, ExceptionService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

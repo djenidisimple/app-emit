@@ -1,10 +1,10 @@
 using AppEmit.Entities;
+using System.Threading.Tasks;
 
-namespace AppEmit.Interfaces
+namespace AppEmit.API.Interfaces
 {
-    public interface ISalleRepository : IGenericRepository<Salle>
+    public interface ISalleRepository
     {
-        Task<Salle?> GetByCodeAsync(string code);
-        Task<IEnumerable<Salle>> GetSallesActivesAsync();
+        Task<Salle?> GetByIdAsync(int id);
     }
 }

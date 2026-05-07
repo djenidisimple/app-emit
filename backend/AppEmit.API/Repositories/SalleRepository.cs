@@ -1,22 +1,19 @@
 using AppEmit.Data;
 using AppEmit.Entities;
-using AppEmit.Interfaces;
+using AppEmit.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
-namespace AppEmit.Repositories
+namespace AppEmit.API.Repositories
 {
-    public class SalleRepository : GenericRepository<Salle>, ISalleRepository
+    public class SalleRepository : ISalleRepository
     {
-        public SalleRepository(AppDbContext context) : base(context) { }
+        private readonly AppDbContext _context;
+        public SalleRepository(AppDbContext context) => _context = context;
 
-        public async Task<Salle?> GetByCodeAsync(string code)
+        public async Task<Salle?> GetByIdAsync(int id)
         {
-            return await _dbSet.FirstOrDefaultAsync(s => s.CodeSalle == code);
-        }
-
-        public async Task<IEnumerable<Salle>> GetSallesActivesAsync()
-        {
-            return await _dbSet.Where(s => s.EstActive).ToListAsync();
+            return await _context.Salles.FindAsync(id);
         }
     }
 }
