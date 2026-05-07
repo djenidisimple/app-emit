@@ -5,7 +5,10 @@ namespace AppEmit.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
+        {
+        }
 
         // DbSets
         public DbSet<Filiere> Filieres { get; set; }
@@ -24,48 +27,39 @@ namespace AppEmit.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Email unique
+            // =========================
+            // UTILISATEUR
+            // =========================
             modelBuilder.Entity<Utilisateur>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Professeur -> SeancesCours (restrict delete)
+            // =========================
+            // SEANCE COURS
+            // =========================
             modelBuilder.Entity<SeanceCours>()
                 .HasOne(s => s.Professeur)
                 .WithMany(u => u.SeancesAnimees)
                 .HasForeignKey(s => s.ProfesseurId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Demandeur -> EvenementReservation (restrict delete)
+            modelBuilder.Entity<SeanceCours>(entity =>
+            {
+                entity.Property(e => e.DateDebutAnnee)
+                    .HasColumnType("timestamp without time zone");
+
+                entity.Property(e => e.DateFinAnnee)
+                    .HasColumnType("timestamp without time zone");
+            });
+
+            // =========================
+            // RESERVATION
+            // =========================
             modelBuilder.Entity<EvenementReservation>()
                 .HasOne(r => r.Demandeur)
                 .WithMany(u => u.Reservations)
                 .HasForeignKey(r => r.DemandeurId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // Relation ExceptionPlanning -> SeanceCours (SeanceOriginale)
-            modelBuilder.Entity<ExceptionPlanning>()
-                .HasOne(e => e.SeanceOriginale)
-                .WithMany(s => s.Exceptions)
-                .HasForeignKey(e => e.SeanceCoursId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configuration des types DateTime pour éviter l'erreur "timestamp with time zone"
-            modelBuilder.Entity<SeanceCours>(entity =>
-            {
-                entity.Property(e => e.DateDebutAnnee)
-                    .HasColumnType("timestamp without time zone");
-                entity.Property(e => e.DateFinAnnee)
-                    .HasColumnType("timestamp without time zone");
-            });
-
-            modelBuilder.Entity<ExceptionPlanning>(entity =>
-            {
-                entity.Property(e => e.DateDebut)
-                    .HasColumnType("timestamp without time zone");
-                entity.Property(e => e.DateFin)
-                    .HasColumnType("timestamp without time zone");
-            });
 
             modelBuilder.Entity<EvenementReservation>(entity =>
             {
@@ -73,10 +67,55 @@ namespace AppEmit.Data
                     .HasColumnType("timestamp without time zone");
             });
 
-            // Longueur maximale pour TypeException
+            // =========================
+            // EXCEPTION PLANNING
+            // =========================
             modelBuilder.Entity<ExceptionPlanning>()
-                .Property(e => e.TypeException)
-                .HasMaxLength(50);
+                .HasOne(e => e.SeanceOriginale)
+                .WithMany(s => s.Exceptions)
+                .HasForeignKey(e => e.SeanceCoursId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ExceptionPlanning>(entity =>
+            {
+                entity.Property(e => e.DateDebut)
+                    .HasColumnType("timestamp without time zone");
+
+                entity.Property(e => e.DateFin)
+                    .HasColumnType("timestamp without time zone");
+
+                entity.Property(e => e.TypeException)
+                    .HasMaxLength(50);
+            });
+
+            // =========================
+            // NOTIFICATION
+            // =========================
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notifications");
+
+                entity.HasKey(n => n.Id);
+
+                entity.HasIndex(n => n.UtilisateurId)
+                    .HasDatabaseName("IX_Notifications_UtilisateurId");
+
+                entity.HasIndex(n => new { n.UtilisateurId, n.DateEnvoi })
+                    .HasDatabaseName("IX_Notifications_UtilisateurId_DateEnvoi");
+
+                entity.Property(n => n.Message)
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                entity.Property(n => n.DateEnvoi)
+                    .HasColumnType("timestamp with time zone")
+                    .HasDefaultValueSql("now()");
+
+                entity.HasOne(n => n.Utilisateur)
+                    .WithMany()
+                    .HasForeignKey(n => n.UtilisateurId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
