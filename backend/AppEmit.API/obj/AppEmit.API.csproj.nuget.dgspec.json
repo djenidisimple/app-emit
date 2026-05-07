@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
+    "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
+    "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "projectUniqueName": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
         "projectName": "AppEmit.API",
-        "projectPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\obj\\",
+        "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "packagesPath": "C:\\Users\\Djenidi\\.nuget\\packages\\",
+        "outputPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Djenidi\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
