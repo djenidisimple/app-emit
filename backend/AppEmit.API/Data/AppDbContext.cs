@@ -43,6 +43,23 @@ namespace AppEmit.Data
                 .WithMany(u => u.Reservations)
                 .HasForeignKey(r => r.DemandeurId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notifications");
+            entity.HasKey(n => n.Id);
+            entity.HasIndex(n => n.UtilisateurId).HasDatabaseName("IX_Notifications_UtilisateurId");
+            entity.HasIndex(n => new { n.UtilisateurId, n.DateEnvoi }).HasDatabaseName("IX_Notifications_UtilisateurId_DateEnvoi");
+            entity.Property(n => n.Message).IsRequired().HasColumnType("text");
+            entity.Property(n => n.DateEnvoi).HasColumnType("timestamp with time zone").HasDefaultValueSql("now()");
+            entity.HasOne(n => n.Utilisateur)
+                  .WithMany()
+                  .HasForeignKey(n => n.UtilisateurId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
         }
     }
 }
+
+

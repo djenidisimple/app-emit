@@ -2,8 +2,6 @@
   "version": 3,
   "targets": {
 <<<<<<< HEAD
-    "net10.0": {}
-=======
     "net10.0": {
       "Humanizer.Core/2.14.1": {
         "type": "package",
@@ -2614,9 +2612,10 @@
         "useSharedDesignerContext.txt"
       ]
     }
->>>>>>> d3520acd6653bbb44f80875ac211c432b8838311
+=======
+    "net10.0": {}
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
   },
-  "libraries": {},
   "projectFileDependencyGroups": {
     "net10.0": [
       "Microsoft.AspNetCore.OpenApi >= 10.0.7",
@@ -2626,31 +2625,40 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\HP\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+<<<<<<< HEAD
+    "C:\\Users\\Djenidi\\.nuget\\packages\\": {}
+=======
+    "C:\\Users\\ME-PC\\.nuget\\packages\\": {}
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+<<<<<<< HEAD
+      "projectUniqueName": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
       "projectName": "AppEmit.API",
-      "projectPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\obj\\",
+      "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "packagesPath": "C:\\Users\\Djenidi\\.nuget\\packages\\",
+      "outputPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Djenidi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+=======
+      "projectUniqueName": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "projectName": "AppEmit.API",
+      "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "packagesPath": "C:\\Users\\ME-PC\\.nuget\\packages\\",
+      "outputPath": "C:\\app-emit\\backend\\AppEmit.API\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\ME-PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
@@ -2712,7 +2720,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
@@ -3132,13 +3140,27 @@
   },
   "logs": [
     {
-      "code": "NU1101",
+<<<<<<< HEAD
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file D:\\djenidi\\app-emit\\backend\\AppEmit.API\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
+    },
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+=======
+      "code": "NU1301",
       "level": "Error",
-      "message": "Unable to find package Microsoft.AspNetCore.OpenApi. No packages exist with this id in source(s): Microsoft Visual Studio Offline Packages",
-      "libraryId": "Microsoft.AspNetCore.OpenApi",
-      "targetGraphs": [
-        "net10.0"
-      ]
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée."
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée."
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
     }
   ]
 }

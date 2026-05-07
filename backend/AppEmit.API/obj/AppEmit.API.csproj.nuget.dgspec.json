@@ -1,31 +1,43 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
+<<<<<<< HEAD
+    "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
+    "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "projectUniqueName": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
         "projectName": "AppEmit.API",
-        "projectPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\obj\\",
+        "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "packagesPath": "C:\\Users\\Djenidi\\.nuget\\packages\\",
+        "outputPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Djenidi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+=======
+    "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
+  },
+  "projects": {
+    "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "projectName": "AppEmit.API",
+        "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "packagesPath": "C:\\Users\\ME-PC\\.nuget\\packages\\",
+        "outputPath": "C:\\app-emit\\backend\\AppEmit.API\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ME-PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
@@ -87,7 +99,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
