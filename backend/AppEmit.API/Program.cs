@@ -1,5 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 <<<<<<< HEAD
+using Microsoft.AspNetCore.Authentication.JwtBearer; // ← AJOUTER
+using Microsoft.IdentityModel.Tokens;                // ← AJOUTER
+using System.Text;                                   // ← AJOUTER
+using AppEmit.Data;
+using AppEmit.API.Interfaces;                        // ← AJOUTER
+using AppEmit.API.Services;   
+=======
+<<<<<<< HEAD
+>>>>>>> main
 using AppEmit.Data;
 =======
 
@@ -89,6 +98,29 @@ builder.Services.AddScoped<ISalleService, SalleService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+// ← AJOUTER controllers
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // -------------------- MIDDLEWARE --------------------
@@ -98,8 +130,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+<<<<<<< HEAD
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+=======
 // Ton middleware
 app.UseMiddleware<ExceptionMiddleware>();
+>>>>>>> main
 
 app.UseHttpsRedirection();
 <<<<<<< HEAD

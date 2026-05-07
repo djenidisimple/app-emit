@@ -8,3 +8,10 @@ build/
 # .NET Core / ASP.NET Core build folders
 bin/
 obj/
+appsettings.Development.json
+secrets.json
+.vs/ 
+.vscode/
+*.user
+lib/
+publish/
