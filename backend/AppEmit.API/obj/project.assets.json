@@ -1,6 +1,7 @@
 {
   "version": 3,
   "targets": {
+<<<<<<< HEAD
     "net10.0": {
       "Humanizer.Core/2.14.1": {
         "type": "package",
@@ -2611,6 +2612,9 @@
         "useSharedDesignerContext.txt"
       ]
     }
+=======
+    "net10.0": {}
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
   },
   "projectFileDependencyGroups": {
     "net10.0": [
@@ -2621,11 +2625,16 @@
     ]
   },
   "packageFolders": {
+<<<<<<< HEAD
     "C:\\Users\\Djenidi\\.nuget\\packages\\": {}
+=======
+    "C:\\Users\\ME-PC\\.nuget\\packages\\": {}
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
   },
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
       "projectUniqueName": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
       "projectName": "AppEmit.API",
       "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
@@ -2634,6 +2643,16 @@
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Djenidi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+=======
+      "projectUniqueName": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "projectName": "AppEmit.API",
+      "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "packagesPath": "C:\\Users\\ME-PC\\.nuget\\packages\\",
+      "outputPath": "C:\\app-emit\\backend\\AppEmit.API\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\ME-PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -3121,6 +3140,7 @@
   },
   "logs": [
     {
+<<<<<<< HEAD
       "code": "Undefined",
       "level": "Warning",
       "warningLevel": 1,
@@ -3131,6 +3151,16 @@
       "level": "Warning",
       "warningLevel": 1,
       "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+=======
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée."
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée."
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
     }
   ]
 }

@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
   },
   "projects": {
@@ -15,6 +16,22 @@
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Djenidi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+=======
+    "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {}
+  },
+  "projects": {
+    "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "projectName": "AppEmit.API",
+        "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+        "packagesPath": "C:\\Users\\ME-PC\\.nuget\\packages\\",
+        "outputPath": "C:\\app-emit\\backend\\AppEmit.API\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ME-PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
         ],
         "originalTargetFrameworks": [
           "net10.0"

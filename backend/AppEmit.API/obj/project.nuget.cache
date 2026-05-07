@@ -1,5 +1,6 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "YhtKM9+t8OA=",
   "success": true,
   "projectFilePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
@@ -55,6 +56,27 @@
       "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
       "warningLevel": 1,
       "filePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+=======
+  "dgSpecHash": "ID9l4dv7btA=",
+  "success": false,
+  "projectFilePath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée.",
+      "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "filePath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Impossible de charger l'index de service pour la source https://api.nuget.org/v3/index.json.\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée. (api.nuget.org:443)\r\n  Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée.",
+      "projectPath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "filePath": "C:\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+>>>>>>> 9eca40bf3e5eaafb17f40a140af158b771739f6e
       "targetGraphs": []
     }
   ]
