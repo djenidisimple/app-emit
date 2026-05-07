@@ -1,29 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
   "dgSpecHash": "YhtKM9+t8OA=",
-=======
-<<<<<<< HEAD
-  "dgSpecHash": "SpD24PVDR7Y=",
-  "success": false,
-  "projectFilePath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-  "expectedPackageFiles": [],
-  "logs": [
-    {
-      "code": "NU1101",
-      "level": "Error",
-      "message": "Unable to find package Microsoft.AspNetCore.OpenApi. No packages exist with this id in source(s): Microsoft Visual Studio Offline Packages",
-      "projectPath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-      "filePath": "C:\\Users\\HP\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
-      "libraryId": "Microsoft.AspNetCore.OpenApi",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    }
-  ]
-=======
-  "dgSpecHash": "3G+FiNku/Ns=",
->>>>>>> bf5e2fac910eee93e7f1866d9531bfc789486d15
   "success": true,
   "projectFilePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
   "expectedPackageFiles": [
@@ -61,6 +38,24 @@
     "C:\\Users\\Djenidi\\.nuget\\packages\\system.composition.runtime\\9.0.0\\system.composition.runtime.9.0.0.nupkg.sha512",
     "C:\\Users\\Djenidi\\.nuget\\packages\\system.composition.typedparts\\9.0.0\\system.composition.typedparts.9.0.0.nupkg.sha512"
   ],
-  "logs": []
->>>>>>> d3520acd6653bbb44f80875ac211c432b8838311
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problem reading the cache file D:\\djenidi\\app-emit\\backend\\AppEmit.API\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\djenidi\\app-emit\\backend\\AppEmit.API\\AppEmit.API.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

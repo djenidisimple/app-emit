@@ -13,15 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppEmit.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d3520acd6653bbb44f80875ac211c432b8838311")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad4b790efa2a8b5d17a2c611050d41b4ba42c4f3")]
->>>>>>> bf5e2fac910eee93e7f1866d9531bfc789486d15
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d3520acd6653bbb44f80875ac211c432b8838311")]
->>>>>>> main
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d923a98dde8f97517f460e7f28656f041ba75ca")]
 [assembly: System.Reflection.AssemblyProductAttribute("AppEmit.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppEmit.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
