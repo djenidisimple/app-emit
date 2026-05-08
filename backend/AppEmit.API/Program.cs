@@ -122,6 +122,23 @@ builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 builder.Services.AddScoped<IExceptionService, ExceptionService>();
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 
+// Ajouter ces lignes dans Program.cs dans la section DI
+
+// ── Admin : Imprévus ──────────────────────────────────────────────────
+builder.Services.AddScoped<IAdminImprevuService, AdminImprevuService>();
+
+// ── Admin : Référentiel ───────────────────────────────────────────────
+builder.Services.AddScoped<IReferentielService, ReferentielService>();
+
+// ── Admin : Stats ─────────────────────────────────────────────────────
+builder.Services.AddScoped<IAdminStatsService, AdminStatsService>();
+
+// ── Matière & Parcours (corriger l'enregistrement manquant) ───────────
+builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
+builder.Services.AddScoped<IMatiereService, MatiereService>();
+builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
+builder.Services.AddScoped<IParcoursService, ParcoursService>();
+
 // ======================================================
 // BUILD APP
 // ======================================================

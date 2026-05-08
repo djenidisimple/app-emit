@@ -22,6 +22,7 @@ namespace AppEmit.Data
         public DbSet<EvenementReservation> EvenementReservations { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<ExceptionPlanning> ExceptionsPlanning { get; set; }
+        public DbSet<ImprevuAdmin> ImprevusAdmin { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -116,6 +117,49 @@ namespace AppEmit.Data
                     .HasForeignKey(n => n.UtilisateurId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // =========================
+            // IMPREVU ADMIN (audit)
+            // =========================
+            modelBuilder.Entity<ImprevuAdmin>(entity =>
+            {
+                entity.ToTable("ImprevusAdmin");
+                entity.HasKey(i => i.Id);
+
+                entity.Property(i => i.TypeAction).HasMaxLength(50).IsRequired();
+                entity.Property(i => i.Motif).HasColumnType("text");
+
+                entity.Property(i => i.DateAction)
+                    .HasColumnType("timestamp without time zone");
+                entity.Property(i => i.DateDebut)
+                    .HasColumnType("timestamp without time zone");
+                entity.Property(i => i.DateFin)
+                    .HasColumnType("timestamp without time zone");
+
+                // FK vers SeanceCours
+                entity.HasOne(i => i.SeanceCours)
+                    .WithMany()
+                    .HasForeignKey(i => i.SeanceCoursId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // FK vers Admin (Utilisateur)
+                entity.HasOne(i => i.Admin)
+                    .WithMany()
+                    .HasForeignKey(i => i.AdminId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // FK vers nouvelle salle (optionnel)
+                entity.HasOne(i => i.NouvelleSalle)
+                    .WithMany()
+                    .HasForeignKey(i => i.NouvelleSalleId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .IsRequired(false);
+
+                // Index pour requêtes fréquentes sur la date
+                entity.HasIndex(i => i.DateAction)
+                    .HasDatabaseName("IX_ImprevusAdmin_DateAction");
+            });
+
         }
     }
 }
