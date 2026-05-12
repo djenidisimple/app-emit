@@ -38,6 +38,16 @@ namespace AppEmit.API.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+            modelBuilder.Entity<Utilisateur>()
+                .Property(u => u.Matricule)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Utilisateur>()
+                .HasOne(u => u.Niveau)
+                .WithMany(n => n.Utilisateurs)
+                .HasForeignKey(u => u.NiveauId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // =========================
             // SEANCE COURS
             // =========================
@@ -46,6 +56,12 @@ namespace AppEmit.API.Data
                 .WithMany(u => u.SeancesAnimees)
                 .HasForeignKey(s => s.ProfesseurId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SeanceCours>()
+                .HasOne(s => s.Niveau)
+                .WithMany(n => n.Seances)
+                .HasForeignKey(s => s.NiveauId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<SeanceCours>(entity =>
             {

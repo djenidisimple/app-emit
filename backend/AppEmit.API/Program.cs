@@ -47,7 +47,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ======================================================
 // CONTROLLERS + SWAGGER
 // ======================================================
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -163,6 +167,36 @@ app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 // ======================================================
-// RUN
+// SEEDING
 // ======================================================
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+    
+    if (!context.Filieres.Any())
+    {
+        var filiere = new Filiere { Nom = "Informatique et Management" };
+        context.Filieres.Add(filiere);
+        context.SaveChanges();
+
+        var parcoursInfo = new Parcours { Nom = "Informatique", FiliereId = filiere.Id };
+        var parcoursManagement = new Parcours { Nom = "Management", FiliereId = filiere.Id };
+        context.Parcours.AddRange(parcoursInfo, parcoursManagement);
+        context.SaveChanges();
+
+        var niveaux = new List<Niveau>
+        {
+            new Niveau { Code = "L1", ParcoursId = parcoursInfo.Id },
+            new Niveau { Code = "L2", ParcoursId = parcoursInfo.Id },
+            new Niveau { Code = "L3", ParcoursId = parcoursInfo.Id },
+            new Niveau { Code = "M1", ParcoursId = parcoursInfo.Id },
+            new Niveau { Code = "M2", ParcoursId = parcoursInfo.Id }
+        };
+        context.Niveaux.AddRange(niveaux);
+        context.SaveChanges();
+        Console.WriteLine("[SEED] Niveaux et Parcours créés avec succès !");
+    }
+}
+
 app.Run();

@@ -23,15 +23,15 @@ namespace AppEmit.API.Services
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
         {
+            var emailNormalise = dto.Email.ToLower().Trim();
             var existe = await _context.Utilisateurs
-                .AnyAsync(u => u.Email == dto.Email);
+                .AnyAsync(u => u.Email == emailNormalise);
             if (existe)
                 throw new Exceptions.ConflictException("Un compte avec cet email existe déjà.");
 
             var roleEntity = await _context.Roles.FirstOrDefaultAsync(r => r.Nom == dto.Role);
             if (roleEntity == null)
             {
-                // Optionnel: Créer le rôle s'il n'existe pas ou lever une erreur
                 roleEntity = new Role { Nom = dto.Role };
                 _context.Roles.Add(roleEntity);
             }
@@ -40,9 +40,10 @@ namespace AppEmit.API.Services
             {
                 Nom = dto.Nom,
                 Prenom = dto.Prenom,
-                Email = dto.Email,
+                Email = emailNormalise,
                 MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(dto.MotDePasse),
                 Matricule = dto.Matricule,
+                NiveauId = dto.NiveauId,
                 Roles = new List<Role> { roleEntity }
             };
 
@@ -54,60 +55,90 @@ namespace AppEmit.API.Services
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
+            var emailNormalise = dto.Email.ToLower().Trim();
             var utilisateur = await _context.Utilisateurs
                 .Include(u => u.Roles)
                     .ThenInclude(r => r.Permissions)
-                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+                .Include(u => u.Niveau)
+                .FirstOrDefaultAsync(u => u.Email == emailNormalise);
 
-            if (utilisateur == null ||
-                !BCrypt.Net.BCrypt.Verify(dto.MotDePasse, utilisateur.MotDePasseHash))
+            if (utilisateur == null) {
+                Console.WriteLine($"[LOGIN FAIL] Utilisateur non trouvé pour l'email: {dto.Email}");
                 throw new Exceptions.UnauthorizedException("Email ou mot de passe incorrect.");
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.MotDePasse, utilisateur.MotDePasseHash)) {
+                Console.WriteLine($"[LOGIN FAIL] Mot de passe incorrect pour l'email: {dto.Email}");
+                throw new Exceptions.UnauthorizedException("Email ou mot de passe incorrect.");
+            }
 
             return GenererToken(utilisateur);
         }
 
         private AuthResponseDto GenererToken(Utilisateur utilisateur)
         {
-            var cle = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-            var credentials = new SigningCredentials(
-                cle, SecurityAlgorithms.HmacSha256);
+            // Sécurité sur la configuration
+            var keyStr = _config["Jwt:Key"] ?? _config["JWT_KEY"] ?? "SecretKeyDefault_PleaseChangeInProduction_32Chars!";
+            var issuer = _config["Jwt:Issuer"] ?? _config["JWT_ISSUER"] ?? "AppEmit.API";
+            var audience = _config["Jwt:Audience"] ?? _config["JWT_AUDIENCE"] ?? "AppEmit.Frontend";
+
+            var cle = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyStr));
+            var credentials = new SigningCredentials(cle, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddHours(8);
 
+            // Sécurité sur les données utilisateur
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, utilisateur.Id.ToString()),
-                new Claim(ClaimTypes.Email, utilisateur.Email),
-                new Claim("Matricule", utilisateur.Matricule)
+                new Claim(ClaimTypes.Email, utilisateur.Email ?? "inconnu@emit.mg"),
+                new Claim("Nom", utilisateur.Nom ?? ""),
+                new Claim("Prenom", utilisateur.Prenom ?? ""),
+                new Claim("Matricule", utilisateur.Matricule ?? ""),
+                new Claim("NiveauId", utilisateur.NiveauId?.ToString() ?? "")
             };
 
-            // Add Roles
-            foreach (var role in utilisateur.Roles)
+            // Sécurité sur les rôles et permissions
+            if (utilisateur.Roles != null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.Nom));
-                
-                // Add Permissions from Role
-                foreach (var perm in role.Permissions)
+                foreach (var role in utilisateur.Roles)
                 {
-                    claims.Add(new Claim("Permission", perm.Nom));
+                    if (!string.IsNullOrEmpty(role.Nom))
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role.Nom));
+                    }
+                    
+                    if (role.Permissions != null)
+                    {
+                        foreach (var perm in role.Permissions)
+                        {
+                            if (!string.IsNullOrEmpty(perm.Nom))
+                            {
+                                claims.Add(new Claim("Permission", perm.Nom));
+                            }
+                        }
+                    }
                 }
             }
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: credentials
             );
 
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
             return new AuthResponseDto
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Nom = utilisateur.Nom,
-                Prenom = utilisateur.Prenom,
-                Email = utilisateur.Email,
-                Roles = utilisateur.Roles.Select(r => r.Nom).ToList(),
+                Token = tokenString,
+                Nom = utilisateur.Nom ?? "",
+                Prenom = utilisateur.Prenom ?? "",
+                Email = utilisateur.Email ?? "",
+                Roles = utilisateur.Roles?.Select(r => r.Nom).ToList() ?? new List<string>(),
+                Matricule = utilisateur.Matricule,
+                NiveauId = utilisateur.NiveauId,
                 Expiration = expiration
             };
         }

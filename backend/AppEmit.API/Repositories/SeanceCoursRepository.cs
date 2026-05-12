@@ -13,16 +13,18 @@ namespace AppEmit.API.Repositories
     {
         public SeanceCoursRepository(AppDbContext context) : base(context) { }
 
-        public async Task<List<SeanceCours>> GetSeancesForWeekAsync(DateTime monday, DateTime saturday, int? professeurId, int? salleId)
+        public async Task<List<SeanceCours>> GetSeancesForWeekAsync(DateTime monday, DateTime saturday, int? professeurId, int? salleId, int? niveauId)
         {
             var query = _context.SeancesCours
                 .Include(s => s.Matiere)
                 .Include(s => s.Professeur)
                 .Include(s => s.Salle)
                 .Include(s => s.Creneau)
+                .Include(s => s.Niveau)
                 .Where(s => s.DateDebutAnnee <= saturday && s.DateFinAnnee >= monday);
             if (professeurId.HasValue) query = query.Where(s => s.ProfesseurId == professeurId.Value);
             if (salleId.HasValue) query = query.Where(s => s.SalleId == salleId.Value);
+            if (niveauId.HasValue) query = query.Where(s => s.NiveauId == niveauId.Value);
             return await query.ToListAsync();
         }
 

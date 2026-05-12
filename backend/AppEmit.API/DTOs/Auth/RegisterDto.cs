@@ -9,6 +9,7 @@ namespace AppEmit.API.DTOs.Auth
         [Required][EmailAddress] public string Email { get; set; } = string.Empty;
         [Required][MinLength(6)] public string MotDePasse { get; set; } = string.Empty;
         [Required] public string Role { get; set; } = "Etudiant";
-        [Required] public string Matricule { get; set; } = string.Empty;
+        public string? Matricule { get; set; }
+        public int? NiveauId { get; set; }
     }
 }

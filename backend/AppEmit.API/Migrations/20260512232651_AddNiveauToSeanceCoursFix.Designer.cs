@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AppEmit.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260512211235_InitialRefactor2")]
-    partial class InitialRefactor2
+    [Migration("20260512232651_AddNiveauToSeanceCoursFix")]
+    partial class AddNiveauToSeanceCoursFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -447,7 +447,6 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.Property<string>("Matricule")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
@@ -615,9 +614,10 @@ namespace AppEmit.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AppEmit.API.Entities.Niveau", null)
+                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
                         .WithMany("Seances")
-                        .HasForeignKey("NiveauId");
+                        .HasForeignKey("NiveauId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("AppEmit.API.Entities.Utilisateur", "Professeur")
                         .WithMany("SeancesAnimees")
@@ -635,6 +635,8 @@ namespace AppEmit.API.Migrations
 
                     b.Navigation("Matiere");
 
+                    b.Navigation("Niveau");
+
                     b.Navigation("Professeur");
 
                     b.Navigation("Salle");
@@ -642,9 +644,12 @@ namespace AppEmit.API.Migrations
 
             modelBuilder.Entity("AppEmit.API.Entities.Utilisateur", b =>
                 {
-                    b.HasOne("AppEmit.API.Entities.Niveau", null)
+                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
                         .WithMany("Utilisateurs")
-                        .HasForeignKey("NiveauId");
+                        .HasForeignKey("NiveauId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Niveau");
                 });
 
             modelBuilder.Entity("PermissionRole", b =>

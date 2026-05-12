@@ -7,8 +7,8 @@ public class Utilisateur
     [Key]
     public int Id { get; set; }
 
-    [Required, StringLength(20)]
-    public string Matricule { get; set; } = string.Empty;
+    [StringLength(20)]
+    public string? Matricule { get; set; }
 
     [Required, StringLength(100)]
     public string Nom { get; set; } = string.Empty;
@@ -24,6 +24,9 @@ public class Utilisateur
 
     public DateTime? DateNaissance { get; set; }
     public string? Adresse { get; set; }
+
+    public int? NiveauId { get; set; }
+    public virtual Niveau? Niveau { get; set; }
 
     // Relations
     public ICollection<SeanceCours> SeancesAnimees { get; set; } = new List<SeanceCours>();

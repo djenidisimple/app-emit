@@ -13,8 +13,7 @@ namespace AppEmit.API.DTOs
         /// <summary>Filtrer par salle</summary>
         public int? SalleId { get; set; }
 
-        // Note : Les filtres Parcours/Niveau/Étudiant ne sont pas disponibles car
-        // l'entité SeanceCours n'a pas de lien direct avec ces concepts.
-        // Ils pourront être ajoutés ultérieurement via une évolution du modèle.
+        /// <summary>Filtrer par niveau d'étude</summary>
+        public int? NiveauId { get; set; }
     }
 }

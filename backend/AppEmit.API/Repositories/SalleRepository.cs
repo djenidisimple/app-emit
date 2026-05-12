@@ -8,7 +8,7 @@ namespace AppEmit.API.Repositories
 {
     public class SalleRepository : GenericRepository<Salle>, ISalleRepository
     {
-        private readonly AppDbContext _context;
+        private new readonly AppDbContext _context;
 
         public SalleRepository(AppDbContext context) : base(context)
         {
@@ -21,7 +21,7 @@ namespace AppEmit.API.Repositories
                 .AnyAsync(s => s.CodeSalle == codeSalle && (!excludeId.HasValue || s.Id != excludeId.Value));
         }
 
-        public async Task<bool> DeleteAsync(Salle entity)
+        public new async Task<bool> DeleteAsync(Salle entity)
         {
             _context.Salles.Remove(entity);
             await _context.SaveChangesAsync();
@@ -31,7 +31,7 @@ namespace AppEmit.API.Repositories
         // =========================
         // BASIC
         // =========================
-        public async Task<Salle?> GetByIdAsync(int id)
+        public new async Task<Salle?> GetByIdAsync(int id)
         {
             return await _context.Salles.FindAsync(id);
         }
