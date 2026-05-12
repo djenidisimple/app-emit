@@ -1,10 +1,8 @@
-using AppEmit.Entities;
-using AppEmit.Interfaces;
+using AppEmit.API.Interfaces;
+using AppEmit.API.DTOs.Salle;
 using Microsoft.AspNetCore.Mvc;
-using AppEmit.Mappers;
-using AppEmit.DTOs;
 
-namespace AppEmit.Controllers
+namespace AppEmit.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -17,60 +15,42 @@ namespace AppEmit.Controllers
             _salleService = salleService;
         }
 
-        // GET: api/Salles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SalleDto>>> GetSalles()
+        public async Task<ActionResult<IEnumerable<SalleResponseDto>>> GetAll()
         {
-            var salles = await _salleService.ObtenirToutesLesSallesAsync();
-            var sallesDto = salles.Select(s => s.ToSalleDto());
-            return Ok(sallesDto);
+            var salles = await _salleService.GetAllAsync();
+            return Ok(salles);
         }
 
-        // GET: api/Salles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SalleDto>> GetSalle(int id)
+        public async Task<ActionResult<SalleResponseDto>> GetById(int id)
         {
-            var salle = await _salleService.ObtenirSalleParIdAsync(id);
-            if (salle == null) return NotFound($"La salle avec l'ID {id} n'existe pas.");
-
-            return Ok(salle.ToSalleDto());
+            var salle = await _salleService.GetByIdAsync(id);
+            if (salle == null) return NotFound();
+            return Ok(salle);
         }
 
-        // POST: api/Salles
         [HttpPost]
-        public async Task<ActionResult<SalleDto>> PostSalle(SalleCreateDto salleDto)
+        public async Task<ActionResult<SalleResponseDto>> Create(SalleCreateDto dto)
         {
-            var nouvelleSalle = await _salleService.CreerSalleAsync(salleDto.ToSalleFromCreate());
-            return CreatedAtAction(nameof(GetSalle), new { id = nouvelleSalle.Id }, nouvelleSalle.ToSalleDto());
+            var created = await _salleService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        // PUT: api/Salles/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSalle(int id, SalleCreateDto salleDto)
+        public async Task<ActionResult<SalleResponseDto>> Update(int id, SalleUpdateDto dto)
         {
-            var success = await _salleService.ModifierSalleAsync(id, salleDto.ToSalleFromCreate());
-            if (!success) return NotFound();
-
-            return NoContent();
+            var updated = await _salleService.UpdateAsync(id, dto);
+            if (updated == null) return NotFound();
+            return Ok(updated);
         }
 
-        // DELETE: api/Salles/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSalle(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var success = await _salleService.SupprimerSalleAsync(id);
-            if (!success) return NotFound();
-
+            var result = await _salleService.DeleteAsync(id);
+            if (!result) return NotFound();
             return NoContent();
-        }
-
-        // GET: api/Salles/disponibles
-        [HttpGet("disponibles")]
-        public async Task<ActionResult<IEnumerable<SalleDto>>> GetSallesDisponibles()
-        {
-            var salles = await _salleService.ObtenirSallesDisponiblesAsync();
-            var sallesDto = salles.Select(s => s.ToSalleDto());
-            return Ok(sallesDto);
         }
     }
 }

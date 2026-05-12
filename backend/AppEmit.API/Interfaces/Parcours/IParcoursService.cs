@@ -1,6 +1,6 @@
-using AppEmit.DTOs.Parcours;
+using AppEmit.API.DTOs.Parcours;
 
-namespace AppEmit.Interfaces;
+namespace AppEmit.API.Interfaces;
 
 public interface IParcoursService
 {

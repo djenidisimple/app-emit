@@ -32,12 +32,22 @@ public class ExceptionMiddleware
     private async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        
+        var statusCode = (int)HttpStatusCode.InternalServerError;
+        var message = "Une erreur interne est survenue.";
+
+        if (ex is Exceptions.AppException appEx)
+        {
+            statusCode = appEx.StatusCode;
+            message = appEx.Message;
+        }
+
+        context.Response.StatusCode = statusCode;
 
         var response = new
         {
-            statusCode = context.Response.StatusCode,
-            message = _env.IsDevelopment() ? ex.Message : "Une erreur interne est survenue.",
+            statusCode = statusCode,
+            message = _env.IsDevelopment() ? ex.Message : message,
             details = _env.IsDevelopment() ? ex.StackTrace : null
         };
 

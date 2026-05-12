@@ -1,4 +1,4 @@
-namespace AppEmit.DTOs.Parcours;
+namespace AppEmit.API.DTOs.Parcours;
 
 public class ParcoursCreateDto
 {

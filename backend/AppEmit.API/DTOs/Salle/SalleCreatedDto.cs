@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.DTOs.Salle
+namespace AppEmit.API.DTOs.Salle
 {
     public class SalleCreateDto
     {

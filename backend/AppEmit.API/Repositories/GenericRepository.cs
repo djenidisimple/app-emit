@@ -1,8 +1,8 @@
-using AppEmit.Data;
-using AppEmit.Interfaces;
+using AppEmit.API.Data;
+using AppEmit.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AppEmit.Repositories
+namespace AppEmit.API.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -19,12 +19,23 @@ namespace AppEmit.Repositories
 
         public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
 
-        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+        public async Task<T> AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
 
-        public void Update(T entity) => _dbSet.Update(entity);
+        public async Task UpdateAsync(T entity)
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+        }
 
-        public void Delete(T entity) => _dbSet.Remove(entity);
-
-        public async Task<bool> SaveChangesAsync() => await _context.SaveChangesAsync() > 0;
+        public async Task DeleteAsync(T entity)
+        {
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

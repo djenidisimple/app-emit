@@ -1,5 +1,5 @@
-using AppEmit.Data;
-using AppEmit.Entities;
+using AppEmit.API.Data;
+using AppEmit.API.Entities;
 using AppEmit.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -8,14 +8,9 @@ using System.Threading.Tasks;
 
 namespace AppEmit.API.Repositories
 {
-    public class UtilisateurRepository : IUtilisateurRepository
+    public class UtilisateurRepository : GenericRepository<Utilisateur>, IUtilisateurRepository
     {
-        private readonly AppDbContext _context;
-
-        public UtilisateurRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        public UtilisateurRepository(AppDbContext context) : base(context) { }
 
         public async Task<Utilisateur?> GetProfesseurBySeanceAsync(int seanceCoursId)
         {

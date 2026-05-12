@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities
+namespace AppEmit.API.Entities
 {
     public class Matiere
     {
@@ -11,5 +11,7 @@ namespace AppEmit.Entities
         public string Code { get; set; } = string.Empty;
         [Required]
         public string Nom { get; set; } = string.Empty;
+
+        public string? Type { get; set; }
     }
 }

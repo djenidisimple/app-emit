@@ -1,20 +1,21 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AppEmit.API.Data;
+using Microsoft.EntityFrameworkCore;
 using AppEmit.API.DTOs.Auth;
 using AppEmit.API.Interfaces;
-using AppEmit.Entities;          // ← namespace de Brunel
-using Microsoft.EntityFrameworkCore;
+using AppEmit.API.Entities;          // ← namespace de Brunel
 using Microsoft.IdentityModel.Tokens;
 
 namespace AppEmit.API.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
         private readonly IConfiguration _config;
 
-        public AuthService(DbContext context, IConfiguration config)
+        public AuthService(AppDbContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
@@ -22,12 +23,18 @@ namespace AppEmit.API.Services
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
         {
-            var utilisateurs = _context.Set<Utilisateur>();
-
-            var existe = await utilisateurs
+            var existe = await _context.Utilisateurs
                 .AnyAsync(u => u.Email == dto.Email);
             if (existe)
-                throw new Exception("Un compte avec cet email existe déjà.");
+                throw new Exceptions.ConflictException("Un compte avec cet email existe déjà.");
+
+            var roleEntity = await _context.Roles.FirstOrDefaultAsync(r => r.Nom == dto.Role);
+            if (roleEntity == null)
+            {
+                // Optionnel: Créer le rôle s'il n'existe pas ou lever une erreur
+                roleEntity = new Role { Nom = dto.Role };
+                _context.Roles.Add(roleEntity);
+            }
 
             var utilisateur = new Utilisateur
             {
@@ -35,11 +42,11 @@ namespace AppEmit.API.Services
                 Prenom = dto.Prenom,
                 Email = dto.Email,
                 MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(dto.MotDePasse),
-                Role = dto.Role,
-                Matricule = dto.Matricule
+                Matricule = dto.Matricule,
+                Roles = new List<Role> { roleEntity }
             };
 
-            utilisateurs.Add(utilisateur);
+            _context.Utilisateurs.Add(utilisateur);
             await _context.SaveChangesAsync();
 
             return GenererToken(utilisateur);
@@ -47,12 +54,14 @@ namespace AppEmit.API.Services
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
-            var utilisateur = await _context.Set<Utilisateur>()
+            var utilisateur = await _context.Utilisateurs
+                .Include(u => u.Roles)
+                    .ThenInclude(r => r.Permissions)
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (utilisateur == null ||
                 !BCrypt.Net.BCrypt.Verify(dto.MotDePasse, utilisateur.MotDePasseHash))
-                throw new Exception("Email ou mot de passe incorrect.");
+                throw new Exceptions.UnauthorizedException("Email ou mot de passe incorrect.");
 
             return GenererToken(utilisateur);
         }
@@ -65,13 +74,24 @@ namespace AppEmit.API.Services
                 cle, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddHours(8);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, utilisateur.Id.ToString()),
                 new Claim(ClaimTypes.Email, utilisateur.Email),
-                new Claim(ClaimTypes.Role, utilisateur.Role),
                 new Claim("Matricule", utilisateur.Matricule)
             };
+
+            // Add Roles
+            foreach (var role in utilisateur.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.Nom));
+                
+                // Add Permissions from Role
+                foreach (var perm in role.Permissions)
+                {
+                    claims.Add(new Claim("Permission", perm.Nom));
+                }
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
@@ -87,7 +107,7 @@ namespace AppEmit.API.Services
                 Nom = utilisateur.Nom,
                 Prenom = utilisateur.Prenom,
                 Email = utilisateur.Email,
-                Role = utilisateur.Role,
+                Roles = utilisateur.Roles.Select(r => r.Nom).ToList(),
                 Expiration = expiration
             };
         }

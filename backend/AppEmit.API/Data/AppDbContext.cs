@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AppEmit.Entities;
+using AppEmit.API.Entities;
 
-namespace AppEmit.Data
+namespace AppEmit.API.Data
 {
     public class AppDbContext : DbContext
     {
@@ -19,9 +19,13 @@ namespace AppEmit.Data
         public DbSet<Matiere> Matieres { get; set; }
         public DbSet<Creneau> Creneaux { get; set; }
         public DbSet<SeanceCours> SeancesCours { get; set; }
-        public DbSet<EvenementReservation> EvenementReservations { get; set; }
+        public DbSet<Evenement> Evenements { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Paiement> Paiements { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<ExceptionPlanning> ExceptionsPlanning { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -53,19 +57,25 @@ namespace AppEmit.Data
             });
 
             // =========================
-            // RESERVATION
+            // EVENEMENT & RESERVATION
             // =========================
-            modelBuilder.Entity<EvenementReservation>()
-                .HasOne(r => r.Demandeur)
-                .WithMany(u => u.Reservations)
-                .HasForeignKey(r => r.DemandeurId)
+            modelBuilder.Entity<Evenement>()
+                .HasOne(e => e.Organisateur)
+                .WithMany(u => u.EvenementsOrganises)
+                .HasForeignKey(e => e.OrganisateurId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<EvenementReservation>(entity =>
-            {
-                entity.Property(e => e.DatePrecise)
-                    .HasColumnType("timestamp without time zone");
-            });
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Utilisateur)
+                .WithMany(u => u.Reservations)
+                .HasForeignKey(r => r.UtilisateurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Evenement)
+                .WithMany(e => e.Reservations)
+                .HasForeignKey(r => r.EvenementId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // =========================
             // EXCEPTION PLANNING

@@ -1,49 +1,65 @@
-using AppEmit.DTOs.Salle;
-using AppEmit.Entities;
-using AppEmit.Interfaces;
-using AppEmit.Mappers;
+using AutoMapper;
+using AppEmit.API.DTOs.Salle;
+using AppEmit.API.Interfaces;
+using AppEmit.API.Repositories;
+using AppEmit.API.Entities;
+using AppEmit.API.Exceptions;
+using Microsoft.Extensions.Logging;
 
-namespace AppEmit.Services;
+namespace AppEmit.API.Services;
 
 public class SalleService : ISalleService
 {
     private readonly ISalleRepository _salleRepository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<SalleService> _logger;
 
-    public SalleService(ISalleRepository salleRepository)
+    public SalleService(ISalleRepository salleRepository, IMapper mapper, ILogger<SalleService> logger)
     {
         _salleRepository = salleRepository;
+        _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<IEnumerable<SalleDto>> GetAllAsync()
+    public async Task<IEnumerable<SalleResponseDto>> GetAllAsync()
     {
         var salles = await _salleRepository.GetAllAsync();
-        return salles.Select(SalleMapper.ToDto);
+        return _mapper.Map<IEnumerable<SalleResponseDto>>(salles);
     }
 
-    public async Task<SalleDto?> GetByIdAsync(int id)
+    public async Task<SalleResponseDto?> GetByIdAsync(int id)
     {
         var salle = await _salleRepository.GetByIdAsync(id);
-        return salle == null ? null : SalleMapper.ToDto(salle);
+        if (salle == null)
+        {
+            _logger.LogWarning("Salle {Id} non trouvée.", id);
+            return null;
+        }
+        return _mapper.Map<SalleResponseDto>(salle);
     }
 
-    public async Task<SalleDto> CreateAsync(SalleCreateDto createDto)
+    public async Task<SalleResponseDto> CreateAsync(SalleCreateDto createDto)
     {
         if (await _salleRepository.ExistsByCodeAsync(createDto.CodeSalle))
-            throw new Exception("Une salle avec ce code existe déjà.");
+            throw new ConflictException("Une salle avec ce code existe déjà.");
 
-        var entity = SalleMapper.ToEntity(createDto);
+        var entity = _mapper.Map<Salle>(createDto);
         var created = await _salleRepository.AddAsync(entity);
-        return SalleMapper.ToDto(created);
+        
+        _logger.LogInformation("Salle {Code} créée.", created.CodeSalle);
+        return _mapper.Map<SalleResponseDto>(created);
     }
 
-    public async Task<SalleDto?> UpdateAsync(int id, SalleCreateDto updateDto)
+    public async Task<SalleResponseDto?> UpdateAsync(int id, SalleUpdateDto updateDto)
     {
         var existing = await _salleRepository.GetByIdAsync(id);
-        if (existing == null) return null;
+        if (existing == null) throw new NotFoundException("Salle non trouvée.");
 
-        SalleMapper.UpdateEntity(existing, updateDto);
-        var updated = await _salleRepository.UpdateAsync(existing);
-        return SalleMapper.ToDto(updated);
+        _mapper.Map(updateDto, existing);
+        var updated = await _salleRepository.UpdateSalleAsync(existing);
+        
+        _logger.LogInformation("Salle {Id} mise à jour.", id);
+        return _mapper.Map<SalleResponseDto>(updated);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -52,6 +68,7 @@ public class SalleService : ISalleService
         if (salle == null) return false;
 
         await _salleRepository.DeleteAsync(salle);
+        _logger.LogInformation("Salle {Id} supprimée.", id);
         return true;
     }
 

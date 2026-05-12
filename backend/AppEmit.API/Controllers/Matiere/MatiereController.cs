@@ -1,8 +1,8 @@
-using AppEmit.Interfaces;
-using AppEmit.DTOs.Matiere;
+using AppEmit.API.Interfaces;
+using AppEmit.API.DTOs.Matiere;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AppEmit.Controllers;
+namespace AppEmit.API.Controllers;
 
 public class MatiereController : Controller
 {

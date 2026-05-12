@@ -1,17 +1,14 @@
-using AppEmit.DTOs.Salle;
+using AppEmit.API.DTOs.Salle;
 
-namespace AppEmit.Interfaces
+namespace AppEmit.API.Interfaces
 {
     public interface ISalleService
     {
-        Task<IEnumerable<SalleResponseDto>> GetAllSallesAsync();
-        Task<SalleDetailsDto?> GetSalleByIdAsync(int id);
-        Task<SalleResponseDto> CreateSalleAsync(SalleCreateDto createDto);
-        Task<SalleResponseDto> UpdateSalleAsync(SalleUpdateDto updateDto);
-        Task<bool> DeleteSalleAsync(int id);
-        Task<IEnumerable<SalleResponseDto>> GetSallesDisponiblesAsync(DateTime date, TimeSpan heureDebut, TimeSpan heureFin);
-        Task<IEnumerable<SalleResponseDto>> GetSallesByCapaciteAsync(int capaciteMin);
-        Task<bool> ToggleSalleStatusAsync(int id);
-        Task<bool> IsCodeUniqueAsync(string codeSalle, int? excludeId = null);
+        Task<IEnumerable<SalleResponseDto>> GetAllAsync();
+        Task<SalleResponseDto?> GetByIdAsync(int id);
+        Task<SalleResponseDto> CreateAsync(SalleCreateDto dto);
+        Task<SalleResponseDto?> UpdateAsync(int id, SalleUpdateDto dto);
+        Task<bool> DeleteAsync(int id);
+        Task<bool> IsSalleDisponibleAsync(int salleId, DateTime date, TimeSpan debut, TimeSpan fin);
     }
 }

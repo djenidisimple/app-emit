@@ -2,38 +2,20 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppEmit.API.DTOs.Notification;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AppEmit.API.DTOs.Notification;
+
 namespace AppEmit.API.Interfaces
 {
     public interface INotificationService
     {
-        // ======================================================
-        // CREATE
-        // ======================================================
-        Task<NotificationReadDto> CreateNotificationAsync(NotificationCreateDto dto);
-
-        // ======================================================
-        // READ
-        // ======================================================
-        Task<IEnumerable<NotificationReadDto>> GetNotificationsUtilisateurAsync(
-            int utilisateurId,
-            int page,
-            int pageSize);
-
+        Task<NotificationReadDto> CreateAsync(NotificationCreateDto dto);
         Task<NotificationReadDto?> GetByIdAsync(int id);
-
-        // ======================================================
-        // UPDATE
-        // ======================================================
+        Task<IEnumerable<NotificationReadDto>> GetAllAsync();
+        Task<IEnumerable<NotificationReadDto>> GetByUtilisateurIdAsync(int utilisateurId, int page, int pageSize);
         Task<bool> MarquerCommeLuAsync(int id);
-
-        // ======================================================
-        // DELETE
-        // ======================================================
-        Task<bool> DeleteNotificationAsync(int id);
-
-        // ======================================================
-        // STATS
-        // ======================================================
-        Task<int> GetCountNonLuesAsync(int utilisateurId);
+        Task<bool> UpdateAsync(int id, NotificationCreateDto dto);
+        Task<bool> DeleteAsync(int id);
     }
 }

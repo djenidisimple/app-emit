@@ -1,6 +1,6 @@
+using AutoMapper;
 using AppEmit.API.DTOs.Notification;
 using AppEmit.API.Entities;
-using AutoMapper;
 
 namespace AppEmit.API.Mappings;
 

@@ -1,7 +1,7 @@
+using AutoMapper;
 using AppEmit.API.DTOs;
 using AppEmit.API.Interfaces;
-using AppEmit.API.Mappers;
-using AppEmit.Entities;
+using AppEmit.API.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +13,16 @@ namespace AppEmit.API.Services
     {
         private readonly ISeanceCoursRepository _seanceRepo;
         private readonly IExceptionPlanningRepository _exceptionRepo;
+        private readonly IMapper _mapper;
 
         public PlanningHebdoService(
             ISeanceCoursRepository seanceRepo,
-            IExceptionPlanningRepository exceptionRepo)
+            IExceptionPlanningRepository exceptionRepo,
+            IMapper mapper)
         {
             _seanceRepo = seanceRepo;
             _exceptionRepo = exceptionRepo;
+            _mapper = mapper;
         }
 
         public async Task<PlanningHebdoResponseDto> GetPlanningHebdomadaireAsync(PlanningHebdoRequestDto request)
@@ -48,7 +51,11 @@ namespace AppEmit.API.Services
                     if (statut == "Annulé")
                         continue; // ne pas ajouter cette occurrence
 
-                    var dto = PlanningMapper.ToDto(seance, occDate, statut, motif);
+                    var dto = _mapper.Map<SeancePlanningDto>(seance);
+                    dto.DateOccurrence = occDate;
+                    dto.Statut = statut;
+                    dto.MotifException = motif;
+                    
                     if (salleOverride != null)
                         dto.SalleNom = salleOverride.Libelle;
 

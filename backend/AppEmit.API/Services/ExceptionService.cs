@@ -1,6 +1,6 @@
 using AppEmit.API.DTOs;
 using AppEmit.API.Interfaces;
-using AppEmit.Entities;
+using AppEmit.API.Entities;
 using System;
 using System.Threading.Tasks;
 
@@ -30,16 +30,13 @@ namespace AppEmit.API.Services
 
         public async Task<ReponseExceptionDto> AnnulerCoursAsync(CreerExceptionDto dto)
         {
-            // Vérifier que la séance existe
             var seance = await _seanceRepo.GetSeanceByIdAsync(dto.SeanceCoursId);
             if (seance == null)
-                throw new Exception("Séance non trouvée");
+                throw new Exceptions.NotFoundException("Séance non trouvée");
 
-            // Vérifier que la date de début est dans la période de la séance
             if (dto.DateDebut < seance.DateDebutAnnee || dto.DateDebut > seance.DateFinAnnee)
-                throw new Exception("La date d'annulation est hors de la période du cours");
+                throw new Exceptions.BadRequestException("La date d'annulation est hors de la période du cours");
 
-            // Créer l'exception
             var exception = new ExceptionPlanning
             {
                 SeanceCoursId = dto.SeanceCoursId,
@@ -50,10 +47,8 @@ namespace AppEmit.API.Services
                 NouvelleSalleId = null
             };
 
-            _exceptionRepo.Add(exception); // besoin d'une méthode Add dans le repo
-            await _exceptionRepo.SaveChangesAsync();
+            await _exceptionRepo.AddAsync(exception);
 
-            // Envoyer les notifications
             await EnvoyerNotificationsPourSeance(seance, $"Cours annulé du {dto.DateDebut:dd/MM/yyyy} : {dto.Motif}");
 
             return MapToDto(exception);
@@ -63,14 +58,14 @@ namespace AppEmit.API.Services
         {
             var seance = await _seanceRepo.GetSeanceByIdAsync(dto.SeanceCoursId);
             if (seance == null)
-                throw new Exception("Séance non trouvée");
+                throw new Exceptions.NotFoundException("Séance non trouvée");
 
             if (!dto.NouvelleSalleId.HasValue)
-                throw new Exception("Nouvelle salle obligatoire pour un report");
+                throw new Exceptions.BadRequestException("Nouvelle salle obligatoire pour un report");
 
             var nouvelleSalle = await _salleRepo.GetByIdAsync(dto.NouvelleSalleId.Value);
             if (nouvelleSalle == null)
-                throw new Exception("Salle de destination inexistante");
+                throw new Exceptions.NotFoundException("Salle de destination inexistante");
 
             var exception = new ExceptionPlanning
             {
@@ -82,8 +77,7 @@ namespace AppEmit.API.Services
                 NouvelleSalleId = dto.NouvelleSalleId
             };
 
-            _exceptionRepo.Add(exception);
-            await _exceptionRepo.SaveChangesAsync();
+            await _exceptionRepo.AddAsync(exception);
 
             await EnvoyerNotificationsPourSeance(seance, $"Cours reporté en salle {nouvelleSalle.Libelle} à partir du {dto.DateDebut:dd/MM/yyyy} : {dto.Motif}");
 
@@ -94,20 +88,19 @@ namespace AppEmit.API.Services
         {
             var seance = await _seanceRepo.GetSeanceByIdAsync(dto.SeanceCoursId);
             if (seance == null)
-                throw new Exception("Séance non trouvée");
+                throw new Exceptions.NotFoundException("Séance non trouvée");
 
             var exception = new ExceptionPlanning
             {
                 SeanceCoursId = dto.SeanceCoursId,
                 DateDebut = dto.DateDebut,
-                DateFin = dto.DateFin, // peut être null (indéfini)
+                DateFin = dto.DateFin,
                 TypeException = "Indisponibilité",
                 Motif = dto.Motif,
                 NouvelleSalleId = null
             };
 
-            _exceptionRepo.Add(exception);
-            await _exceptionRepo.SaveChangesAsync();
+            await _exceptionRepo.AddAsync(exception);
 
             await EnvoyerNotificationsPourSeance(seance, $"Indisponibilité annoncée à partir du {dto.DateDebut:dd/MM/yyyy} : {dto.Motif}");
 
@@ -116,14 +109,15 @@ namespace AppEmit.API.Services
 
         private async Task EnvoyerNotificationsPourSeance(SeanceCours seance, string message)
         {
-            // Notifier le professeur
             var prof = await _utilisateurRepo.GetProfesseurBySeanceAsync(seance.Id);
             if (prof != null)
-                await _notificationService.EnvoyerNotificationAsync(prof.Id, message);
-
-            // Notifier les étudiants (TODO : à implémenter après ajout du lien Parcours/Niveau)
-            // var etudiants = await _utilisateurRepo.GetEtudiantsBySeanceAsync(seance.Id);
-            // await _notificationService.EnvoyerNotificationsBulkAsync(etudiants.Select(e => e.Id).ToList(), message);
+            {
+                await _notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
+                {
+                    UtilisateurId = prof.Id,
+                    Message = message
+                });
+            }
         }
 
         private ReponseExceptionDto MapToDto(ExceptionPlanning e)

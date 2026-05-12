@@ -5,20 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AppEmit.API.Repositories;
 
-public class NotificationRepository : INotificationRepository
+public class NotificationRepository : GenericRepository<Notification>, INotificationRepository
 {
-    private readonly AppDbContext _context;
     private readonly ILogger<NotificationRepository> _logger;
 
-    public NotificationRepository(AppDbContext context, ILogger<NotificationRepository> logger)
+    public NotificationRepository(AppDbContext context, ILogger<NotificationRepository> logger) : base(context)
     {
-        _context = context;
         _logger = logger;
     }
 
     public async Task<IEnumerable<Notification>> GetByUtilisateurIdAsync(int utilisateurId, int page, int pageSize)
     {
-        return await _context.Notifications
+        return await _dbSet
             .AsNoTracking()
             .Where(n => n.UtilisateurId == utilisateurId)
             .OrderByDescending(n => n.DateEnvoi)
@@ -27,40 +25,17 @@ public class NotificationRepository : INotificationRepository
             .ToListAsync();
     }
 
-    public async Task<Notification?> GetByIdAsync(int id)
-    {
-        return await _context.Notifications
-            .AsNoTracking()
-            .FirstOrDefaultAsync(n => n.Id == id);
-    }
-
-    public async Task<Notification> CreateAsync(Notification notification)
-    {
-        _context.Notifications.Add(notification);
-        await _context.SaveChangesAsync();
-        _logger.LogInformation("Notification créée (Id={Id}) pour UtilisateurId={UserId}", notification.Id, notification.UtilisateurId);
-        return notification;
-    }
-
     public async Task<bool> MarquerCommeLuAsync(int id)
     {
-        var rows = await _context.Notifications
+        var rows = await _dbSet
             .Where(n => n.Id == id)
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.EstLu, true));
         return rows > 0;
     }
 
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var rows = await _context.Notifications
-            .Where(n => n.Id == id)
-            .ExecuteDeleteAsync();
-        return rows > 0;
-    }
-
     public async Task<int> CountNonLuesAsync(int utilisateurId)
     {
-        return await _context.Notifications
+        return await _dbSet
             .CountAsync(n => n.UtilisateurId == utilisateurId && !n.EstLu);
     }
 }

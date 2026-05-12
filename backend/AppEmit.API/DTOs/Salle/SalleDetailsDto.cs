@@ -1,4 +1,4 @@
-namespace AppEmit.DTOs.Salle
+namespace AppEmit.API.DTOs.Salle
 {
     public class SalleDetailsDto
     {

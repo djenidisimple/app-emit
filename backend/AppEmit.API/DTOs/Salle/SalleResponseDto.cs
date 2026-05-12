@@ -1,4 +1,5 @@
-namespace AppEmit.DTOs.Salle
+using AppEmit.API.Entities;
+namespace AppEmit.API.DTOs.Salle
 {
     public class SalleResponseDto
     {

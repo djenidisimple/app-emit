@@ -1,5 +1,5 @@
-using AppEmit.Data;
-using AppEmit.Entities;
+using AppEmit.API.Data;
+using AppEmit.API.Entities;
 using AppEmit.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 
 namespace AppEmit.API.Repositories
 {
-    public class SeanceCoursRepository : ISeanceCoursRepository
+    public class SeanceCoursRepository : GenericRepository<SeanceCours>, ISeanceCoursRepository
     {
-        private readonly AppDbContext _context;
-        public SeanceCoursRepository(AppDbContext context) => _context = context;
+        public SeanceCoursRepository(AppDbContext context) : base(context) { }
 
         public async Task<List<SeanceCours>> GetSeancesForWeekAsync(DateTime monday, DateTime saturday, int? professeurId, int? salleId)
         {

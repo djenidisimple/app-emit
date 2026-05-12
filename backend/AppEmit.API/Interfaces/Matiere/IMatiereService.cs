@@ -1,6 +1,6 @@
-using AppEmit.DTOs.Matiere;
+using AppEmit.API.DTOs.Matiere;
 
-namespace AppEmit.Interfaces;
+namespace AppEmit.API.Interfaces;
 
 public interface IMatiereService
 {

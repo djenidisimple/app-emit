@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities;
+namespace AppEmit.API.Entities;
 
 public class Salle
 {
@@ -19,6 +19,8 @@ public class Salle
     public string? Equipements { get; set; }
 
     public bool EstActive { get; set; } = true;
+
+    public string? Type { get; set; }
 
     // Relations
     public ICollection<SeanceCours> Seances { get; set; } = new List<SeanceCours>();

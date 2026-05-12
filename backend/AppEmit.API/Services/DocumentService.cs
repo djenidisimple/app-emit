@@ -1,19 +1,21 @@
 using AppEmit.API.DTOs.Document;
 using AppEmit.API.Interfaces;
-using AppEmit.Entities;          // ← namespace de Brunel
+using AppEmit.API.Entities;          // ← namespace de Brunel
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
+using AppEmit.API.Data;
+
 namespace AppEmit.API.Services
 {
     public class DocumentService : IDocumentService
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
 
-        public DocumentService(DbContext context)
+        public DocumentService(AppDbContext context)
         {
             _context = context;
             QuestPDF.Settings.License = LicenseType.Community;

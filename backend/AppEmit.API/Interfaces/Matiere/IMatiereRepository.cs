@@ -1,6 +1,6 @@
-using AppEmit.Entities;
+using AppEmit.API.Entities;
 
-namespace AppEmit.Interfaces;
+namespace AppEmit.API.Interfaces;
 
 public interface IMatiereRepository : IGenericRepository<Matiere>
 {

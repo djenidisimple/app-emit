@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities;
+namespace AppEmit.API.Entities;
 
 public class Filiere
 {

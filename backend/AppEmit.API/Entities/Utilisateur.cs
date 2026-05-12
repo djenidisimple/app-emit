@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.Entities;
+namespace AppEmit.API.Entities;
 
 public class Utilisateur
 {
@@ -22,10 +22,12 @@ public class Utilisateur
     [Required]
     public string MotDePasseHash { get; set; } = string.Empty;
 
-    [Required, StringLength(20)]
-    public string Role { get; set; } = string.Empty; // Admin, Professeur, Etudiant
+    public DateTime? DateNaissance { get; set; }
+    public string? Adresse { get; set; }
 
     // Relations
     public ICollection<SeanceCours> SeancesAnimees { get; set; } = new List<SeanceCours>();
-    public ICollection<EvenementReservation> Reservations { get; set; } = new List<EvenementReservation>();
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public ICollection<Evenement> EvenementsOrganises { get; set; } = new List<Evenement>();
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }

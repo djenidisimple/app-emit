@@ -1,68 +1,66 @@
 using AppEmit.API.DTOs.Notification;
 using AppEmit.API.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AppEmit.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class NotificationController : ControllerBase
+namespace AppEmit.API.Controllers
 {
-    private readonly INotificationService _service;
-
-    public NotificationController(INotificationService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class NotificationController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly INotificationService _notificationService;
 
-    [HttpGet("utilisateur/{utilisateurId:int}")]
-    public async Task<IActionResult> GetByUtilisateur(int utilisateurId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
-    {
-        if (page < 1 || pageSize < 1 || pageSize > 100)
-            return BadRequest("Paramètres de pagination invalides.");
+        public NotificationController(INotificationService notificationService)
+        {
+            _notificationService = notificationService;
+        }
 
-        var notifications = await _service.GetNotificationsUtilisateurAsync(utilisateurId, page, pageSize);
-        return Ok(notifications);
-    }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<NotificationReadDto>>> GetAll()
+        {
+            var notifications = await _notificationService.GetAllAsync();
+            return Ok(notifications);
+        }
 
-    [HttpGet("utilisateur/{utilisateurId:int}/count-non-lues")]
-    public async Task<IActionResult> GetCountNonLues(int utilisateurId)
-    {
-        var count = await _service.GetCountNonLuesAsync(utilisateurId);
-        return Ok(new { count });
-    }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<NotificationReadDto>> GetById(int id)
+        {
+            var notification = await _notificationService.GetByIdAsync(id);
+            if (notification == null) return NotFound();
+            return Ok(notification);
+        }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var notification = await _service.GetByIdAsync(id);
-        if (notification is null)
-            return NotFound(new { message = $"Notification {id} introuvable." });
-        return Ok(notification);
-    }
+        [HttpPost]
+        public async Task<ActionResult<NotificationReadDto>> Create(NotificationCreateDto dto)
+        {
+            var created = await _notificationService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] NotificationCreateDto dto)
-    {
-        var created = await _service.CreateNotificationAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, NotificationCreateDto dto)
+        {
+            var success = await _notificationService.UpdateAsync(id, dto);
+            if (!success) return NotFound();
+            return NoContent();
+        }
 
-    [HttpPatch("{id:int}/lu")]
-    public async Task<IActionResult> MarquerLu(int id)
-    {
-        var success = await _service.MarquerCommeLuAsync(id);
-        if (!success) return NotFound(new { message = $"Notification {id} introuvable." });
-        return NoContent();
-    }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _notificationService.DeleteAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var success = await _service.DeleteNotificationAsync(id);
-        if (!success) return NotFound(new { message = $"Notification {id} introuvable." });
-        return NoContent();
+        [HttpPatch("{id}/lu")]
+        public async Task<IActionResult> MarquerCommeLu(int id)
+        {
+            var success = await _notificationService.MarquerCommeLuAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
     }
 }

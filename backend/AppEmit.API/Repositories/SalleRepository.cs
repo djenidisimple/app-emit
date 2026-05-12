@@ -1,10 +1,8 @@
-using AppEmit.Entities;
-using AppEmit.API.Interfaces;
+using AppEmit.API.Entities;
+using AppEmit.API.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AppEmit.API.DTOs.Salle;
+using AppEmit.API.Interfaces;
 
 namespace AppEmit.API.Repositories
 {
@@ -15,6 +13,19 @@ namespace AppEmit.API.Repositories
         public SalleRepository(AppDbContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<bool> ExistsByCodeAsync(string codeSalle, int? excludeId = null)
+        {
+            return await _context.Salles
+                .AnyAsync(s => s.CodeSalle == codeSalle && (!excludeId.HasValue || s.Id != excludeId.Value));
+        }
+
+        public async Task<bool> DeleteAsync(Salle entity)
+        {
+            _context.Salles.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         // =========================
@@ -53,6 +64,13 @@ namespace AppEmit.API.Repositories
             return await _context.Salles
                 .Where(s => s.Capacite >= capaciteMin)
                 .ToListAsync();
+        }
+
+        public async Task<Salle> UpdateSalleAsync(Salle entity)
+        {
+            _context.Salles.Update(entity);
+            await _context.SaveChangesAsync();
+            return entity;
         }
 
         // =========================

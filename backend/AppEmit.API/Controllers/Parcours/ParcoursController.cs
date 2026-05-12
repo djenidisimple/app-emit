@@ -1,8 +1,8 @@
-using AppEmit.Interfaces;
-using AppEmit.DTOs.Parcours;
+using AppEmit.API.Interfaces;
+using AppEmit.API.DTOs.Parcours;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AppEmit.Controllers;
+namespace AppEmit.API.Controllers;
 
 public class ParcoursController : Controller
 {

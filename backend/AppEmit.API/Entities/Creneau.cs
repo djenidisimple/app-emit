@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities
+namespace AppEmit.API.Entities
 {
     public class Creneau
     {
@@ -13,5 +13,7 @@ namespace AppEmit.Entities
         public TimeSpan HeureDebut { get; set; }
         [Required]
         public TimeSpan HeureFin { get; set; }
+
+        public DateTime? Date { get; set; }
     }
 }

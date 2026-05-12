@@ -1,4 +1,4 @@
-namespace AppEmit.DTOs.Matiere;
+namespace AppEmit.API.DTOs.Matiere;
 
 public class MatiereDto
 {

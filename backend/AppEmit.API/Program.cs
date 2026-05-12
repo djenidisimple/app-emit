@@ -7,12 +7,12 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 
 // Data
-using AppEmit.Data;
+using AppEmit.API.Data;
 
 // Core App
-using AppEmit.Entities;
-using AppEmit.Interfaces;
-using AppEmit.Repositories;
+using AppEmit.API.Entities;
+using AppEmit.API.Interfaces;
+using AppEmit.API.Repositories;
 
 // API Layer
 using AppEmit.API.Hubs;
@@ -23,15 +23,24 @@ using AppEmit.API.Repositories;
 using AppEmit.API.Services;
 using AppEmit.API.Validators;
 
+// Load environment variables from .env file
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ======================================================
 // DATABASE
 // ======================================================
+var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
+                       $"Port={Environment.GetEnvironmentVariable("DB_PORT")};" +
+                       $"Database={Environment.GetEnvironmentVariable("DATABASENAME")};" +
+                       $"Username={Environment.GetEnvironmentVariable("DB_USER")};" +
+                       $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")}";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MigrationsAssembly("AppEmit.API")
+        connectionString,
+        npgsql => npgsql.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
     )
 );
 
@@ -45,10 +54,12 @@ builder.Services.AddSwaggerGen();
 // ======================================================
 // CORS
 // ======================================================
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJs", policy =>
-        policy.WithOrigins("http://localhost:3000", "https://emit.univ.mg")
+        policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
@@ -73,7 +84,14 @@ builder.Services.AddValidatorsFromAssemblyContaining<NotificationCreateDtoValida
 // ======================================================
 // AUTH JWT
 // ======================================================
-var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new InvalidOperationException("La clé secrète JWT (JWT_KEY) est absente du fichier .env ou des variables d'environnement.");
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
@@ -85,8 +103,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtKey)
         )
@@ -96,31 +114,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // ======================================================
-// DEPENDENCY INJECTION
+// REPOSITORIES & SERVICES
 // ======================================================
-
-// Generic
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-// Salle
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 builder.Services.AddScoped<ISalleRepository, SalleRepository>();
-builder.Services.AddScoped<ISalleService, SalleService>();
-
-// Auth / Documents
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IDocumentService, DocumentService>();
-
-// Notifications
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-
-// Planning / Exceptions (feature #38 & #39)
+builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
+builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
 builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
 builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
-builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISalleService, SalleService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMatiereService, MatiereService>();
+builder.Services.AddScoped<IParcoursService, ParcoursService>();
 builder.Services.AddScoped<IExceptionService, ExceptionService>();
-builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
+builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // ======================================================
 // BUILD APP

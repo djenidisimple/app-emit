@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppEmit.Entities;
+namespace AppEmit.API.Entities;
 
 public class SeanceCours
 {
