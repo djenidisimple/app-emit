@@ -9,12 +9,7 @@ using FluentValidation.AspNetCore;
 // Data
 using AppEmit.API.Data;
 
-// Core App
 using AppEmit.API.Entities;
-using AppEmit.API.Interfaces;
-using AppEmit.API.Repositories;
-
-// API Layer
 using AppEmit.API.Hubs;
 using AppEmit.API.Interfaces;
 using AppEmit.API.Mappings;
@@ -77,7 +72,10 @@ builder.Services.AddSignalR();
 // ======================================================
 // AUTOMAPPER
 // ======================================================
-builder.Services.AddAutoMapper(typeof(NotificationMappingProfile).Assembly);
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddMaps(typeof(NotificationMappingProfile).Assembly);
+});
 
 // ======================================================
 // FLUENT VALIDATION

@@ -2,10 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppEmit.API.DTOs.Notification;
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AppEmit.API.DTOs.Notification;
-
 namespace AppEmit.API.Interfaces
 {
     public interface INotificationService
