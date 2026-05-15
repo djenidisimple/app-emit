@@ -1,21 +1,33 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Filter } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar'; // Update: Dashboard uses its own sidebar
+import Navbar from '@/components/layout/Navbar';
 import SalleCard from '@/components/SalleCard';
 import { Salle } from '@/types';
 import Button from '@/components/ui/Button';
-
-const MOCK_SALLES: Salle[] = [
-  { id: 1, libelle: 'Salle 101', codeSalle: 'S101', capacite: 40, type: 'Amphi', estDisponible: true },
-  { id: 2, libelle: 'Salle 102', codeSalle: 'S102', capacite: 30, type: 'TD', estDisponible: false },
-  { id: 3, libelle: 'Labo Info 1', codeSalle: 'L01', capacite: 20, type: 'TP', estDisponible: true },
-  { id: 4, libelle: 'Salle 201', codeSalle: 'S201', capacite: 45, type: 'TD', estDisponible: true },
-];
+import api from '@/services/api';
 
 export default function AdminSallesPage() {
+  const [salles, setSalles] = useState<Salle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSalles();
+  }, []);
+
+  const fetchSalles = async () => {
+    try {
+      const response = await api.get<Salle[]>('/Salles');
+      setSalles(response.data);
+    } catch (err) {
+      console.error('Erreur lors du chargement des salles:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-emit-bg p-8">
       <header className="flex justify-between items-center mb-10">
@@ -38,18 +50,24 @@ export default function AdminSallesPage() {
         <Button variant="glass" icon={Filter}>Filtres avancés</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {MOCK_SALLES.map((salle, index) => (
-          <motion.div 
-            key={salle.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <SalleCard salle={salle} />
-          </motion.div>
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {salles.map((salle, index) => (
+            <motion.div 
+              key={salle.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <SalleCard salle={salle} />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

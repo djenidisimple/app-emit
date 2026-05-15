@@ -1,17 +1,19 @@
 import { create } from 'zustand';
 import api from '@/services/api';
-import { User, LoginDto, RegisterDto, AuthResponse } from '@/types';
+import { AuthResponse } from '@/types';
 import Cookies from 'js-cookie';
 
+type UserInfo = Pick<AuthResponse, 'nom' | 'prenom' | 'email' | 'roles' | 'matricule' | 'niveauId'> & { id?: number };
+
 interface AuthState {
-  user: Partial<User> | null;
+  user: UserInfo | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
   login: (email: string, motDePasse: string) => Promise<boolean>;
-  register: (data: RegisterDto) => Promise<boolean>;
+  register: (data: { nom: string; prenom: string; email: string; motDePasse: string; role?: string; matricule?: string; niveauId?: number }) => Promise<boolean>;
   logout: () => void;
-  setUser: (user: Partial<User>) => void;
+  setUser: (user: UserInfo) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -26,7 +28,7 @@ const useAuthStore = create<AuthState>((set) => ({
       const response = await api.post<AuthResponse>('/Auth/login', { email, motDePasse });
       const { token, ...userData } = response.data;
       
-      Cookies.set('app-emit-token', token, { expires: 1 }); // 1 jour
+      Cookies.set('app-emit-token', token, { expires: 1 });
       set({ user: userData, token, isLoading: false });
       return true;
     } catch (err: any) {
@@ -45,7 +47,7 @@ const useAuthStore = create<AuthState>((set) => ({
       set({ user: userData, token, isLoading: false });
       return true;
     } catch (err: any) {
-      set({ error: err.response?.data?.message || 'Erreur lors de l\'inscription', isLoading: false });
+      set({ error: err.response?.data?.message || "Erreur lors de l'inscription", isLoading: false });
       return false;
     }
   },

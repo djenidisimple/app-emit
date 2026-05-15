@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Filter, Download, Plus } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar';
 import Button from '@/components/ui/Button';
 import api from '@/services/api';
-import { SeancePlanningDto } from '@/types';
+import { SeancePlanningDto, PlanningHebdoResponse } from '@/types';
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 7); // 7h to 19h
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
@@ -30,7 +30,7 @@ export default function PlanningPage() {
       startOfWeek.setDate(diff);
       startOfWeek.setHours(0, 0, 0, 0);
 
-      const response = await api.get('/Planning/hebdo', { 
+      const response = await api.get<PlanningHebdoResponse>('/Planning/hebdo', { 
         params: { StartDate: startOfWeek.toISOString() } 
       });
       
@@ -115,7 +115,7 @@ export default function PlanningPage() {
                           key={seance.id}
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className={`seance-item glass ${seance.statut === 'Annulée' ? 'seance-red' : 'seance-blue'}`}
+                          className={`seance-item glass ${seance.statut === 'Annule' ? 'seance-red' : 'seance-blue'}`}
                           style={pos}
                         >
                           <div className="seance-content">

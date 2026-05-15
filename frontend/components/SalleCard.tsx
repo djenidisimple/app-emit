@@ -11,15 +11,17 @@ interface SalleCardProps {
 }
 
 const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
+  const estDisponible = salle.estActive;
+
   return (
     <div className="card-emit p-5 flex flex-col justify-between h-full group bg-white border border-emit-border rounded-md shadow-sm">
       <div className="flex justify-between items-start mb-4">
-        <div className={`p-2.5 rounded-md ${salle.estDisponible ? 'bg-emit-blue/10 text-emit-blue' : 'bg-red-50 text-red-600'}`}>
+        <div className={`p-2.5 rounded-md ${estDisponible ? 'bg-emit-blue/10 text-emit-blue' : 'bg-red-50 text-red-600'}`}>
           <MapPin size={22} />
         </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${salle.estDisponible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${salle.estDisponible ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          {salle.estDisponible ? 'Disponible' : 'Occupée'}
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${estDisponible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${estDisponible ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          {estDisponible ? 'Disponible' : 'Occupée'}
         </div>
       </div>
 
@@ -45,12 +47,12 @@ const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
       </div>
 
       <Button 
-        variant={salle.estDisponible ? 'orange' : 'glass'} 
-        disabled={!salle.estDisponible}
+        variant={estDisponible ? 'orange' : 'glass'} 
+        disabled={!estDisponible}
         onClick={() => onReserve?.(salle.id)}
         className="w-full"
       >
-        {salle.estDisponible ? 'Réserver la salle' : 'Bientôt disponible'}
+        {estDisponible ? 'Réserver la salle' : 'Bientôt disponible'}
       </Button>
     </div>
   );

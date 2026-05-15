@@ -3,8 +3,8 @@ export interface Utilisateur {
   nom: string;
   prenom: string;
   email: string;
-  matricule: string;
-  role: 'Admin' | 'Professeur' | 'Etudiant';
+  matricule?: string;
+  roles?: string[];
   niveauId?: number;
 }
 
@@ -13,15 +13,18 @@ export interface Salle {
   codeSalle: string;
   libelle: string;
   capacite: number;
+  equipements?: string;
+  estActive: boolean;
   type: string;
-  estDisponible: boolean;
+  nombreSeances: number;
+  statut: string;
 }
 
 export interface Matiere {
   id: number;
   code: string;
   nom: string;
-  type: string;
+  type?: string;
 }
 
 export interface Creneau {
@@ -31,18 +34,24 @@ export interface Creneau {
   heureFin: string;
 }
 
-export interface SeanceCours {
+export interface SeancePlanningDto {
   id: number;
-  matiereId: number;
-  matiere: Matiere;
-  professeurId: number;
-  professeur: Utilisateur;
-  salleId: number;
-  salle: Salle;
-  creneauId: number;
-  creneau: Creneau;
-  couleurAffichage?: string;
-  statut: 'Confirmé' | 'Annulé' | 'Reporté';
+  matiereNom: string;
+  matiereCode: string;
+  professeurNomComplet: string;
+  salleNom: string;
+  jour: string;
+  heureDebut: string;
+  heureFin: string;
+  dateOccurrence: string;
+  statut: string;
+  motifException?: string;
+}
+
+export interface PlanningHebdoResponse {
+  lundi: string;
+  samedi: string;
+  seances: SeancePlanningDto[];
 }
 
 export interface ExceptionPlanning {
@@ -50,8 +59,8 @@ export interface ExceptionPlanning {
   seanceCoursId: number;
   dateDebut: string;
   dateFin?: string;
-  typeException: 'Annulation' | 'Report' | 'Indisponibilité';
-  motif: string;
+  typeException: string;
+  motif?: string;
   nouvelleSalleId?: number;
 }
 
@@ -61,6 +70,17 @@ export interface Notification {
   message: string;
   dateEnvoi: string;
   estLu: boolean;
+}
+
+export interface AuthResponse {
+  token: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  roles: string[];
+  matricule?: string;
+  niveauId?: number;
+  expiration: string;
 }
 
 export interface EvenementReservation {

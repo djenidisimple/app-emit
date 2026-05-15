@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertCircle, CheckCircle } from 'lucide-react';
-import { SeanceCours, ExceptionPlanning, Salle } from '@/types';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import { SeancePlanningDto, ExceptionPlanning, Salle } from '@/types';
 import Button from './ui/Button';
+import api from '@/services/api';
 
 interface ExceptionModalProps {
-  seance: SeanceCours | null;
+  seance: SeancePlanningDto | null;
   isOpen: boolean;
   onClose: () => void;
   salles: Salle[];
@@ -26,15 +27,42 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulation API
-    console.log('Envoi Exception Planning:', { ...formData, seanceCoursId: seance.id });
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(`Annonce envoyée à 45 étudiants et ${seance.professeur.nom}.`);
+
+    try {
+      const typeException = formData.typeException === 'Indisponibilité' ? 'Indisponibilite' : formData.typeException;
+
+      if (typeException === 'Annulation') {
+        await api.post('/Exception/annuler', {
+          seanceCoursId: seance.id,
+          dateDebut: formData.dateDebut,
+          typeException: 'Annulation',
+          motif: formData.motif,
+        });
+      } else if (typeException === 'Report') {
+        await api.post('/Exception/reporter', {
+          seanceCoursId: seance.id,
+          dateDebut: formData.dateDebut,
+          dateFin: formData.dateFin || null,
+          typeException: 'Report',
+          motif: formData.motif,
+          nouvelleSalleId: formData.nouvelleSalleId,
+        });
+      } else {
+        await api.post('/Exception/indisponible', {
+          seanceCoursId: seance.id,
+          dateDebut: formData.dateDebut,
+          dateFin: formData.dateFin || null,
+          typeException: 'Indisponibilite',
+          motif: formData.motif,
+        });
+      }
+
       onClose();
-    }, 1500);
+    } catch (err) {
+      console.error('Erreur lors de la création de l\'exception:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,7 +75,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
         <div className="bg-white p-5 border-b border-emit-border flex justify-between items-center">
           <div>
             <h2 className="text-lg font-poppins font-bold text-emit-blue">Gérer une Exception</h2>
-            <p className="text-xs text-emit-text/60">{seance.matiere.nom} - {seance.creneau.jour} {seance.creneau.heureDebut}</p>
+            <p className="text-xs text-emit-text/60">{seance.matiereNom} - {seance.jour} {seance.heureDebut}</p>
           </div>
           <button onClick={onClose} className="p-2 text-emit-text/40 hover:text-emit-blue transition-colors">
             <X size={20} />

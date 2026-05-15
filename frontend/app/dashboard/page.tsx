@@ -6,16 +6,16 @@ import { Plus, LayoutGrid, Calendar as CalendarIcon, Settings, LogOut, Search } 
 import CalendarWeek from '@/components/CalendarWeek';
 import ExceptionModal from '@/components/ExceptionModal';
 import NotificationBell from '@/components/NotificationBell';
-import { SeanceCours, Notification, Salle } from '@/types';
+import { SeancePlanningDto, Notification, Salle, PlanningHebdoResponse } from '@/types';
 import Button from '@/components/ui/Button';
 import useAuthStore from '@/store/authStore';
 import api from '@/services/api';
 
 export default function DashboardPage() {
-  const [seances, setSeances] = useState<SeanceCours[]>([]);
+  const [seances, setSeances] = useState<SeancePlanningDto[]>([]);
   const [salles, setSalles] = useState<Salle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedSeance, setSelectedSeance] = useState<SeanceCours | null>(null);
+  const [selectedSeance, setSelectedSeance] = useState<SeancePlanningDto | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { user, logout } = useAuthStore();
@@ -26,15 +26,12 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        // Fetch Salles
         const sallesRes = await api.get<Salle[]>('/Salles');
         setSalles(sallesRes.data);
 
-        // Fetch Planning Hebdo
         const today = new Date().toISOString().split('T')[0];
         let url = `/Planning/hebdo?startDate=${today}`;
 
-        // Apply role-based filtering
         if (user) {
           const role = user.roles?.[0];
           if (role === 'Etudiant' && user.niveauId) {
@@ -44,7 +41,7 @@ export default function DashboardPage() {
           }
         }
 
-        const planningRes = await api.get(url);
+        const planningRes = await api.get<PlanningHebdoResponse>(url);
         if (planningRes.data && planningRes.data.seances) {
           setSeances(planningRes.data.seances);
         }
@@ -61,7 +58,7 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  const handleSeanceClick = (seance: SeanceCours) => {
+  const handleSeanceClick = (seance: SeancePlanningDto) => {
     setSelectedSeance(seance);
     setIsModalOpen(true);
   };
@@ -133,7 +130,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, x: 0 }}
             >
               <h2 className="text-3xl font-poppins font-bold text-emit-blue">Tableau de bord</h2>
-              <p className="text-emit-text/60 mt-1">Gestion du planning hebdomadaire - Semaine du 12 Mai 2026</p>
+              <p className="text-emit-text/60 mt-1">Gestion du planning hebdomadaire</p>
             </motion.div>
 
             <div className="flex gap-3">

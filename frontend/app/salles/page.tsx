@@ -5,11 +5,12 @@ import { motion } from 'framer-motion';
 import { Search, MapPin, Users, CheckCircle2, XCircle } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Button from '@/components/ui/Button';
+import { Salle } from '@/types';
 import api from '@/services/api';
 
 export default function SallesPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [salles, setSalles] = useState<any[]>([]);
+  const [salles, setSalles] = useState<Salle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export default function SallesPage() {
 
   const fetchSalles = async () => {
     try {
-      const response = await api.get('/Salles');
+      const response = await api.get<Salle[]>('/Salles');
       setSalles(response.data);
     } catch (err) {
       console.error('Erreur lors du chargement des salles:', err);
@@ -28,7 +29,7 @@ export default function SallesPage() {
   };
 
   const filteredSalles = salles.filter(s => 
-    s.nom.toLowerCase().includes(searchTerm.toLowerCase())
+    s.libelle.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -64,10 +65,10 @@ export default function SallesPage() {
                 className="salle-card glass"
               >
                 <div className="salle-status">
-                  {salle.estDisponible ? (
-                    <span className="badge-success"><CheckCircle2 size={14} /> Disponible</span>
+                  {salle.estActive ? (
+                    <span className="badge-success"><CheckCircle2 size={14} /> {salle.statut}</span>
                   ) : (
-                    <span className="badge-danger"><XCircle size={14} /> Occupée</span>
+                    <span className="badge-danger"><XCircle size={14} /> {salle.statut}</span>
                   )}
                 </div>
 
@@ -75,7 +76,7 @@ export default function SallesPage() {
                   <MapPin size={32} />
                 </div>
 
-                <h2 className="salle-name">{salle.nom}</h2>
+                <h2 className="salle-name">{salle.libelle}</h2>
                 
                 <div className="salle-details">
                   <div className="detail-item">
@@ -91,8 +92,8 @@ export default function SallesPage() {
                 <div className="salle-actions">
                   <Button 
                     className="w-full" 
-                    variant={salle.estDisponible ? 'orange' : 'glass'} 
-                    disabled={!salle.estDisponible}
+                    variant={salle.estActive ? 'orange' : 'glass'} 
+                    disabled={!salle.estActive}
                   >
                     Réserver
                   </Button>
