@@ -18,14 +18,6 @@ Le backend est structuré pour séparer les responsabilités, facilitant le trav
 *   **DTOs/** : Objets de transfert pour la sécurité des données.
 *   **Mappers/** : Conversion entre Entities et DTOs.
 
-### 🤝 Répartition de l'Équipe
-| Membre | Couche assignée | Responsabilités |
-| :--- | :--- | :--- |
-| **Brunel** | `Entities` & `Repositories` | Modélisation BDD et accès aux données. |
-| **Romuald** | `Services` | Algorithme d'anti-collision et exceptions. |
-| **Samson** | `Controllers` & `DTOs` | Endpoints API et validation des entrées. |
-| **Djenidi** | `Infrastructure` & `Data` | Sécurité JWT, SignalR et coordination. |
-
 ---
 
 ## 🛡️ Protocole Git & Workflow (Obligatoire)
