@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import { SeancePlanningDto, ExceptionPlanning, Salle } from '@/types';
 import Button from './ui/Button';
 import api from '@/services/api';
+import useAuthStore from '@/store/authStore';
 
 interface ExceptionModalProps {
   seance: SeancePlanningDto | null;
@@ -15,14 +16,28 @@ interface ExceptionModalProps {
 }
 
 const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose, salles }) => {
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState<Partial<ExceptionPlanning>>({
     typeException: 'Annulation',
     motif: '',
     dateDebut: new Date().toISOString().split('T')[0],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   if (!isOpen || !seance) return null;
+
+  const handleTerminer = async () => {
+    setIsFinishing(true);
+    try {
+      await api.patch(`/SeanceCours/${seance.id}/terminer`);
+      onClose();
+    } catch (err) {
+      console.error('Erreur lors de la terminaison:', err);
+    } finally {
+      setIsFinishing(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +74,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
 
       onClose();
     } catch (err) {
-      console.error('Erreur lors de la création de l\'exception:', err);
+      console.error("Erreur lors de la création de l'exception:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -81,6 +96,20 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
             <X size={20} />
           </button>
         </div>
+
+        {user?.roles?.includes('Professeur') && (
+          <div className="px-6 pt-4">
+            <Button
+              variant="glass"
+              icon={CheckCircle}
+              isLoading={isFinishing}
+              onClick={handleTerminer}
+              className="w-full"
+            >
+              Marquer comme terminée
+            </Button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1">

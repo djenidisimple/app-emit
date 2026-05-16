@@ -37,6 +37,8 @@ public class SeanceCours
     
     public bool EstTerminee { get; set; } = false;
 
+    public string? CouleurAffichage { get; set; }
+
     // Lien vers les annulations/reports
     public ICollection<ExceptionPlanning> Exceptions { get; set; } = new List<ExceptionPlanning>();
 }

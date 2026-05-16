@@ -126,8 +126,14 @@ builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
 builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
 builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
 builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<ISeanceCoursService, SeanceCoursService>();
+builder.Services.AddScoped<IUtilisateurService, UtilisateurService>();
+builder.Services.AddScoped<INiveauService, NiveauService>();
+builder.Services.AddScoped<IFiliereService, FiliereService>();
 builder.Services.AddScoped<ISalleService, SalleService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMatiereService, MatiereService>();

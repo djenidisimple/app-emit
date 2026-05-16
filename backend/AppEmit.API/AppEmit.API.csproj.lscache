@@ -59,11 +59,18 @@ Controllers/
  AuthController.cs
  DocumentController.cs
  ExceptionController.cs
+ FiliereController.cs
  Matiere/MatiereController.cs
+ MatieresController.cs
+ NiveauController.cs
  NotificationController.cs
  Parcours/ParcoursController.cs
+ ParcoursApiController.cs
  PlanningController.cs
+ ReservationController.cs
  SallesController.cs
+ SeanceCoursController.cs
+ UtilisateurController.cs
 Data/AppDbContext.cs
 DTOs/Auth/
  AuthResponseDto.cs
@@ -71,9 +78,11 @@ DTOs/Auth/
  RegisterDto.cs
 DTOs/
  Document/ExportRequestDto.cs
+ Filiere/FiliereDto.cs
  Matiere/
   MatiereCreateDto.cs
   MatiereDto.cs
+ Niveau/NiveauDto.cs
  Notification/
   NotificationCreateDto.cs
   NotificationReadDto.cs
@@ -89,6 +98,7 @@ DTOs/
  Reservation/
   ReservationCreateDto.cs
   ReservationReadDto.cs
+  ReservationUpdateStatusDto.cs
  Salle/
   SalleCreatedDto.cs
   SalleDetailsDto.cs
@@ -98,6 +108,7 @@ DTOs/
   SeanceCoursCreateDto.cs
   SeanceCoursReadDto.cs
   SeanceCoursUpdateDto.cs
+ Utilisateur/UtilisateurDto.cs
 Entities/
  Creneau.cs
  Evenement.cs
@@ -121,14 +132,20 @@ Interfaces/
  IDocumentService.cs
  IExceptionPlanningRepository.cs
  IExceptionService.cs
+ IFiliereService.cs
  IGenericRepository.cs
+ INiveauService.cs
  INotificationRepository.cs
  INotificationService.cs
  IPlanningHebdoService.cs
+ IReservationRepository.cs
+ IReservationService.cs
  ISalleRepository.cs
  ISalleService.cs
  ISeanceCoursRepository.cs
+ ISeanceCoursService.cs
  IUtilisateurRepository.cs
+ IUtilisateurService.cs
  Matiere/
   IMatiereRepository.cs
   IMatiereService.cs
@@ -136,10 +153,12 @@ Interfaces/
   IParcoursRepository.cs
   IParcoursService.cs
 Mappings/
+ AdminMappingProfile.cs
  MatiereMappingProfile.cs
  NotificationMappingProfile.cs
  ParcoursMappingProfile.cs
  PlanningMappingProfile.cs
+ ReservationMappingProfile.cs
  SalleMappingProfile.cs
 Middleware/ExceptionMiddleware.cs
 Migrations/
@@ -159,6 +178,7 @@ Repositories/
  Matiere/MatiereRepository.cs
  NotificationRepository.cs
  Parcours/ParcoursRepository.cs
+ ReservationRepository.cs
  SalleRepository.cs
  SeanceCoursRepository.cs
  UtilisateurRepository.cs
@@ -166,11 +186,16 @@ Services/
  AuthService.cs
  DocumentService.cs
  ExceptionService.cs
+ FiliereService.cs
  Matiere/MatiereService.cs
+ NiveauService.cs
  NotificationService.cs
  Parcours/ParcoursService.cs
  PlanningHebdoService.cs
+ ReservationService.cs
  SalleService.cs
+ SeanceCoursService.cs
+ UtilisateurService.cs
 Validators/NotificationCreateDtoValidator.cs
 
 [metadataReferences]

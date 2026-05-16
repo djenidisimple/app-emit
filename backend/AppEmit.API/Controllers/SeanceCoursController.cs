@@ -1,0 +1,42 @@
+using AppEmit.API.DTOs.SeanceCours;
+using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AppEmit.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SeanceCoursController : ControllerBase
+    {
+        private readonly ISeanceCoursService _seanceCoursService;
+
+        public SeanceCoursController(ISeanceCoursService seanceCoursService)
+        {
+            _seanceCoursService = seanceCoursService;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<SeanceCoursReadDto>> GetById(int id)
+        {
+            var seance = await _seanceCoursService.GetByIdAsync(id);
+            if (seance == null) return NotFound();
+            return Ok(seance);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<SeanceCoursReadDto>> Update(int id, SeanceCoursUpdateDto dto)
+        {
+            var updated = await _seanceCoursService.UpdateAsync(id, dto);
+            if (updated == null) return NotFound();
+            return Ok(updated);
+        }
+
+        [HttpPatch("{id}/terminer")]
+        public async Task<IActionResult> MarquerTerminee(int id)
+        {
+            var result = await _seanceCoursService.MarquerTermineeAsync(id);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+    }
+}

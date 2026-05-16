@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, MapPin, Users, CheckCircle2, XCircle } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Button from '@/components/ui/Button';
+import ReservationModal from '@/components/ReservationModal';
 import { Salle } from '@/types';
 import api from '@/services/api';
 
@@ -12,6 +13,8 @@ export default function SallesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [salles, setSalles] = useState<Salle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSalle, setSelectedSalle] = useState<Salle | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSalles();
@@ -94,6 +97,7 @@ export default function SallesPage() {
                     className="w-full" 
                     variant={salle.estActive ? 'orange' : 'glass'} 
                     disabled={!salle.estActive}
+                    onClick={() => { setSelectedSalle(salle); setIsModalOpen(true); }}
                   >
                     Réserver
                   </Button>
@@ -103,6 +107,12 @@ export default function SallesPage() {
           </div>
         )}
       </main>
+
+      <ReservationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        salle={selectedSalle}
+      />
 
       <style jsx>{`
         .salles-wrapper {

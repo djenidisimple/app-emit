@@ -90,3 +90,52 @@ export interface EvenementReservation {
   datePrecise: string;
   salleId: number;
 }
+
+export interface ReservationReadDto {
+  id: number;
+  titre: string;
+  type: string;
+  datePrecise: string;
+  statut: string;
+  demandeurId: number;
+  demandeurNom: string;
+  salleId: number;
+  salleLibelle: string;
+}
+
+export interface ReservationCreateDto {
+  titre: string;
+  type: string;
+  datePrecise: string;
+  salleId: number;
+}
+
+export interface UtilisateurDto {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  matricule?: string;
+  role?: string;
+  niveauId?: number;
+  niveauCode?: string;
+}
+
+export interface NiveauDto {
+  id: number;
+  code: string;
+  parcoursId: number;
+  parcoursNom?: string;
+}
+
+export interface FiliereDto {
+  id: number;
+  nom: string;
+}
+
+export interface MatiereDto {
+  id: number;
+  code: string;
+  nom: string;
+  type?: string;
+}
