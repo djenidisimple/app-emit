@@ -19,15 +19,23 @@ namespace AppEmit.API.Controllers
         public async Task<ActionResult<SeanceCoursReadDto>> GetById(int id)
         {
             var seance = await _seanceCoursService.GetByIdAsync(id);
-            if (seance == null) return NotFound();
+
+            if (seance == null)
+                return NotFound();
+
             return Ok(seance);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SeanceCoursReadDto>> Update(int id, SeanceCoursUpdateDto dto)
+        public async Task<ActionResult<SeanceCoursReadDto>> Update(
+            int id,
+            [FromBody] SeanceCoursUpdateDto dto)
         {
             var updated = await _seanceCoursService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
+
+            if (updated == null)
+                return NotFound();
+
             return Ok(updated);
         }
 
@@ -35,8 +43,28 @@ namespace AppEmit.API.Controllers
         public async Task<IActionResult> MarquerTerminee(int id)
         {
             var result = await _seanceCoursService.MarquerTermineeAsync(id);
-            if (!result) return NotFound();
+
+            if (!result)
+                return NotFound();
+
             return NoContent();
+        }
+
+        // POST /api/SeanceCours
+        [HttpPost]
+        public async Task<ActionResult<SeanceCoursReadDto>> Create(
+            [FromBody] SeanceCoursCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _seanceCoursService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.Id },
+                created
+            );
         }
     }
 }

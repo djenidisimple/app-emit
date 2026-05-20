@@ -7,5 +7,8 @@ namespace AppEmit.API.Interfaces
         Task<SeanceCoursReadDto?> GetByIdAsync(int id);
         Task<SeanceCoursReadDto?> UpdateAsync(int id, SeanceCoursUpdateDto dto);
         Task<bool> MarquerTermineeAsync(int id);
+
+        // ← AJOUTÉ pour H1
+        Task<SeanceCoursReadDto> CreateAsync(SeanceCoursCreateDto dto);
     }
 }
