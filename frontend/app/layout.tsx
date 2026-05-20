@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import { Menu, X } from 'lucide-react'; // Optionnel pour menu mobile
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard' },
@@ -33,6 +35,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center">
               <span className="text-xl font-bold text-gray-800">G-Salles Admin</span>
             </div>
+
+            {/* Desktop menu */}
             <div className="hidden md:flex space-x-4 items-center">
               {navItems.map((item) => (
                 <Link
@@ -48,8 +52,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </Link>
               ))}
             </div>
-            {/* Menu mobile (burger) - optionnel, non détaillé ici */}
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-gray-700 hover:text-gray-900"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile menu panel */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-2 border-t">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === item.href
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
 
