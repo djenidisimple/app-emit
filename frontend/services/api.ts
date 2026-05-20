@@ -1,14 +1,18 @@
+// services/api.ts
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+const axiosInstance = axios.create({
+  baseURL: API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+// Intercepteur pour ajouter le token
+axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = Cookies.get('app-emit-token');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -16,7 +20,8 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-api.interceptors.response.use(
+// Intercepteur pour gérer le 401
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
@@ -29,4 +34,16 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+// Wrapper pour correspondre à l'interface { get, post, put, delete }
+export const api = {
+  get: <T>(endpoint: string): Promise<T> =>
+    axiosInstance.get(endpoint).then((res) => res.data),
+  post: <T>(endpoint: string, data: any): Promise<T> =>
+    axiosInstance.post(endpoint, data).then((res) => res.data),
+  put: <T>(endpoint: string, data: any): Promise<T> =>
+    axiosInstance.put(endpoint, data).then((res) => res.data),
+  delete: <T>(endpoint: string): Promise<T> =>
+    axiosInstance.delete(endpoint).then((res) => res.data),
+};
+
+export default axiosInstance;

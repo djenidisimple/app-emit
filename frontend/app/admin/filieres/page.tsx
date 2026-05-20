@@ -1,36 +1,49 @@
+// app/admin/filieres/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Pencil } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Button from '@/components/ui/Button';
-import { FiliereDto } from '@/types';
+import EditFiliereModal from '@/components/modals/EditFiliereModal';
 import api from '@/services/api';
+import { Filiere } from '@/types';
 
 export default function AdminFilieresPage() {
-  const [items, setItems] = useState<FiliereDto[]>([]);
+  const [items, setItems] = useState<Filiere[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [nom, setNom] = useState('');
-
-  useEffect(() => { fetchData(); }, []);
+  const [selectedFiliere, setSelectedFiliere] = useState<Filiere | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
-      const res = await api.get<FiliereDto[]>('/Filiere');
+      const res = await api.get<Filiere[]>('/Filiere');
+      // Correction : l'API retourne un objet AxiosResponse, donc les données sont dans res.data
       setItems(res.data);
-    } catch (err) { console.error(err); }
-    finally { setIsLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.post('/Filiere', { nom });
-      setShowForm(false); setNom('');
+      setShowForm(false);
+      setNom('');
       fetchData();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -38,7 +51,18 @@ export default function AdminFilieresPage() {
     try {
       await api.delete(`/Filiere/${id}`);
       setItems(items.filter(i => i.id !== id));
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEdit = (filiere: Filiere) => {
+    setSelectedFiliere(filiere);
+    setModalOpen(true);
+  };
+
+  const handleModalSaved = () => {
+    fetchData();
   };
 
   return (
@@ -50,25 +74,44 @@ export default function AdminFilieresPage() {
             <h1 className="text-3xl font-poppins font-bold text-emit-blue">Filières</h1>
             <p className="text-emit-text/60 mt-1">Gestion des filières de l'EMIT.</p>
           </div>
-          <Button variant="orange" icon={Plus} onClick={() => setShowForm(true)}>Ajouter</Button>
+          <Button variant="orange" icon={Plus} onClick={() => setShowForm(true)}>
+            Ajouter
+          </Button>
         </div>
 
         {showForm && (
-          <form onSubmit={handleCreate} className="bg-white border border-emit-border rounded-md p-4 mb-6 flex gap-4 items-end">
+          <form
+            onSubmit={handleCreate}
+            className="bg-white border border-emit-border rounded-md p-4 mb-6 flex gap-4 items-end"
+          >
             <div className="flex-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">Nom</label>
-              <input type="text" placeholder="Ex: Informatique et Management" value={nom} onChange={e => setNom(e.target.value)}
-                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm" required />
+              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">
+                Nom
+              </label>
+              <input
+                type="text"
+                placeholder="Ex: Informatique et Management"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm"
+                required
+              />
             </div>
             <div className="flex gap-2">
-              <Button type="submit" variant="orange">Créer</Button>
-              <Button type="button" variant="glass" onClick={() => setShowForm(false)}>Annuler</Button>
+              <Button type="submit" variant="orange">
+                Créer
+              </Button>
+              <Button type="button" variant="glass" onClick={() => setShowForm(false)}>
+                Annuler
+              </Button>
             </div>
           </form>
         )}
 
         {isLoading ? (
-          <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin"></div></div>
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin"></div>
+          </div>
         ) : (
           <div className="bg-white border border-emit-border rounded-md overflow-hidden">
             <table className="w-full text-sm">
@@ -80,11 +123,27 @@ export default function AdminFilieresPage() {
               </thead>
               <tbody>
                 {items.map((item, i) => (
-                  <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-                    className="border-b border-emit-border/50 hover:bg-emit-bg/50">
+                  <motion.tr
+                    key={item.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="border-b border-emit-border/50 hover:bg-emit-bg/50"
+                  >
                     <td className="p-4 font-medium">{item.nom}</td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-md"><Trash2 size={16} /></button>
+                    <td className="p-4 text-right space-x-2">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-md"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-md"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </motion.tr>
                 ))}
@@ -93,6 +152,13 @@ export default function AdminFilieresPage() {
           </div>
         )}
       </div>
+
+      <EditFiliereModal
+        isOpen={modalOpen}
+        filiere={selectedFiliere}
+        onClose={() => setModalOpen(false)}
+        onSaved={handleModalSaved}
+      />
     </div>
   );
 }
