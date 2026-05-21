@@ -7,6 +7,7 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<FiliereDto>> GetAllAsync();
         Task<FiliereDto?> GetByIdAsync(int id);
         Task<FiliereDto> CreateAsync(FiliereCreateDto dto);
+        Task<FiliereDto?> UpdateAsync(int id, FiliereCreateDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }

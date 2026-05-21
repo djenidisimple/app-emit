@@ -40,6 +40,17 @@ namespace AppEmit.API.Services
             return _mapper.Map<FiliereDto>(created);
         }
 
+        public async Task<FiliereDto?> UpdateAsync(int id, FiliereCreateDto dto)
+        {
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null) return null;
+
+            _mapper.Map(dto, existing);
+            var updated = await _repository.UpdateAsync(existing);
+            _logger.LogInformation("Filière {Id} mise à jour : {Nom}", updated.Id, updated.Nom);
+            return _mapper.Map<FiliereDto>(updated);
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var filiere = await _repository.GetByIdAsync(id);
