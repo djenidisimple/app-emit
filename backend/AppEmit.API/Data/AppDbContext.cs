@@ -26,6 +26,9 @@ namespace AppEmit.API.Data
         public DbSet<ExceptionPlanning> ExceptionsPlanning { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+        
+        // NOUVEAU - DemandeEchange
+        public DbSet<DemandeEchange> DemandesEchange { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -141,6 +144,51 @@ namespace AppEmit.API.Data
                     .WithMany()
                     .HasForeignKey(n => n.UtilisateurId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // =========================
+            // DEMANDE ECHANGE (NOUVEAU)
+            // =========================
+            modelBuilder.Entity<DemandeEchange>(entity =>
+            {
+                entity.HasKey(d => d.Id);
+
+                entity.Property(d => d.Statut)
+                    .HasMaxLength(20)
+                    .IsRequired();
+
+                entity.Property(d => d.DateDemande)
+                    .HasColumnType("timestamp with time zone")
+                    .HasDefaultValueSql("now()");
+
+                // Relations
+                entity.HasOne(d => d.SeanceCours)
+                    .WithMany()
+                    .HasForeignKey(d => d.SeanceCoursId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.ProfesseurDemandeur)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProfesseurDemandeurId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.ProfesseurCible)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProfesseurCibleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Index pour optimiser les recherches
+                entity.HasIndex(d => d.Statut)
+                    .HasDatabaseName("IX_DemandesEchange_Statut");
+
+                entity.HasIndex(d => new { d.ProfesseurDemandeurId, d.Statut })
+                    .HasDatabaseName("IX_DemandesEchange_Demandeur_Statut");
+
+                entity.HasIndex(d => new { d.ProfesseurCibleId, d.Statut })
+                    .HasDatabaseName("IX_DemandesEchange_Cible_Statut");
+
+                entity.HasIndex(d => d.DateDemande)
+                    .HasDatabaseName("IX_DemandesEchange_DateDemande");
             });
         }
     }
