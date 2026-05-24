@@ -139,3 +139,24 @@ export interface MatiereDto {
   nom: string;
   type?: string;
 }
+export interface DemandeEchangeReadDto {
+  id: number;
+  demandeurId: number;
+  nomDemandeur: string;
+  cibleId: number;
+  nomCible: string;
+  seanceDemandeurId: number;
+  seanceCibleId: number;
+  statut: string; // EnAttente | Acceptee | Refusee
+  motif?: string;
+  dateDemande: string;
+  dateReponse?: string;
+}
+
+export interface DemandeEchangeCreateDto {
+  demandeurId: number;
+  cibleId: number;
+  seanceDemandeurId: number;
+  seanceCibleId: number;
+  motif?: string;
+}

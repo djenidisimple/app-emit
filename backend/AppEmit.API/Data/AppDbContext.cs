@@ -26,6 +26,7 @@ namespace AppEmit.API.Data
         public DbSet<ExceptionPlanning> ExceptionsPlanning { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+        public DbSet<DemandeEchange> DemandesEchange { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -142,6 +143,40 @@ namespace AppEmit.API.Data
                     .HasForeignKey(n => n.UtilisateurId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+            // =========================
+            // DEMANDE ECHANGE
+            // =========================
+            modelBuilder.Entity<DemandeEchange>()
+                .HasOne(d => d.Demandeur)
+                .WithMany()
+                .HasForeignKey(d => d.DemandeurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DemandeEchange>()
+                .HasOne(d => d.Cible)
+                .WithMany()
+                .HasForeignKey(d => d.CibleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DemandeEchange>()
+                .HasOne(d => d.SeanceDemandeur)
+                .WithMany()
+                .HasForeignKey(d => d.SeanceDemandeurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DemandeEchange>()
+                .HasOne(d => d.SeanceCible)
+                .WithMany()
+                .HasForeignKey(d => d.SeanceCibleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DemandeEchange>()
+                .Property(d => d.DateDemande)
+                .HasColumnType("timestamp without time zone");
+
+            modelBuilder.Entity<DemandeEchange>()
+                .Property(d => d.DateReponse)
+                .HasColumnType("timestamp without time zone");
         }
     }
 }

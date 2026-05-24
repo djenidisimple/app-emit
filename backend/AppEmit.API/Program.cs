@@ -141,6 +141,7 @@ builder.Services.AddScoped<IParcoursService, ParcoursService>();
 builder.Services.AddScoped<IExceptionService, ExceptionService>();
 builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
 
 // ======================================================
 // BUILD APP
