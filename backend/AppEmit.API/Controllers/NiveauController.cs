@@ -32,6 +32,14 @@ namespace AppEmit.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult<NiveauDto>> Update(int id, NiveauCreateDto dto)
+        {
+            var updated = await _service.UpdateAsync(id, dto);
+            if (updated == null) return NotFound();
+            return Ok(updated);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

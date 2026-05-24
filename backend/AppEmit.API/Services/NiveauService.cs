@@ -40,6 +40,17 @@ namespace AppEmit.API.Services
             return _mapper.Map<NiveauDto>(created);
         }
 
+        public async Task<NiveauDto?> UpdateAsync(int id, NiveauCreateDto dto)
+        {
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null) return null;
+
+            _mapper.Map(dto, existing);
+            var updated = await _repository.UpdateAsync(existing);
+            _logger.LogInformation("Niveau {Id} mis à jour : {Code}", updated.Id, updated.Code);
+            return _mapper.Map<NiveauDto>(updated);
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var niveau = await _repository.GetByIdAsync(id);

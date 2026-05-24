@@ -7,6 +7,7 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<NiveauDto>> GetAllAsync();
         Task<NiveauDto?> GetByIdAsync(int id);
         Task<NiveauDto> CreateAsync(NiveauCreateDto dto);
+        Task<NiveauDto?> UpdateAsync(int id, NiveauCreateDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }
