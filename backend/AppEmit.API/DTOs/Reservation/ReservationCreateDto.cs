@@ -1,10 +1,21 @@
-namespace AppEmit.API.DTOs.Reservation
+using System.ComponentModel.DataAnnotations;
+
+namespace AppEmit.DTOs.Reservation;
+
+public class ReservationCreateDto
 {
-    public class ReservationCreateDto
-    {
-        public string Titre { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public DateTime DatePrecise { get; set; }
-        public int SalleId { get; set; }
-    }
+    [Required, StringLength(200)]
+    public string Titre { get; set; } = string.Empty;
+
+    [Required]
+    public string Type { get; set; } = string.Empty;
+
+    [Required]
+    public DateTime DatePrecise { get; set; }
+
+    [Required]
+    public string Session { get; set; } = string.Empty; // Matin / Après-midi
+
+    [Required]
+    public int SalleId { get; set; }
 }
