@@ -220,6 +220,7 @@ namespace AppEmit.API.Data
                 entity.HasIndex(i => i.DateAction)
                     .HasDatabaseName("IX_ImprevusAdmin_DateAction");
             });
+            });
         }
     }
 }
