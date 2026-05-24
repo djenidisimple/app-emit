@@ -166,6 +166,8 @@ Migrations/
  20260512223033_InitialFinal.Designer.cs
  20260512232651_AddNiveauToSeanceCoursFix.cs
  20260512232651_AddNiveauToSeanceCoursFix.Designer.cs
+ 20260520172500_FixPendingChanges.cs
+ 20260520172500_FixPendingChanges.Designer.cs
  AppDbContextModelSnapshot.cs
 obj/Debug/net10.0/
  .NETCoreApp,Version=v10.0.AssemblyAttributes.cs

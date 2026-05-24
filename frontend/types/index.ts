@@ -1,131 +1,66 @@
+// types/index.ts
+
+export interface Filiere {
+  id: number;
+  nom: string;
+}
+
+export interface Parcours {
+  id: number;
+  nom: string;
+  filiereId: number;
+}
+
+export interface Niveau {
+  id: number;
+  code: string;      // L1, L2, L3, M1, M2
+  parcoursId: number;
+  parcours?: Parcours;
+}
+
 export interface Utilisateur {
   id: number;
   nom: string;
   prenom: string;
   email: string;
+  role: 'Admin' | 'Prof' | 'Etudiant';
   matricule?: string;
-  roles?: string[];
   niveauId?: number;
 }
 
 export interface Salle {
   id: number;
-  codeSalle: string;
-  libelle: string;
+  nom: string;
   capacite: number;
-  equipements?: string;
-  estActive: boolean;
-  type: string;
-  nombreSeances: number;
-  statut: string;
+  type: string;      // TP, TD, Amphi
+  estDisponible: boolean;
 }
 
 export interface Matiere {
   id: number;
-  code: string;
   nom: string;
-  type?: string;
+  code: string;
 }
 
 export interface Creneau {
   id: number;
-  jour: string;
-  heureDebut: string;
-  heureFin: string;
+  jour: string;            // Lundi, Mardi, ..., Samedi
+  heureDebut: string;      // "08:00:00"
+  heureFin: string;        // "10:00:00"
 }
 
-export interface SeancePlanningDto {
+export interface SeanceCours {
   id: number;
-  matiereNom: string;
-  matiereCode: string;
-  professeurNomComplet: string;
-  salleNom: string;
-  jour: string;
-  heureDebut: string;
-  heureFin: string;
-  dateOccurrence: string;
-  statut: string;
-  motifException?: string;
-}
-
-export interface PlanningHebdoResponse {
-  lundi: string;
-  samedi: string;
-  seances: SeancePlanningDto[];
-}
-
-export interface ExceptionPlanning {
-  id?: number;
-  seanceCoursId: number;
-  dateDebut: string;
-  dateFin?: string;
-  typeException: string;
-  motif?: string;
-  nouvelleSalleId?: number;
-}
-
-export interface Notification {
-  id: number;
-  utilisateurId: number;
-  message: string;
-  dateEnvoi: string;
-  estLu: boolean;
-}
-
-export interface AuthResponse {
-  token: string;
-  nom: string;
-  prenom: string;
-  email: string;
-  roles: string[];
-  matricule?: string;
-  niveauId?: number;
-  expiration: string;
-}
-
-export interface EvenementReservation {
-  id: number;
-  titre: string;
-  type: string;
-  datePrecise: string;
+  matiereId: number;
+  profId: number;
   salleId: number;
-}
-
-export interface ReservationReadDto {
-  id: number;
-  titre: string;
-  type: string;
-  datePrecise: string;
-  statut: string;
-  demandeurId: number;
-  demandeurNom: string;
-  salleId: number;
-  salleLibelle: string;
-}
-
-export interface ReservationCreateDto {
-  titre: string;
-  type: string;
-  datePrecise: string;
-  salleId: number;
-}
-
-export interface UtilisateurDto {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  matricule?: string;
-  role?: string;
-  niveauId?: number;
-  niveauCode?: string;
-}
-
-export interface NiveauDto {
-  id: number;
-  code: string;
+  creneauId: number;
   parcoursId: number;
-  parcoursNom?: string;
+  niveauId: number;
+  dateDebutAnnee: string;   // YYYY-MM-DD
+  dateFinAnnee: string;
+  estTermine: boolean;
+  couleurAffichage: string; // hex
 }
 
 export interface FiliereDto {
@@ -159,4 +94,17 @@ export interface DemandeEchangeCreateDto {
   seanceDemandeurId: number;
   seanceCibleId: number;
   motif?: string;
+}
+
+export interface GenerationSeancePayload {
+  parcoursId: number;
+  niveauId: number;
+  matiereId: number;
+  profId: number;
+  salleId: number;
+  creneauId: number;
+  dateDebut: string;        // YYYY-MM-DD
+  dateFin: string;          // YYYY-MM-DD
+  joursSelectionnes?: string[];
+
 }
