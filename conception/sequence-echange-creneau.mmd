@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor ProfA as "Professeur A"
+    actor ProfB as "Professeur B"
+    participant UI as "Interface Next.js"
+    participant API as "API ASP.NET Core"
+    participant DB as "PostgreSQL"
+
+    ProfA->>UI: Propose un échange de créneau
+    UI->>API: POST /api/echange/proposer (seanceId, creneauCibleId)
+    API->>DB: Vérifie disponibilité du créneau cible
+    DB-->>API: Créneau libre
+    API->>DB: Crée une demande d'échange (statut: Proposition)
+    DB-->>API: Confirmation
+    API-->>UI: Proposition envoyée au Professeur B
+    UI-->>ProfB: Notification "Échange proposé par ProfA"
+
+    ProfB->>UI: Accepte l'échange
+    UI->>API: POST /api/echange/accepter (demandeId)
+    API->>DB: Met à jour SEANCE_COURS (creneau_id échangé)
+    DB-->>API: Confirmation mise à jour
+    API->>DB: Enregistre l'échange
+    DB-->>API: OK
+    API-->>UI: Échange confirmé
+    UI-->>ProfA: Planning mis à jour
+    UI-->>ProfB: Planning mis à jour

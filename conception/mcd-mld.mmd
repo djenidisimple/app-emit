@@ -1,0 +1,93 @@
+erDiagram
+    FILIERE ||--o{ PARCOURS : contient
+    PARCOURS ||--o{ NIVEAU : contient
+    NIVEAU ||--o{ UTILISATEUR : inscrit
+    UTILISATEUR ||--o{ NOTIFICATION : recoit
+    UTILISATEUR ||--o{ EVENEMENT_RESERVATION : effectue
+    UTILISATEUR ||--o{ SEANCE_COURS : anime
+    SALLE ||--o{ SEANCE_COURS : accueille
+    SALLE ||--o{ EVENEMENT_RESERVATION : reserve
+    CRENEAU ||--o{ SEANCE_COURS : planifie
+    MATIERE ||--o{ SEANCE_COURS : enseigne
+    SEANCE_COURS ||--o{ EXCEPTION_PLANNING : subit
+
+    FILIERE {
+        int id PK
+        varchar_100 nom
+    }
+    PARCOURS {
+        int id PK
+        varchar_100 nom
+        int filiere_id FK
+    }
+    NIVEAU {
+        int id PK
+        varchar_10 code
+        int parcours_id FK
+    }
+    UTILISATEUR {
+        int id PK
+        varchar_100 nom
+        varchar_100 prenom
+        varchar_255 email UK
+        varchar_20 role
+        varchar_50 matricule
+        int niveau_id FK
+    }
+    SALLE {
+        int id PK
+        varchar_50 nom
+        int capacite
+        varchar_20 type
+        boolean est_disponible
+    }
+    CRENEAU {
+        int id PK
+        varchar_15 jour
+        time heure_debut
+        time heure_fin
+    }
+    MATIERE {
+        int id PK
+        varchar_100 nom
+        varchar_20 code
+    }
+    NOTIFICATION {
+        int id PK
+        int utilisateur_id FK
+        text message
+        timestamp date_envoi
+        boolean est_lu
+    }
+    EVENEMENT_RESERVATION {
+        int id PK
+        varchar_150 titre
+        varchar_30 type
+        timestamp date_precise
+        varchar_50 session
+        varchar_20 statut
+        int demandeur_id FK
+        int salle_id FK
+    }
+    SEANCE_COURS {
+        int id PK
+        int matiere_id FK
+        int prof_id FK
+        int salle_id FK
+        int creneau_id FK
+        int parcours_id FK
+        int niveau_id FK
+        timestamp date_debut_annee
+        timestamp date_fin_annee
+        boolean est_termine
+        varchar_7 couleur_affichage
+    }
+    EXCEPTION_PLANNING {
+        int id PK
+        int seance_cours_id FK
+        timestamp date_debut
+        timestamp date_fin
+        varchar_50 type_exception
+        text motif
+        int nouvelle_salle_id FK
+    }

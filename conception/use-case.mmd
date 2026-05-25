@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph "G-Salles EMIT"
+        UC1["Gérer le référentiel"]
+        UC2["Annuler/Reporter un cours"]
+        UC3["Valider les demandes"]
+        UC4["Recevoir Notifications"]
+        UC5["Marquer cours terminé"]
+        UC6["Échange de créneau"]
+        UC7["Consulter planning"]
+        UC8["Réserver une salle"]
+    end
+
+    Admin((Administrateur)) --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+
+    Prof((Professeur)) --> UC5
+    Prof --> UC6
+    Prof --> UC7
+    Prof --> UC2
+    Prof --> UC4
+
+    Etud((Étudiant)) --> UC7
+    Etud --> UC8
+    Etud --> UC4
+
+    UC2 -.->|include| UC4
+    UC8 -.->|include| UC3
+    UC3 -.->|include| UC4

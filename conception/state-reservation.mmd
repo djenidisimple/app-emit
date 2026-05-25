@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> En_Attente : Soumission
+    En_Attente --> Valide : Admin valide
+    En_Attente --> Rejete : Admin rejette
+    Valide --> Annule : Admin/Prof annule
+    Valide --> Termine : Cours terminé
+    Annule --> [*]
+    Rejete --> [*]
+    Termine --> [*]

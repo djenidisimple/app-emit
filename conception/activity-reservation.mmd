@@ -1,0 +1,13 @@
+flowchart TD
+    Start([Début]) --> S1[Étudiant consulte le planning]
+    S1 --> S2{Place disponible ?}
+    S2 -->|Non| S3[Étudiant choisit autre créneau]
+    S3 --> S1
+    S2 -->|Oui| S4[Étudiant soumet la demande]
+    S4 --> S5[Notification envoyée à l'Admin]
+    S5 --> S6{Admin valide ?}
+    S6 -->|Oui| S7[Réservation confirmée]
+    S6 -->|Non| S8[Réservation rejetée]
+    S7 --> S9[Notification envoyée à l'étudiant]
+    S8 --> S9
+    S9 --> End([Fin])

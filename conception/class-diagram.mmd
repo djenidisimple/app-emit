@@ -1,0 +1,76 @@
+classDiagram
+    class Creneau {
+        +int Id
+        +string Jour
+        +TimeSpan HeureDebut
+        +TimeSpan HeureFin
+    }
+    class Matiere {
+        +int Id
+        +string Nom
+        +string Code
+    }
+    class Salle {
+        +int Id
+        +string Nom
+        +int Capacite
+        +string Type
+        +bool EstDisponible
+    }
+    class Utilisateur {
+        +int Id
+        +string Nom
+        +string Prenom
+        +string Email
+        +string Role
+        +string Matricule
+        +int? NiveauId
+    }
+    class Notification {
+        +int Id
+        +int UtilisateurId
+        +string Message
+        +DateTime DateEnvoi
+        +bool EstLu
+        +MarquerCommeLu()
+    }
+    class EvenementReservation {
+        +int Id
+        +string Titre
+        +string Type
+        +DateTime DatePrecise
+        +string Statut
+        +int DemandeurId
+        +Valider()
+    }
+    class SeanceCours {
+        +int Id
+        +int MatiereId
+        +int ProfId
+        +int SalleId
+        +int CreneauId
+        +DateTime DateDebutAnnee
+        +DateTime DateFinAnnee
+        +bool EstTermine
+        +string CouleurAffichage
+        +ModifierStatut()
+    }
+    class ExceptionPlanning {
+        +int Id
+        +int SeanceCoursId
+        +DateTime DateDebut
+        +DateTime? DateFin
+        +string TypeException
+        +string Motif
+        +int? NouvelleSalleId
+        +EstActif(DateTime date) bool
+    }
+
+    Creneau "1" --> "*" SeanceCours : planifie
+    Matiere "1" --> "*" SeanceCours : enseigne
+    Salle "1" --> "*" SeanceCours : accueille
+    Salle "1" --> "*" EvenementReservation : reserve
+    Utilisateur "1" --> "*" SeanceCours : anime
+    Utilisateur "1" --> "*" EvenementReservation : effectue
+    Utilisateur "1" --> "*" Notification : recoit
+    SeanceCours "1" --> "*" ExceptionPlanning : subit

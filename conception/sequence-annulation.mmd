@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor Admin
+    participant UI as "Interface Next.js"
+    participant API as "API ASP.NET Core"
+    participant DB as "PostgreSQL"
+    participant Notif as "NotificationService"
+
+    Admin->>UI: Sélectionne un cours et définit la durée d'annulation
+    UI->>API: POST /api/planning/exception (seanceId, dateDebut, dateFin)
+    API->>DB: Enregistre l'exception (INSERT INTO EXCEPTION_PLANNING)
+    DB-->>API: Confirmation de l'enregistrement
+    API->>DB: Identifie les étudiants et profs concernés (SELECT ...)
+    DB-->>API: Liste des IDs utilisateurs (basée sur Parcours/Niveau)
+    API->>Notif: Demande déclenchement envoi des notifications
+    Notif->>DB: Insère les messages (INSERT INTO NOTIFICATION)
+    DB-->>Notif: Validation notifications prêtes
+    Notif-->>API: Notifications traitées
+    API-->>UI: Statut Succès (Annulation enregistrée + alertes envoyées)
+    UI-->>Admin: Affiche statut "Annulé" sur le calendrier
+
+    Note over Admin,UI: L'étudiant reçoit l'alerte en temps réel via SignalR ou Refresh

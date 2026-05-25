@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor Etudiant
+    participant UI as "Interface Next.js"
+    participant API as "API ASP.NET Core"
+    participant DB as "PostgreSQL"
+    participant Notif as "NotificationService"
+
+    Etudiant->>UI: Consulte les salles disponibles
+    UI->>API: GET /api/salles/disponibles (creneau, date)
+    API->>DB: SELECT salles disponibles
+    DB-->>API: Liste des salles libres
+    API-->>UI: Salles disponibles
+    UI-->>Etudiant: Affiche les salles libres
+
+    Etudiant->>UI: Sélectionne une salle et soumet la demande
+    UI->>API: POST /api/reservation (salleId, date, motif)
+    API->>DB: INSERT INTO EVENEMENT_RESERVATION (statut: En_attente)
+    DB-->>API: Confirmation création
+    API->>Notif: Notifier admin nouvelle demande
+    Notif->>DB: INSERT INTO NOTIFICATION
+    DB-->>Notif: OK
+    Notif-->>API: Notification envoyée
+    API-->>UI: Demande soumise (En_attente)
+    UI-->>Etudiant: Affiche "Demande en attente de validation"
