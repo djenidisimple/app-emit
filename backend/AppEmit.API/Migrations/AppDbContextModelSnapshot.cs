@@ -48,6 +48,53 @@ namespace AppEmit.API.Migrations
                     b.ToTable("Creneaux");
                 });
 
+            modelBuilder.Entity("AppEmit.API.Entities.DemandeEchange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CibleId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateDemande")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("DateReponse")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("DemandeurId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Motif")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SeanceCibleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SeanceDemandeurId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CibleId");
+
+                    b.HasIndex("DemandeurId");
+
+                    b.HasIndex("SeanceCibleId");
+
+                    b.HasIndex("SeanceDemandeurId");
+
+                    b.ToTable("DemandesEchange");
+                });
+
             modelBuilder.Entity("AppEmit.API.Entities.Evenement", b =>
                 {
                     b.Property<int>("Id")
@@ -302,6 +349,10 @@ namespace AppEmit.API.Migrations
                     b.Property<int>("SalleId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Session")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("Statut")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -364,13 +415,24 @@ namespace AppEmit.API.Migrations
                     b.Property<bool>("EstActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("EstDisponible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Type")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -406,6 +468,9 @@ namespace AppEmit.API.Migrations
                     b.Property<int?>("NiveauId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ParcoursId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ProfesseurId")
                         .HasColumnType("integer");
 
@@ -419,6 +484,8 @@ namespace AppEmit.API.Migrations
                     b.HasIndex("MatiereId");
 
                     b.HasIndex("NiveauId");
+
+                    b.HasIndex("ParcoursId");
 
                     b.HasIndex("ProfesseurId");
 
@@ -467,6 +534,10 @@ namespace AppEmit.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Role")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -505,6 +576,41 @@ namespace AppEmit.API.Migrations
                     b.HasIndex("UtilisateursId");
 
                     b.ToTable("RoleUtilisateur");
+                });
+
+            modelBuilder.Entity("AppEmit.API.Entities.DemandeEchange", b =>
+                {
+                    b.HasOne("AppEmit.API.Entities.Utilisateur", "Cible")
+                        .WithMany()
+                        .HasForeignKey("CibleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppEmit.API.Entities.Utilisateur", "Demandeur")
+                        .WithMany()
+                        .HasForeignKey("DemandeurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppEmit.API.Entities.SeanceCours", "SeanceCible")
+                        .WithMany()
+                        .HasForeignKey("SeanceCibleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppEmit.API.Entities.SeanceCours", "SeanceDemandeur")
+                        .WithMany()
+                        .HasForeignKey("SeanceDemandeurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cible");
+
+                    b.Navigation("Demandeur");
+
+                    b.Navigation("SeanceCible");
+
+                    b.Navigation("SeanceDemandeur");
                 });
 
             modelBuilder.Entity("AppEmit.API.Entities.Evenement", b =>
@@ -619,6 +725,11 @@ namespace AppEmit.API.Migrations
                         .HasForeignKey("NiveauId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("AppEmit.API.Entities.Parcours", "Parcours")
+                        .WithMany()
+                        .HasForeignKey("ParcoursId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("AppEmit.API.Entities.Utilisateur", "Professeur")
                         .WithMany("SeancesAnimees")
                         .HasForeignKey("ProfesseurId")
@@ -636,6 +747,8 @@ namespace AppEmit.API.Migrations
                     b.Navigation("Matiere");
 
                     b.Navigation("Niveau");
+
+                    b.Navigation("Parcours");
 
                     b.Navigation("Professeur");
 
