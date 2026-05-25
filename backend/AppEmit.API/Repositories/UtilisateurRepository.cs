@@ -22,8 +22,16 @@ namespace AppEmit.API.Repositories
 
         public async Task<List<Utilisateur>> GetEtudiantsBySeanceAsync(int seanceCoursId)
         {
-            // En attente d'implémentation complète
-            return await Task.FromResult(new List<Utilisateur>());
+            var seance = await _context.SeancesCours
+                .Include(s => s.Niveau)
+                .FirstOrDefaultAsync(s => s.Id == seanceCoursId);
+
+            if (seance?.Niveau == null)
+                return new List<Utilisateur>();
+
+            return await _context.Utilisateurs
+                .Where(u => u.Role == "Etudiant" && u.NiveauId == seance.NiveauId)
+                .ToListAsync();
         }
     }
 }

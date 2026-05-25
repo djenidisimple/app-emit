@@ -82,6 +82,7 @@ namespace AppEmit.API.Services
                 EvenementId = createdEvenement.Id,
                 SalleId = dto.SalleId,
                 DateReservation = DateTime.UtcNow,
+                Session = dto.Session,
                 Statut = "En attente"
             };
             var createdReservation = await _reservationRepository.AddAsync(reservation);

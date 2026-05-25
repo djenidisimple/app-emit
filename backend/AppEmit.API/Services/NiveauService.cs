@@ -46,9 +46,9 @@ namespace AppEmit.API.Services
             if (existing == null) return null;
 
             _mapper.Map(dto, existing);
-            var updated = await _repository.UpdateAsync(existing);
-            _logger.LogInformation("Niveau {Id} mis à jour : {Code}", updated.Id, updated.Code);
-            return _mapper.Map<NiveauDto>(updated);
+            await _repository.UpdateAsync(existing);
+            _logger.LogInformation("Niveau {Id} mis à jour : {Code}", existing.Id, existing.Code);
+            return _mapper.Map<NiveauDto>(existing);
         }
 
         public async Task<bool> DeleteAsync(int id)

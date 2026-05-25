@@ -44,6 +44,7 @@ namespace AppEmit.API.Services
                 MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(dto.MotDePasse),
                 Matricule = dto.Matricule,
                 NiveauId = dto.NiveauId,
+                Role = dto.Role,
                 Roles = new List<Role> { roleEntity }
             };
 
@@ -133,9 +134,11 @@ namespace AppEmit.API.Services
             return new AuthResponseDto
             {
                 Token = tokenString,
+                Id = utilisateur.Id,
                 Nom = utilisateur.Nom ?? "",
                 Prenom = utilisateur.Prenom ?? "",
                 Email = utilisateur.Email ?? "",
+                Role = utilisateur.Role,
                 Roles = utilisateur.Roles?.Select(r => r.Nom).ToList() ?? new List<string>(),
                 Matricule = utilisateur.Matricule,
                 NiveauId = utilisateur.NiveauId,

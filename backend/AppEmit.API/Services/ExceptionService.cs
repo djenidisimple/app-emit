@@ -118,6 +118,16 @@ namespace AppEmit.API.Services
                     Message = message
                 });
             }
+
+            var etudiants = await _utilisateurRepo.GetEtudiantsBySeanceAsync(seance.Id);
+            foreach (var etudiant in etudiants)
+            {
+                await _notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
+                {
+                    UtilisateurId = etudiant.Id,
+                    Message = message
+                });
+            }
         }
 
         private ReponseExceptionDto MapToDto(ExceptionPlanning e)
