@@ -24,6 +24,13 @@ namespace AppEmit.API.Controllers
             return Ok(notifications);
         }
 
+        [HttpGet("utilisateur/{utilisateurId}")]
+        public async Task<ActionResult<IEnumerable<NotificationReadDto>>> GetByUtilisateur(int utilisateurId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        {
+            var notifications = await _notificationService.GetByUtilisateurIdAsync(utilisateurId, page, pageSize);
+            return Ok(notifications);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<NotificationReadDto>> GetById(int id)
         {

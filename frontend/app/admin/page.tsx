@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Users, BookOpen, GraduationCap, Building2, FolderTree, CalendarCheck } from 'lucide-react';
+import { MapPin, Users, BookOpen, GraduationCap, Building2, FolderTree, CalendarCheck, CalendarPlus } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 
@@ -14,6 +14,7 @@ const adminLinks = [
   { href: '/admin/niveaux', label: 'Niveaux', desc: 'Gérer les niveaux', icon: GraduationCap, color: 'text-amber-600 bg-amber-100' },
   { href: '/admin/filieres', label: 'Filières', desc: 'Gérer les filières', icon: Building2, color: 'text-cyan-600 bg-cyan-100' },
   { href: '/admin/parcours', label: 'Parcours', desc: 'Gérer les parcours', icon: FolderTree, color: 'text-rose-600 bg-rose-100' },
+  { href: '/admin/generateur-seance', label: 'Séances', desc: 'Générer des séances', icon: CalendarPlus, color: 'text-indigo-600 bg-indigo-100' },
 ];
 
 export default function AdminPage() {

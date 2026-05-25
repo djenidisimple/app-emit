@@ -38,12 +38,12 @@ axiosInstance.interceptors.response.use(
 export const api = {
   get: <T>(endpoint: string, config?: any): Promise<T> =>
     axiosInstance.get(endpoint, config).then((res) => res.data),
-  post: <T>(endpoint: string, data?: any): Promise<T> =>
-    axiosInstance.post(endpoint, data).then((res) => res.data),
-  put: <T>(endpoint: string, data?: any): Promise<T> =>
-    axiosInstance.put(endpoint, data).then((res) => res.data),
-  patch: <T>(endpoint: string, data?: any): Promise<T> =>
-    axiosInstance.patch(endpoint, data).then((res) => res.data),
+  post: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+    axiosInstance.post(endpoint, data, config).then((res) => res.data),
+  put: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+    axiosInstance.put(endpoint, data, config).then((res) => res.data),
+  patch: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+    axiosInstance.patch(endpoint, data, config).then((res) => res.data),
   delete: <T>(endpoint: string): Promise<T> =>
     axiosInstance.delete(endpoint).then((res) => res.data),
 };

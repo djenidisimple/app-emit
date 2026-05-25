@@ -28,7 +28,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
-import api from '@/services/api';
+import { api } from '@/services/api';
+import Navbar from '@/components/layout/Navbar';
 
 // ============================================
 // TYPES
@@ -652,8 +653,8 @@ export default function PlanningPage() {
 
   const fetchCreneaux = useCallback(async () => {
     try {
-      const response = await api.get('/Creneau');
-      setCreneaux(response.data);
+      const response = await api.get<any[]>('/Creneau');
+      setCreneaux(response);
     } catch (err) {
       console.error('Erreur chargement créneaux:', err);
     }
@@ -661,8 +662,8 @@ export default function PlanningPage() {
 
   const fetchMatieres = useCallback(async () => {
     try {
-      const response = await api.get('/matieres');
-      setMatieres(response.data);
+      const response = await api.get<any[]>('/matieres');
+      setMatieres(response);
     } catch (err) {
       console.error('Erreur chargement matières:', err);
     }
@@ -670,8 +671,8 @@ export default function PlanningPage() {
 
   const fetchProfesseurs = useCallback(async () => {
     try {
-      const response = await api.get('/Utilisateur');
-      const professeursList = response.data.filter((u: Utilisateur) => u.role === 'Professeur');
+      const response = await api.get<any[]>('/Utilisateur');
+      const professeursList = response.filter((u: Utilisateur) => u.role === 'Professeur');
       setProfesseurs(professeursList);
     } catch (err) {
       console.error('Erreur chargement professeurs:', err);
@@ -680,8 +681,8 @@ export default function PlanningPage() {
 
   const fetchSalles = useCallback(async () => {
     try {
-      const response = await api.get('/Salles');
-      setSalles(response.data);
+      const response = await api.get<any[]>('/Salles');
+      setSalles(response);
     } catch (err) {
       console.error('Erreur chargement salles:', err);
     }
@@ -710,7 +711,7 @@ export default function PlanningPage() {
       if (filterProfesseurId) params.ProfesseurId = filterProfesseurId;
       
       const response = await api.get<PlanningHebdoResponse>('/Planning/hebdo', { params });
-      setSeances(response.data.seances || []);
+      setSeances(response.seances || []);
     } catch (err: any) {
       console.error('Erreur chargement planning:', err);
       setError(err.response?.data?.message || 'Impossible de charger le planning');
@@ -796,14 +797,14 @@ export default function PlanningPage() {
       const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
       startOfWeek.setDate(diff);
       
-      const response = await api.post(`/Document/export/${format}`, {
+      const blob = await api.post<Blob>(`/Document/export/${format}`, {
         DateDebut: startOfWeek.toISOString(),
         DateFin: new Date(startOfWeek.setDate(startOfWeek.getDate() + 6)).toISOString(),
         SalleId: filterSalleId || undefined,
         ProfesseurId: filterProfesseurId || undefined
       }, { responseType: 'blob' });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `planning_${format === 'pdf' ? 'pdf' : 'excel'}`);
@@ -847,9 +848,233 @@ export default function PlanningPage() {
   }, [currentDate]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">EDT Globale</h1>
-      <p className="text-gray-500">Planning hebdomadaire global</p>
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      <Navbar />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          EDT Globale
+            </h1>
+            <p className="text-gray-400 mt-1">Planning hebdomadaire • {weekRange.du} - {weekRange.au}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-4 py-2 rounded-lg border transition-all text-sm flex items-center gap-2 ${showFilters ? 'bg-blue-600 border-blue-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'}`}
+            >
+              <Filter size={16} /> Filtres
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => { setIsEditing(false); setSelectedSeance(null); setShowFormModal(true); }}
+                className="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-200 transition-all text-sm flex items-center gap-2"
+              >
+                <Plus size={16} /> Nouvelle séance
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Navigation semaine */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <ChevronLeft size={20} className="text-gray-400" />
+          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCurrentDate(new Date())}
+              className="px-3 py-1 text-sm border border-gray-700 rounded-lg hover:bg-gray-800 text-gray-300"
+            >
+              Aujourd'hui
+            </button>
+          </div>
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7))}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <ChevronRight size={20} className="text-gray-400" />
+          </button>
+        </div>
+
+        {/* Filtres */}
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mb-6 p-4 bg-gray-900 rounded-xl border border-gray-800"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Salle</label>
+                <select
+                  value={filterSalleId || ''}
+                  onChange={(e) => setFilterSalleId(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                >
+                  <option value="">Toutes les salles</option>
+                  {salles.map(s => (
+                    <option key={s.id} value={s.id}>{s.libelle} ({s.codeSalle})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Professeur</label>
+                <select
+                  value={filterProfesseurId || ''}
+                  onChange={(e) => setFilterProfesseurId(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                >
+                  <option value="">Tous les professeurs</option>
+                  {professeurs.map(p => (
+                    <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end gap-2">
+                <button
+                  onClick={handleExport.bind(null, 'pdf')}
+                  className="flex-1 px-3 py-2 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 text-sm flex items-center justify-center gap-2"
+                >
+                  <FileText size={16} /> PDF
+                </button>
+                <button
+                  onClick={handleExport.bind(null, 'excel')}
+                  className="flex-1 px-3 py-2 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 text-sm flex items-center justify-center gap-2"
+                >
+                  <FileSpreadsheet size={16} /> Excel
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Grille du planning */}
+        {loading ? (
+          <div className="flex items-center justify-center py-32">
+            <Loader2 size={48} className="animate-spin text-gray-500" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <AlertCircle size={48} className="text-red-500 mb-4" />
+            <p className="text-red-400">{error}</p>
+            <button onClick={fetchPlanning} className="mt-4 px-4 py-2 bg-gray-800 rounded-lg text-gray-300 hover:bg-gray-700 flex items-center gap-2">
+              <RefreshCw size={16} /> Réessayer
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-800">
+            <div className="min-w-[800px]">
+              {/* En-tête des jours */}
+              <div className="grid grid-cols-[60px_repeat(6,1fr)] bg-gray-900 border-b border-gray-800">
+                <div className="p-3 text-xs text-gray-500 font-medium">Horaire</div>
+                {DAYS.map(day => (
+                  <div key={day} className="p-3 text-xs text-gray-400 font-medium text-center border-l border-gray-800">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Grille horaire */}
+              <div className="relative" style={{ height: '650px' }}>
+                {/* Lignes horaires */}
+                <div className="absolute inset-0 grid grid-cols-[60px_repeat(6,1fr)]">
+                  {HOURS.map(hour => (
+                    <React.Fragment key={hour}>
+                      <div className="border-b border-gray-800/50 text-xs text-gray-600 p-1 text-right pr-2">
+                        {hour}h
+                      </div>
+                      {DAYS.map(day => (
+                        <div key={`${hour}-${day}`} className="border-b border-l border-gray-800/50" />
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                {/* Séances */}
+                {seances.map(seance => {
+                  const pos = getPosition(seance.heureDebut, seance.heureFin);
+                  const dayIndex = DAYS.indexOf(seance.jour);
+                  if (dayIndex === -1) return null;
+                  return (
+                    <div
+                      key={seance.id}
+                      className={`absolute cursor-pointer rounded-lg p-2 overflow-hidden transition-all hover:ring-2 hover:ring-white/20 ${getSeanceStyle(seance)}`}
+                      style={{
+                        left: `calc(60px + ${dayIndex} * (100% - 60px) / 6 + 2px)`,
+                        width: `calc((100% - 60px) / 6 - 4px)`,
+                        top: pos.top,
+                        height: pos.height,
+                        minHeight: '28px'
+                      }}
+                      onClick={() => {
+                        setSelectedSeance(seance);
+                        if (isAdmin) {
+                          setIsEditing(true);
+                          setShowFormModal(true);
+                        }
+                      }}
+                    >
+                      <p className="text-xs font-semibold truncate">{seance.matiereNom}</p>
+                      <p className="text-[10px] text-gray-400 truncate">{seance.professeurNomComplet}</p>
+                      <p className="text-[10px] text-gray-500 truncate">{seance.salleNom}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vue mobile - cartes */}
+        <div className="mt-6 block sm:hidden space-y-3">
+          {seances.length === 0 && !loading && (
+            <p className="text-gray-500 text-center py-8">Aucune séance cette semaine</p>
+          )}
+          {seances.map(seance => (
+            <SeanceCard
+              key={seance.id}
+              seance={seance}
+              onEdit={(s) => { setSelectedSeance(s); setIsEditing(true); setShowFormModal(true); }}
+              onException={(s) => { setSelectedSeance(s); setShowExceptionModal(true); }}
+            />
+          ))}
+        </div>
+      </main>
+
+      {/* Modals */}
+      <SeanceFormModal
+        isOpen={showFormModal}
+        onClose={() => { setShowFormModal(false); setSelectedSeance(null); }}
+        onSubmit={async (data) => {
+          if (isEditing && selectedSeance) {
+            await handleUpdateSeance(selectedSeance.id, data);
+          } else {
+            await handleCreateSeance(data);
+          }
+        }}
+        initialData={selectedSeance as any}
+        isEditing={isEditing}
+        matieres={matieres}
+        professeurs={professeurs}
+        salles={salles}
+        creneaux={creneaux}
+        isLoading={submitting}
+      />
+
+      <ExceptionModal
+        isOpen={showExceptionModal}
+        onClose={() => { setShowExceptionModal(false); setSelectedSeance(null); }}
+        onSubmit={handleException}
+        seance={selectedSeance}
+        salles={salles}
+        isLoading={submitting}
+      />
     </div>
   );
 }

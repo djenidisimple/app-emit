@@ -70,10 +70,10 @@ const SESSIONS = [
   { value: 'Après-midi', label: 'Après-midi (13h - 17h)', icon: Clock },
 ];
 
-const STATUTS = {
+const STATUTS: Record<string, { label: string; color: string; icon: any }> = {
   'En attente': { label: 'En attente', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200', icon: Clock3 },
-  'Approuvé': { label: 'Approuvé', color: 'bg-green-500/10 text-green-600 border-green-200', icon: CheckCircle },
-  'Rejeté': { label: 'Rejeté', color: 'bg-red-500/10 text-red-600 border-red-200', icon: XCircle },
+  'Confirmée': { label: 'Confirmée', color: 'bg-green-500/10 text-green-600 border-green-200', icon: CheckCircle },
+  'Annulée': { label: 'Annulée', color: 'bg-red-500/10 text-red-600 border-red-200', icon: XCircle },
 };
 
 // Composant de carte de réservation
@@ -539,7 +539,7 @@ export default function ReservationsPage() {
   // Approuver une réservation (Admin)
   const handleApprove = async (id: number) => {
     try {
-      await api.patch(`/Reservation/${id}/statut`, { statut: 'Approuvé' });
+      await api.patch(`/Reservation/${id}/statut`, { statut: 'Confirmée' });
       await fetchReservations();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erreur lors de l\'approbation');
@@ -550,7 +550,7 @@ export default function ReservationsPage() {
   const handleReject = async (id: number) => {
     const motif = prompt('Motif du rejet (optionnel):');
     try {
-      await api.patch(`/Reservation/${id}/statut`, { statut: 'Rejeté' });
+      await api.patch(`/Reservation/${id}/statut`, { statut: 'Annulée' });
       await fetchReservations();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erreur lors du rejet');
@@ -561,7 +561,7 @@ export default function ReservationsPage() {
   const handleCancel = async (id: number) => {
     if (!confirm('Voulez-vous vraiment annuler cette demande ?')) return;
     try {
-      await api.delete(`/Reservation/${id}`);
+      await api.patch(`/Reservation/${id}/statut`, { statut: 'Annulée' });
       await fetchReservations();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erreur lors de l\'annulation');
@@ -597,8 +597,8 @@ export default function ReservationsPage() {
   const stats = {
     total: reservations.length,
     enAttente: reservations.filter(r => r.statut === 'En attente').length,
-    approuve: reservations.filter(r => r.statut === 'Approuvé').length,
-    rejete: reservations.filter(r => r.statut === 'Rejeté').length,
+    approuve: reservations.filter(r => r.statut === 'Confirmée').length,
+    rejete: reservations.filter(r => r.statut === 'Annulée').length,
   };
 
   if (loading) {
@@ -672,7 +672,7 @@ export default function ReservationsPage() {
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
-              {['all', 'En attente', 'Approuvé', 'Rejeté'].map((statut) => (
+              {['all', 'En attente', 'Confirmée', 'Annulée'].map((statut) => (
                 <button
                   key={statut}
                   onClick={() => setFilterStatut(statut)}
