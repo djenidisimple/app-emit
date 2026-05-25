@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, CheckCircle } from 'lucide-react';
-import { SeancePlanningDto, ExceptionPlanning, Salle } from '@/types';
+import { SeancePlanningDto, Salle, ExceptionPlanning } from '@/types';
 import Button from './ui/Button';
-import api from '@/services/api';
+import { api } from '@/services/api';
 import useAuthStore from '@/store/authStore';
 
 interface ExceptionModalProps {
@@ -158,7 +158,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
               >
                 <option value="">Sélectionner une salle</option>
                 {salles.map(s => (
-                  <option key={s.id} value={s.id}>{s.libelle} ({s.capacite} places)</option>
+                  <option key={s.id} value={s.id}>{(s as any).libelle || s.nom} ({s.capacite} places)</option>
                 ))}
               </select>
             </div>

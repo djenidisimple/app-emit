@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
-import api from '@/lib/api';
+import api from '@/services/api';
 
 // Types
 interface Salle {
@@ -208,11 +208,11 @@ const CreateReservationModal = ({
     session: 'Matin',
     salleId: 0,
   });
-  const [errors, setErrors] = useState<Partial<CreateReservationDto>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   const validate = () => {
-    const newErrors: Partial<CreateReservationDto> = {};
+    const newErrors: Record<string, string> = {};
     if (!formData.titre.trim()) newErrors.titre = 'Le titre est requis';
     if (!formData.datePrecise) newErrors.datePrecise = 'La date est requise';
     else {
@@ -496,7 +496,7 @@ export default function ReservationsPage() {
   // Charger les salles
   const fetchSalles = useCallback(async () => {
     try {
-      const response = await api.get('/Salle');
+      const response = await api.get('/Salles');
       setSalles(response.data);
     } catch (err) {
       console.error('Erreur chargement salles:', err);

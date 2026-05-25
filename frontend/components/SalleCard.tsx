@@ -11,7 +11,7 @@ interface SalleCardProps {
 }
 
 const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
-  const estDisponible = salle.estActive;
+  const estDisponible = salle.estDisponible;
 
   return (
     <div className="card-emit p-5 flex flex-col justify-between h-full group bg-white border border-emit-border rounded-md shadow-sm">

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { X, Calendar, MapPin, FileText } from 'lucide-react';
 import { Salle, ReservationCreateDto } from '@/types';
 import Button from './ui/Button';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 interface ReservationModalProps {
   isOpen: boolean;
@@ -81,7 +81,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
               <MapPin size={18} className="text-emit-orange" />
               <div>
                 <p className="text-sm font-bold text-emit-blue">{salle.libelle}</p>
-                <p className="text-xs text-emit-text/60">Code: {salle.codeSalle} · {salle.capacite} places</p>
+                <p className="text-xs text-emit-text/60">{salle.capacite} places</p>
               </div>
             </div>
 

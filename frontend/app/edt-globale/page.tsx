@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
-import api from '@/lib/api';
+import api from '@/services/api';
 
 // ============================================
 // TYPES
@@ -843,3 +843,13 @@ export default function PlanningPage() {
   // ============================================
 
   useEffect(() => {
+    fetchPlanning();
+  }, [currentDate]);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold">EDT Globale</h1>
+      <p className="text-gray-500">Planning hebdomadaire global</p>
+    </div>
+  );
+}

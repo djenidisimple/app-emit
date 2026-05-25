@@ -14,7 +14,7 @@ import NotificationBell from '@/components/NotificationBell';
 import { SeancePlanningDto, Notification, Salle, PlanningHebdoResponse } from '@/types';
 import Button from '@/components/ui/Button';
 import useAuthStore from '@/store/authStore';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ViewMode = 'calendar' | 'list';
@@ -350,24 +350,39 @@ export default function DashboardPage() {
     setToasts((p) => p.filter((t) => t.id !== id));
   }, []);
 
-  const isProf = user?.roles?.[0] === 'Professeur';
+  const isProf = user?.role === 'Professeur' || user?.roles?.[0] === 'Professeur';
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const sallesRes = await api.get<Salle[]>('/Salles');
-      setSalles(sallesRes.data);
+      const sallesRes = await api.get<any[]>('/Salles');
+      const mappedSalles: any[] = sallesRes.map((s: any) => ({
+        id: s.id,
+        nom: s.nom || s.libelle || '',
+        libelle: s.libelle || s.nom || '',
+        capacite: s.capacite,
+        type: s.type || '',
+        estDisponible: s.estDisponible ?? s.estActive ?? true,
+      }));
+      setSalles(mappedSalles as Salle[]);
 
       const today = new Date().toISOString().split('T')[0];
       let url = `/Planning/hebdo?startDate=${today}`;
-      const role = user.roles?.[0];
+      const role = user.role || user.roles?.[0];
       if (role === 'Etudiant' && user.niveauId) url += `&niveauId=${user.niveauId}`;
       else if (role === 'Professeur' && user.id) url += `&professeurId=${user.id}`;
 
       const res = await api.get<PlanningHebdoResponse>(url);
-      if (res.data?.seances) setSeances(res.data.seances);
+      if (res?.seances) setSeances(res.seances);
+
+      if (user.id) {
+        try {
+          const notifRes = await api.get<Notification[]>(`/Notification/utilisateur/${user.id}?page=1&pageSize=50`);
+          if (notifRes) setNotifications(notifRes);
+        } catch { /* silent */ }
+      }
     } catch {
       addToast('error', 'Impossible de charger le planning.');
     } finally {
