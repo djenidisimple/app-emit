@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppEmit.DTOs.Reservation;
+namespace AppEmit.API.DTOs.Reservation;
 
 public class ReservationCreateDto
 {
