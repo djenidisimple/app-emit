@@ -22,6 +22,9 @@ public class Utilisateur
     [Required]
     public string MotDePasseHash { get; set; } = string.Empty;
 
+    [StringLength(20)]
+    public string? Role { get; set; }
+
     public DateTime? DateNaissance { get; set; }
     public string? Adresse { get; set; }
 

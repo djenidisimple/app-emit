@@ -13,6 +13,9 @@ public class Salle
     [Required, StringLength(100)]
     public string Libelle { get; set; } = string.Empty;
 
+    [Required, StringLength(100)]
+    public string Nom { get; set; } = string.Empty;
+
     [Required]
     public int Capacite { get; set; }
 
@@ -20,6 +23,9 @@ public class Salle
 
     public bool EstActive { get; set; } = true;
 
+    public bool EstDisponible { get; set; } = true;
+
+    [StringLength(20)]
     public string? Type { get; set; }
 
     // Relations

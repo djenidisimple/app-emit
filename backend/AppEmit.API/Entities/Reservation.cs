@@ -22,8 +22,11 @@ public class Reservation
 
     public DateTime DateReservation { get; set; }
 
+    [StringLength(50)]
+    public string? Session { get; set; } // Matin, Après-midi
+
     [Required, StringLength(50)]
-    public string Statut { get; set; } = "En attente"; // En attente, Confirmée, Annulée
+    public string Statut { get; set; } = "En attente"; // En attente, Approuvé, Rejeté
 
     public virtual ICollection<Paiement> Paiements { get; set; } = new List<Paiement>();
 }

@@ -42,4 +42,3 @@ namespace AppEmit.API.Entities
         public DateTime? DateReponse { get; set; }
     }
 }
-}

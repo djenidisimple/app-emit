@@ -28,6 +28,10 @@ public class SeanceCours
     [ForeignKey("CreneauId")]
     public Creneau Creneau { get; set; } = null!;
 
+    public int? ParcoursId { get; set; }
+    [ForeignKey("ParcoursId")]
+    public Parcours? Parcours { get; set; }
+
     public int? NiveauId { get; set; }
     [ForeignKey("NiveauId")]
     public Niveau? Niveau { get; set; }
