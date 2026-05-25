@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Calendar, MapPin, Bell, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, Calendar, MapPin, Bell, LogOut, User, CalendarRange, CalendarCheck, Repeat, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
@@ -10,11 +10,18 @@ import useAuthStore from '@/store/authStore';
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { logout, user } = useAuthStore();
+  const role = user?.role || user?.roles?.[0] || '';
+  const isAdmin = role === 'Admin';
+  const isProf = role === 'Professeur' || isAdmin;
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Planning', path: '/planning', icon: Calendar },
+    { name: 'EDT Globale', path: '/edt-globale', icon: CalendarRange },
     { name: 'Salles', path: '/salles', icon: MapPin },
+    { name: 'Réservations', path: '/reservations', icon: CalendarCheck },
+    ...(isProf ? [{ name: 'Échanges', path: '/echanges/mes-demandes', icon: Repeat }] : []),
+    ...(isAdmin ? [{ name: 'Admin', path: '/admin', icon: Settings }] : []),
   ];
 
   return (

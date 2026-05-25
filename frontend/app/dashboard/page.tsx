@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import {
   LayoutGrid, Calendar as CalendarIcon, Settings, LogOut, Search,
   CheckCircle, AlertCircle, X, CheckCheck, Clock, BookOpen,
   MapPin, User, Filter, ChevronDown, ChevronUp, RefreshCw,
-  List, CalendarDays, BadgeCheck, Ban, RotateCcw, Eye, EyeOff,
+  List, CalendarDays, BadgeCheck, Ban, RotateCcw, Eye, EyeOff, Repeat,
 } from 'lucide-react';
 import CalendarWeek from '@/components/CalendarWeek';
 import ExceptionModal from '@/components/ExceptionModal';
@@ -302,14 +303,16 @@ function StatCard({ label, value, color }: { label: string; value: number | stri
 }
 
 // ─── NavItem ──────────────────────────────────────────────────────────────────
-function NavItem({ icon: Icon, label, active = false }: { icon: React.ElementType; label: string; active?: boolean }) {
-  return (
-    <button className={`flex items-center gap-3 w-full p-2.5 rounded-md transition-all font-poppins text-sm ${
+function NavItem({ icon: Icon, label, active = false, href }: { icon: React.ElementType; label: string; active?: boolean; href?: string }) {
+  const content = (
+    <div className={`flex items-center gap-3 w-full p-2.5 rounded-md transition-all font-poppins text-sm ${
       active ? 'bg-emit-blue text-white shadow-sm' : 'text-emit-text/70 hover:bg-gray-50 hover:text-emit-blue'
     }`}>
       <Icon size={19} />{label}
-    </button>
+    </div>
   );
+  if (href) return <Link href={href}>{content}</Link>;
+  return content;
 }
 
 // ─── Main Dashboard Page ──────────────────────────────────────────────────────
@@ -484,9 +487,13 @@ export default function DashboardPage() {
           <p className="text-[10px] text-emit-text/40 uppercase tracking-widest mt-1">EMIT Fianarantsoa</p>
         </div>
         <nav className="flex-1 px-4 space-y-1">
-          <NavItem icon={LayoutGrid} label="Dashboard" active />
-          <NavItem icon={CalendarIcon} label="Plannings" />
-          <NavItem icon={Settings} label="Administration" />
+          <NavItem icon={LayoutGrid} label="Dashboard" active href="/dashboard" />
+          <NavItem icon={CalendarIcon} label="Planning" href="/planning" />
+          <NavItem icon={CalendarDays} label="EDT Globale" href="/edt-globale" />
+          <NavItem icon={MapPin} label="Salles" href="/salles" />
+          <NavItem icon={CalendarIcon} label="Réservations" href="/reservations" />
+          <NavItem icon={Repeat} label="Échanges" href="/echanges/mes-demandes" />
+          <NavItem icon={Settings} label="Administration" href="/admin" />
         </nav>
         <div className="p-4 border-t border-emit-border">
           <button
