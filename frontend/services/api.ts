@@ -34,14 +34,16 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// Wrapper pour correspondre à l'interface { get, post, put, delete }
+// Wrapper pour correspondre à l'interface { get, post, put, patch, delete }
 export const api = {
-  get: <T>(endpoint: string): Promise<T> =>
-    axiosInstance.get(endpoint).then((res) => res.data),
-  post: <T>(endpoint: string, data: any): Promise<T> =>
+  get: <T>(endpoint: string, config?: any): Promise<T> =>
+    axiosInstance.get(endpoint, config).then((res) => res.data),
+  post: <T>(endpoint: string, data?: any): Promise<T> =>
     axiosInstance.post(endpoint, data).then((res) => res.data),
-  put: <T>(endpoint: string, data: any): Promise<T> =>
+  put: <T>(endpoint: string, data?: any): Promise<T> =>
     axiosInstance.put(endpoint, data).then((res) => res.data),
+  patch: <T>(endpoint: string, data?: any): Promise<T> =>
+    axiosInstance.patch(endpoint, data).then((res) => res.data),
   delete: <T>(endpoint: string): Promise<T> =>
     axiosInstance.delete(endpoint).then((res) => res.data),
 };

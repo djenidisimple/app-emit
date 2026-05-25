@@ -31,8 +31,10 @@ export interface Utilisateur {
 export interface Salle {
   id: number;
   nom: string;
+  libelle?: string;
+  codeSalle?: string;
   capacite: number;
-  type: string;      // TP, TD, Amphi
+  type: string;
   estDisponible: boolean;
 }
 
@@ -94,6 +96,112 @@ export interface DemandeEchangeCreateDto {
   seanceDemandeurId: number;
   seanceCibleId: number;
   motif?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  role: string;
+  roles: string[];
+  matricule?: string;
+  niveauId?: number;
+  expiration: string;
+}
+
+export interface UtilisateurDto {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  role: string;
+  matricule?: string;
+}
+
+export interface SeancePlanningDto {
+  id: number;
+  matiereNom: string;
+  matiereCode: string;
+  professeurNomComplet: string;
+  professeurId: number;
+  salleNom: string;
+  jour: string;
+  heureDebut: string;
+  heureFin: string;
+  dateOccurrence: string;
+  statut: string;
+  motifException?: string;
+  parcoursId?: number;
+  niveauId?: number;
+}
+
+export interface PlanningHebdoResponse {
+  seances: SeancePlanningDto[];
+  semaineDebut: string;
+  semaineFin: string;
+}
+
+export interface Notification {
+  id: number;
+  utilisateurId: number;
+  message: string;
+  dateEnvoi: string;
+  estLu: boolean;
+}
+
+export interface CreerExceptionDto {
+  seanceCoursId: number;
+  dateDebut: string;
+  dateFin?: string;
+  motif?: string;
+  nouvelleSalleId?: number;
+}
+
+export interface EvenementReservation {
+  id: number;
+  titre: string;
+  type: string;
+  datePrecise: string;
+  session: string;
+  statut: string;
+  demandeurId: number;
+  demandeurNom: string;
+  salleId: number;
+  salleLibelle: string;
+}
+
+export interface ReservationCreateDto {
+  titre: string;
+  type: string;
+  datePrecise: string;
+  salleId: number;
+  session?: string;
+}
+
+export interface ReservationReadDto {
+  id: number;
+  titre: string;
+  type: string;
+  datePrecise: string;
+  session: string;
+  statut: string;
+  demandeurId: number;
+  demandeurNom: string;
+  salleId: number;
+  salleLibelle: string;
+}
+
+export interface ExceptionPlanning {
+  id?: number;
+  seanceCoursId?: number;
+  dateDebut: string;
+  dateFin?: string;
+  typeException: string;
+  motif?: string;
+  nouvelleSalleId?: number;
+  dateCreation?: string;
 }
 
 export interface GenerationSeancePayload {

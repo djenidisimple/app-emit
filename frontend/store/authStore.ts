@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import api from '@/services/api';
+import { api } from '@/services/api';
 import { AuthResponse } from '@/types';
 import Cookies from 'js-cookie';
 
-type UserInfo = Pick<AuthResponse, 'nom' | 'prenom' | 'email' | 'roles' | 'matricule' | 'niveauId'> & { id?: number };
+type UserInfo = Pick<AuthResponse, 'nom' | 'prenom' | 'email' | 'role' | 'roles' | 'id' | 'matricule' | 'niveauId'>;
 
 interface AuthState {
   user: UserInfo | null;
@@ -25,8 +25,8 @@ const useAuthStore = create<AuthState>((set) => ({
   login: async (email, motDePasse) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post<AuthResponse>('/Auth/login', { email, motDePasse });
-      const { token, ...userData } = response.data;
+      const authResponse = await api.post<AuthResponse>('/Auth/login', { email, motDePasse });
+      const { token, ...userData } = authResponse;
       
       Cookies.set('app-emit-token', token, { expires: 1 });
       set({ user: userData, token, isLoading: false });
@@ -40,8 +40,8 @@ const useAuthStore = create<AuthState>((set) => ({
   register: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post<AuthResponse>('/Auth/register', data);
-      const { token, ...userData } = response.data;
+      const authResponse = await api.post<AuthResponse>('/Auth/register', data);
+      const { token, ...userData } = authResponse;
       
       Cookies.set('app-emit-token', token, { expires: 1 });
       set({ user: userData, token, isLoading: false });
