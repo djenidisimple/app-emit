@@ -145,16 +145,7 @@ builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
 
 // Ajouter ces lignes dans Program.cs dans la section DI
 
-// ── Admin : Imprévus ──────────────────────────────────────────────────
-builder.Services.AddScoped<IAdminImprevuService, AdminImprevuService>();
-
-// ── Admin : Référentiel ───────────────────────────────────────────────
-builder.Services.AddScoped<IReferentielService, ReferentielService>();
-
-// ── Admin : Stats ─────────────────────────────────────────────────────
-builder.Services.AddScoped<IAdminStatsService, AdminStatsService>();
-
-// ── Matière & Parcours (corriger l'enregistrement manquant) ───────────
+// ── Matière & Parcours ───────────────────────────────────────────────
 builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
 builder.Services.AddScoped<IMatiereService, MatiereService>();
 builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
@@ -198,6 +189,7 @@ using (var scope = app.Services.CreateScope())
     
     if (!context.Filieres.Any())
     {
+        // ── Filières & Parcours & Niveaux ──
         var filiere = new Filiere { Nom = "Informatique et Management" };
         context.Filieres.Add(filiere);
         context.SaveChanges();
@@ -217,7 +209,96 @@ using (var scope = app.Services.CreateScope())
         };
         context.Niveaux.AddRange(niveaux);
         context.SaveChanges();
-        Console.WriteLine("[SEED] Niveaux et Parcours créés avec succès !");
+        Console.WriteLine("[SEED] Filières, Parcours et Niveaux créés !");
+    }
+
+    if (!context.Creneaux.Any())
+    {
+        var jours = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" };
+        var creneaux = new List<Creneau>();
+        foreach (var jour in jours)
+        {
+            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(8, 0, 0), HeureFin = new TimeSpan(10, 0, 0) });
+            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(10, 0, 0), HeureFin = new TimeSpan(12, 0, 0) });
+            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(14, 0, 0), HeureFin = new TimeSpan(16, 0, 0) });
+            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(16, 0, 0), HeureFin = new TimeSpan(18, 0, 0) });
+        }
+        context.Creneaux.AddRange(creneaux);
+        context.SaveChanges();
+        Console.WriteLine("[SEED] Créneaux créés !");
+    }
+
+    if (!context.Salles.Any())
+    {
+        var salles = new List<Salle>
+        {
+            new Salle { CodeSalle = "A101", Libelle = "Amphi 1", Nom = "Amphi 1", Capacite = 150, Type = "Amphi", EstActive = true, EstDisponible = true },
+            new Salle { CodeSalle = "A102", Libelle = "Amphi 2", Nom = "Amphi 2", Capacite = 100, Type = "Amphi", EstActive = true, EstDisponible = true },
+            new Salle { CodeSalle = "TP01", Libelle = "Labo Info 1", Nom = "Labo Info 1", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
+            new Salle { CodeSalle = "TP02", Libelle = "Labo Info 2", Nom = "Labo Info 2", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
+            new Salle { CodeSalle = "TD01", Libelle = "Salle TD 1", Nom = "Salle TD 1", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
+            new Salle { CodeSalle = "TD02", Libelle = "Salle TD 2", Nom = "Salle TD 2", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
+        };
+        context.Salles.AddRange(salles);
+        context.SaveChanges();
+        Console.WriteLine("[SEED] Salles créées !");
+    }
+
+    if (!context.Matieres.Any())
+    {
+        var matieres = new List<Matiere>
+        {
+            new Matiere { Code = "INF401", Nom = "Génie Logiciel", Type = "Cours" },
+            new Matiere { Code = "INF402", Nom = "Base de Données", Type = "Cours" },
+            new Matiere { Code = "INF403", Nom = "Réseaux", Type = "Cours" },
+            new Matiere { Code = "INF404", Nom = "Programmation Web", Type = "Cours" },
+            new Matiere { Code = "MGT401", Nom = "Management", Type = "Cours" },
+        };
+        context.Matieres.AddRange(matieres);
+        context.SaveChanges();
+        Console.WriteLine("[SEED] Matières créées !");
+    }
+
+    if (!context.Utilisateurs.Any())
+    {
+        var adminRole = new Role { Nom = "Admin" };
+        var profRole = new Role { Nom = "Professeur" };
+        var etudiantRole = new Role { Nom = "Etudiant" };
+        context.Roles.AddRange(adminRole, profRole, etudiantRole);
+        context.SaveChanges();
+
+        var admin = new Utilisateur
+        {
+            Nom = "Admin", Prenom = "System", Email = "admin@emit.mg",
+            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            Role = "Admin", Matricule = "ADM001",
+            Roles = new List<Role> { adminRole }
+        };
+        var prof1 = new Utilisateur
+        {
+            Nom = "Rakoto", Prenom = "Jean", Email = "prof1@emit.mg",
+            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+            Role = "Professeur", Matricule = "PROF001",
+            Roles = new List<Role> { profRole }
+        };
+        var prof2 = new Utilisateur
+        {
+            Nom = "Rabe", Prenom = "Marie", Email = "prof2@emit.mg",
+            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+            Role = "Professeur", Matricule = "PROF002",
+            Roles = new List<Role> { profRole }
+        };
+        var etudiant = new Utilisateur
+        {
+            Nom = "Randria", Prenom = "Faly", Email = "etudiant@emit.mg",
+            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"),
+            Role = "Etudiant", Matricule = "ETU001",
+            NiveauId = context.Niveaux.FirstOrDefault()?.Id,
+            Roles = new List<Role> { etudiantRole }
+        };
+        context.Utilisateurs.AddRange(admin, prof1, prof2, etudiant);
+        context.SaveChanges();
+        Console.WriteLine("[SEED] Utilisateurs créés (admin/admin123, prof1/prof123, etudiant/etud123) !");
     }
 }
 
