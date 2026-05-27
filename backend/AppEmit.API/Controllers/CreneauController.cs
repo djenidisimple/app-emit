@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace AppEmit.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/creneaux")]
     public class CreneauController : ControllerBase
     {
         private readonly AppDbContext _context;

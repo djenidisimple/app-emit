@@ -8,9 +8,10 @@ import { Notification } from '@/types';
 interface NotificationBellProps {
   notifications: Notification[];
   onMarkAsRead: (id: number) => void;
+  onMarkAllAsRead?: () => void;
 }
 
-const NotificationBell: React.FC<NotificationBellProps> = ({ notifications, onMarkAsRead }) => {
+const NotificationBell: React.FC<NotificationBellProps> = ({ notifications, onMarkAsRead, onMarkAllAsRead }) => {
   const [isOpen, setIsOpen] = useState(false);
   const unreadCount = notifications.filter(n => !n.estLu).length;
 
@@ -75,7 +76,10 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ notifications, onMa
               </div>
 
               <div className="p-3 text-center border-t border-emit-border bg-emit-bg">
-                <button className="text-xs font-semibold text-emit-blue hover:underline">
+                <button
+                  onClick={() => { onMarkAllAsRead?.(); setIsOpen(false); }}
+                  className="text-xs font-semibold text-emit-blue hover:underline"
+                >
                   Tout marquer comme lu
                 </button>
               </div>

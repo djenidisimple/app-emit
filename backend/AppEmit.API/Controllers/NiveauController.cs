@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/niveaux")]
     [ApiController]
     public class NiveauController : ControllerBase
     {
@@ -26,14 +26,14 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<NiveauDto>> Create(NiveauCreateDto dto)
+        public async Task<ActionResult<NiveauDto>> Create([FromBody] NiveauCreateDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<NiveauDto>> Update(int id, NiveauCreateDto dto)
+        public async Task<ActionResult<NiveauDto>> Update(int id, [FromBody] NiveauCreateDto dto)
         {
             var updated = await _service.UpdateAsync(id, dto);
             if (updated == null) return NotFound();

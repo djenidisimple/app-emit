@@ -71,13 +71,25 @@ namespace AppEmit.API.Services
             };
         }
 
+        private static readonly Dictionary<DayOfWeek, string> DayMapping = new()
+        {
+            { DayOfWeek.Monday, "Lundi" },
+            { DayOfWeek.Tuesday, "Mardi" },
+            { DayOfWeek.Wednesday, "Mercredi" },
+            { DayOfWeek.Thursday, "Jeudi" },
+            { DayOfWeek.Friday, "Vendredi" },
+            { DayOfWeek.Saturday, "Samedi" },
+            { DayOfWeek.Sunday, "Dimanche" },
+        };
+
         private List<DateTime> GenerateOccurrences(SeanceCours seance, DateTime weekStart, DateTime weekEnd)
         {
             var result = new List<DateTime>();
             var current = weekStart;
             while (current <= weekEnd)
             {
-                if (current.DayOfWeek.ToString() == seance.Creneau?.Jour) // ex: "Monday", "Tuesday"
+                var dayName = DayMapping.GetValueOrDefault(current.DayOfWeek);
+                if (dayName == seance.Creneau?.Jour)
                 {
                     if (current >= seance.DateDebutAnnee && current <= seance.DateFinAnnee)
                         result.Add(current);

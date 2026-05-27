@@ -46,7 +46,7 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ReservationReadDto>> Create(ReservationCreateDto dto)
+        public async Task<ActionResult<ReservationReadDto>> Create([FromBody] ReservationCreateDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                            ?? User.FindFirst("sub")?.Value
@@ -60,7 +60,7 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPatch("{id}/statut")]
-        public async Task<ActionResult<ReservationReadDto>> UpdateStatut(int id, ReservationUpdateStatusDto dto)
+        public async Task<ActionResult<ReservationReadDto>> UpdateStatut(int id, [FromBody] ReservationUpdateStatusDto dto)
         {
             var updated = await _reservationService.UpdateStatutAsync(id, dto.Statut);
             if (updated == null) return NotFound();

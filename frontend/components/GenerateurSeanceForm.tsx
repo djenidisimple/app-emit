@@ -1,7 +1,7 @@
 // components/GenerateurSeanceForm.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Parcours, Niveau, Matiere, Utilisateur, Salle, Creneau, GenerationSeancePayload } from '@/types';
 import { parcoursService } from '@/services/parcours';
 import { niveauService } from '@/services/niveaux';
@@ -23,7 +23,7 @@ interface FormValues {
 }
 
 export default function GenerateurSeanceForm() {
-  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<FormValues>();
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>();
   const [parcoursList, setParcoursList] = useState<Parcours[]>([]);
   const [niveauxList, setNiveauxList] = useState<Niveau[]>([]);
   const [matieres, setMatieres] = useState<Matiere[]>([]);
@@ -80,8 +80,8 @@ export default function GenerateurSeanceForm() {
       };
       const result = await generateurService.generer(payload);
       setResultMsg({ type: 'success', text: `${result.length} séance(s) générée(s) avec succès.` });
-    } catch (err: any) {
-      setResultMsg({ type: 'error', text: err.message });
+    } catch (err: unknown) {
+      setResultMsg({ type: 'error', text: err instanceof Error ? err.message : 'Erreur inconnue' });
     } finally {
       setLoading(false);
     }

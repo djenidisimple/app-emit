@@ -1,6 +1,6 @@
 // components/modals/EditNiveauModal.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Niveau, Parcours } from '@/types';
 import api from '@/services/api';
 
@@ -18,8 +18,10 @@ export default function EditNiveauModal({ isOpen, niveau, parcoursList, onClose,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const prevId = useRef<number | null>(null);
   useEffect(() => {
-    if (niveau) {
+    if (niveau && niveau.id !== prevId.current) {
+      prevId.current = niveau.id;
       setCode(niveau.code);
       setParcoursId(niveau.parcoursId);
     }
@@ -34,8 +36,8 @@ export default function EditNiveauModal({ isOpen, niveau, parcoursList, onClose,
       await api.put(`/Niveau/${niveau.id}`, { code, parcoursId });
       onSaved();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la modification');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification');
     } finally {
       setLoading(false);
     }

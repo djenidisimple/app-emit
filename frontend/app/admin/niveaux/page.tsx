@@ -1,204 +1,99 @@
-// app/admin/niveaux/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, Pencil } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Button from '@/components/ui/Button';
-import api from '@/services/api';
+import { Plus, Pencil, Trash2, GraduationCap, AlertCircle } from 'lucide-react';
+import ProtectedLayout from '@/components/layout/ProtectedLayout';
+import EmptyState from '@/components/global/EmptyState';
+import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { Niveau, Parcours } from '@/types';
-import EditNiveauModal from '@/components/modals/EditNiveauModal';
+import api from '@/services/api';
 
 export default function AdminNiveauxPage() {
   const [items, setItems] = useState<Niveau[]>([]);
   const [parcoursList, setParcoursList] = useState<Parcours[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
-  const [parcoursId, setParcoursId] = useState<string>('');
-  const [selectedNiveau, setSelectedNiveau] = useState<Niveau | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [parcoursId, setParcoursId] = useState('');
 
-  // Chargement des niveaux et des parcours
   const fetchData = async () => {
+    setIsLoading(true);
+    setError('');
     try {
-      const [niveauxRes, parcoursRes] = await Promise.all([
-        api.get<Niveau[]>('/Niveau'),
-        api.get<Parcours[]>('/Parcours'),
-      ]);
-      setItems(niveauxRes.data);
-      setParcoursList(parcoursRes.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+      const [niveauxRes, parcoursRes] = await Promise.all([api.get<Niveau[]>('/Niveau'), api.get<Parcours[]>('/Parcours')]);
+      setItems(niveauxRes.data); setParcoursList(parcoursRes.data || []);
+    } catch { setError('Impossible de charger les niveaux.'); }
+    finally { setIsLoading(false); }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  // Création d'un niveau
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.post('/Niveau', { code, parcoursId: parseInt(parcoursId) });
-      setShowForm(false);
-      setCode('');
-      setParcoursId('');
-      fetchData();
-    } catch (err) {
-      console.error(err);
-    }
+      setShowForm(false); setCode(''); setParcoursId(''); fetchData();
+    } catch { setError('Erreur lors de la création.'); }
   };
 
-  // Suppression
   const handleDelete = async (id: number) => {
     if (!confirm('Supprimer ce niveau ?')) return;
-    try {
-      await api.delete(`/Niveau/${id}`);
-      setItems(items.filter(i => i.id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Édition
-  const handleEdit = (niveau: Niveau) => {
-    setSelectedNiveau(niveau);
-    setModalOpen(true);
-  };
-
-  const handleModalSaved = () => {
-    fetchData();
-    setModalOpen(false);
-  };
-
-  // Helper pour obtenir le nom du parcours
-  const getParcoursNom = (parcoursId: number): string => {
-    const parcours = parcoursList.find(p => p.id === parcoursId);
-    return parcours ? parcours.nom : `ID: ${parcoursId}`;
+    try { await api.delete(`/Niveau/${id}`); setItems(items.filter(i => i.id !== id)); }
+    catch { setError('Erreur lors de la suppression.'); }
   };
 
   return (
-    <div className="min-h-screen bg-emit-bg">
-      <Navbar />
-      <div className="max-w-4xl mx-auto pt-28 pb-10 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-poppins font-bold text-emit-blue">Niveaux</h1>
-            <p className="text-emit-text/60 mt-1">Gestion des niveaux d'étude (L1, L2, etc.).</p>
-          </div>
-          <Button variant="orange" icon={Plus} onClick={() => setShowForm(true)}>
-            Ajouter
-          </Button>
-        </div>
-
-        {showForm && (
-          <form
-            onSubmit={handleCreate}
-            className="bg-white border border-emit-border rounded-md p-4 mb-6 flex gap-4 items-end"
-          >
-            <div className="flex-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">
-                Code
-              </label>
-              <input
-                type="text"
-                placeholder="Ex: L3"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm"
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">
-                Parcours
-              </label>
-              <select
-                value={parcoursId}
-                onChange={(e) => setParcoursId(e.target.value)}
-                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm"
-                required
-              >
-                <option value="">Sélectionner un parcours</option>
-                {parcoursList.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nom}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <Button type="submit" variant="orange">
-                Créer
-              </Button>
-              <Button type="button" variant="glass" onClick={() => setShowForm(false)}>
-                Annuler
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <div className="bg-white border border-emit-border rounded-md overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-emit-bg border-b border-emit-border">
-                  <th className="text-left p-4 font-semibold text-emit-blue">Code</th>
-                  <th className="text-left p-4 font-semibold text-emit-blue">Parcours</th>
-                  <th className="text-right p-4 font-semibold text-emit-blue">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, i) => (
-                  <motion.tr
-                    key={item.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="border-b border-emit-border/50 hover:bg-emit-bg/50"
-                  >
-                    <td className="p-4 font-medium">{item.code}</td>
-                    <td className="p-4 text-emit-text/70">
-                      {getParcoursNom(item.parcoursId)}
-                    </td>
-                    <td className="p-4 text-right space-x-2">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-md"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-md"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+    <ProtectedLayout pageTitle="Niveaux">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => setShowForm(true)}
+          className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150 flex items-center gap-2">
+          <Plus className="w-4 h-4" /> Ajouter
+        </button>
       </div>
-
-      <EditNiveauModal
-        isOpen={modalOpen}
-        niveau={selectedNiveau}
-        parcoursList={parcoursList}
-        onClose={() => setModalOpen(false)}
-        onSaved={handleModalSaved}
-      />
-    </div>
+      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700"><AlertCircle className="w-4 h-4 inline mr-1" />{error}</div>}
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5 mb-6 flex gap-4 items-end">
+          <div className="flex flex-col gap-1 flex-1">
+            <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Code</label>
+            <input type="text" placeholder="Ex: L3" value={code} onChange={e => setCode(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required />
+          </div>
+          <div className="flex flex-col gap-1 flex-1">
+            <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Parcours</label>
+            <select value={parcoursId} onChange={e => setParcoursId(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required>
+              <option value="">Sélectionner...</option>
+              {parcoursList.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2">
+            <button type="submit" className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">Créer</button>
+            <button type="button" onClick={() => setShowForm(false)} className="border border-[#E9ECEF] text-[#6C757D] hover:bg-[#F8F9FA] font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">Annuler</button>
+          </div>
+        </form>
+      )}
+      {isLoading ? <LoadingSkeleton lines={5} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5" />
+      : items.length === 0 ? <EmptyState icon={GraduationCap} title="Aucun niveau" description="Aucun niveau enregistré." />
+      : <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+              <tr><th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Code</th><th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Parcours</th><th className="px-4 py-3 text-right text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Actions</th></tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F3F5]">
+              {items.map(item => (
+                <tr key={item.id} className="hover:bg-[#F8F9FA] transition-colors">
+                  <td className="px-4 py-3 font-medium text-[#212529]">{item.code}</td>
+                  <td className="px-4 py-3 text-[#6C757D]">{parcoursList.find(p => p.id === item.parcoursId)?.nom || `ID: ${item.parcoursId}`}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button className="p-1.5 text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-[#C62828] hover:bg-red-50 rounded-lg transition-colors duration-150 ml-1"><Trash2 className="w-4 h-4" /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>}
+    </ProtectedLayout>
   );
 }

@@ -1,5 +1,5 @@
 // services/api.ts
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5011/api';
@@ -36,16 +36,16 @@ axiosInstance.interceptors.response.use(
 
 // Wrapper pour correspondre à l'interface { get, post, put, patch, delete }
 export const api = {
-  get: <T>(endpoint: string, config?: any): Promise<T> =>
+  get: <T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> =>
     axiosInstance.get(endpoint, config).then((res) => res.data),
-  post: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+  post: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     axiosInstance.post(endpoint, data, config).then((res) => res.data),
-  put: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+  put: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     axiosInstance.put(endpoint, data, config).then((res) => res.data),
-  patch: <T>(endpoint: string, data?: any, config?: any): Promise<T> =>
+  patch: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     axiosInstance.patch(endpoint, data, config).then((res) => res.data),
-  delete: <T>(endpoint: string): Promise<T> =>
-    axiosInstance.delete(endpoint).then((res) => res.data),
+  delete: <T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> =>
+    axiosInstance.delete(endpoint, config).then((res) => res.data),
 };
 
 export default axiosInstance;

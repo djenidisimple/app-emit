@@ -11,6 +11,7 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<NotificationReadDto>> GetAllAsync();
         Task<IEnumerable<NotificationReadDto>> GetByUtilisateurIdAsync(int utilisateurId, int page, int pageSize);
         Task<bool> MarquerCommeLuAsync(int id);
+        Task<bool> MarquerToutCommeLuAsync(int utilisateurId);
         Task<bool> UpdateAsync(int id, NotificationCreateDto dto);
         Task<bool> DeleteAsync(int id);
     }

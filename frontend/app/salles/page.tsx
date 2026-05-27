@@ -1,252 +1,120 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Search, MapPin, Users, CheckCircle2, XCircle } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Button from '@/components/ui/Button';
-import ReservationModal from '@/components/ReservationModal';
+import { Search, Building2, Users, AlertCircle, Plus, Pencil, Trash2 } from 'lucide-react';
+import ProtectedLayout from '@/components/layout/ProtectedLayout';
+import StatutBadge from '@/components/global/StatutBadge';
+import EmptyState from '@/components/global/EmptyState';
+import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { Salle } from '@/types';
 import { api } from '@/services/api';
+import useAuthStore from '@/store/authStore';
 
 export default function SallesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [salles, setSalles] = useState<Salle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedSalle, setSelectedSalle] = useState<Salle | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState('');
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'Admin';
 
   useEffect(() => {
-    fetchSalles();
+    const load = async () => {
+      setIsLoading(true);
+      setError('');
+      try {
+        const data = await api.get<Salle[]>('/Salles');
+        setSalles(data);
+      } catch {
+        setError('Impossible de charger les salles.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
   }, []);
 
-  const fetchSalles = async () => {
-    try {
-      const data = await api.get<Salle[]>('/Salles');
-      setSalles(data);
-    } catch (err) {
-      console.error('Erreur lors du chargement des salles:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filteredSalles = salles.filter(s => 
-    (s.libelle || s.nom || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = salles.filter(s => (s.nom || s.libelle || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="salles-wrapper">
-      <Navbar />
-
-      <main className="salles-content">
-        <header className="salles-header">
-          <div>
-            <h1>Gestion des <span className="text-gradient">Salles</span></h1>
-            <p className="text-secondary">Consultez la disponibilité et réservez des espaces.</p>
-          </div>
-          
-          <div className="search-bar glass">
-            <Search size={20} className="text-muted" />
-            <input 
-              type="text" 
-              placeholder="Rechercher une salle..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </header>
-
-        {isLoading ? (
-          <div className="loading-state">Chargement des salles...</div>
-        ) : (
-          <div className="salles-grid">
-            {filteredSalles.map((salle) => (
-              <motion.div 
-                key={salle.id}
-                whileHover={{ y: -8 }}
-                className="salle-card glass"
-              >
-                <div className="salle-status">
-                  {salle.estDisponible ? (
-                    <span className="badge-success"><CheckCircle2 size={14} /> Disponible</span>
-                  ) : (
-                    <span className="badge-danger"><XCircle size={14} /> Indisponible</span>
-                  )}
-                </div>
-
-                <div className="salle-icon glass">
-                  <MapPin size={32} />
-                </div>
-
-                <h2 className="salle-name">{salle.libelle || salle.nom}</h2>
-                
-                <div className="salle-details">
-                  <div className="detail-item">
-                    <Users size={16} />
-                    <span>{salle.capacite} places</span>
-                  </div>
-                  <div className="detail-item">
-                    <div className="type-dot"></div>
-                    <span>Type: {salle.type}</span>
-                  </div>
-                </div>
-
-                <div className="salle-actions">
-                  <Button 
-                    className="w-full" 
-                    variant={salle.estDisponible ? 'orange' : 'glass'} 
-                    disabled={!salle.estDisponible}
-                    onClick={() => { setSelectedSalle(salle); setIsModalOpen(true); }}
-                  >
-                    Réserver
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+    <ProtectedLayout pageTitle="Salles">
+      <div className="flex items-center justify-between mb-6">
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#ADB5BD]" />
+          <input
+            type="text"
+            placeholder="Rechercher une salle..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-[#E9ECEF] bg-white text-sm text-[#212529] placeholder:text-[#ADB5BD] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150"
+          />
+        </div>
+        {isAdmin && (
+          <button className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150 flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Nouvelle salle
+          </button>
         )}
-      </main>
+      </div>
 
-      <ReservationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        salle={selectedSalle}
-      />
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" /> {error}
+        </div>
+      )}
 
-      <style jsx>{`
-        .salles-wrapper {
-          padding-top: 8rem;
-          padding-bottom: 3rem;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding-left: 2rem;
-          padding-right: 2rem;
-        }
-
-        .salles-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 3rem;
-        }
-
-        .salles-header h1 {
-          font-size: 2.5rem;
-          font-weight: 800;
-          margin-bottom: 0.5rem;
-        }
-
-        .search-bar {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 0.75rem 1.5rem;
-          border-radius: var(--radius-full);
-          width: 350px;
-        }
-
-        .search-bar input {
-          background: none;
-          border: none;
-          color: white;
-          width: 100%;
-          outline: none;
-        }
-
-        .salles-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 2rem;
-        }
-
-        .loading-state {
-          text-align: center;
-          padding: 4rem;
-          font-size: 1.25rem;
-          color: var(--text-secondary);
-        }
-
-        .salle-card {
-          padding: 2rem;
-          border-radius: 24px;
-          position: relative;
-          text-align: center;
-        }
-
-        .salle-status {
-          position: absolute;
-          top: 1.5rem;
-          right: 1.5rem;
-        }
-
-        .badge-success {
-          background: rgba(16, 185, 129, 0.1);
-          color: #10b981;
-          padding: 0.4rem 0.8rem;
-          border-radius: var(--radius-full);
-          font-size: 0.75rem;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-
-        .badge-danger {
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-          padding: 0.4rem 0.8rem;
-          border-radius: var(--radius-full);
-          font-size: 0.75rem;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-
-        .salle-icon {
-          width: 70px;
-          height: 70px;
-          margin: 0 auto 1.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 20px;
-          color: var(--emit-orange);
-        }
-
-        .salle-name {
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin-bottom: 1rem;
-        }
-
-        .salle-details {
-          display: flex;
-          justify-content: center;
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-          color: var(--text-secondary);
-          font-size: 0.875rem;
-        }
-
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .type-dot {
-          width: 6px;
-          height: 6px;
-          background: var(--accent-secondary);
-          border-radius: 50%;
-        }
-
-        .w-full {
-          width: 100%;
-        }
-      `}</style>
-    </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5 animate-pulse">
+              <div className="h-4 bg-[#E9ECEF] rounded w-2/3 mb-4" />
+              <div className="h-4 bg-[#E9ECEF] rounded w-1/3 mb-2" />
+              <div className="h-4 bg-[#E9ECEF] rounded w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState icon={Building2} title="Aucune salle trouvée" description={searchTerm ? "Aucune salle ne correspond à votre recherche." : "Aucune salle enregistrée."} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map(salle => (
+            <div key={salle.id} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5 hover:shadow-md transition-shadow duration-200">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#E8EEF8] rounded-lg flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-[#1B3A6B]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#212529]">{salle.libelle || salle.nom}</h3>
+                    <p className="text-xs text-[#6C757D]">{salle.codeSalle}</p>
+                  </div>
+                </div>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${salle.estDisponible ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                  {salle.estDisponible ? 'Disponible' : 'Indisponible'}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-[#6C757D] mb-4">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4" />
+                  <span>{salle.capacite} places</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#1B3A6B]/30" />
+                  <span>{salle.type}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-3 border-t border-[#E9ECEF]">
+                <button className="text-[#1B3A6B] font-medium text-sm hover:underline transition-all flex-1 text-left">Voir planning</button>
+                {isAdmin && (
+                  <div className="flex gap-1">
+                    <button className="p-1.5 text-[#6C757D] hover:text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
+                    <button className="p-1.5 text-[#6C757D] hover:text-[#C62828] hover:bg-red-50 rounded-lg transition-colors duration-150"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </ProtectedLayout>
   );
 }

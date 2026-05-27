@@ -1,8 +1,10 @@
 using AutoMapper;
 using AppEmit.API.DTOs.Notification;
 using AppEmit.API.Entities;
+using AppEmit.API.Hubs;
 using AppEmit.API.Interfaces;
 using AppEmit.API.Exceptions;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,12 +17,18 @@ namespace AppEmit.API.Services
         private readonly INotificationRepository _notificationRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<NotificationService> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(INotificationRepository notificationRepository, IMapper mapper, ILogger<NotificationService> logger)
+        public NotificationService(
+            INotificationRepository notificationRepository,
+            IMapper mapper,
+            ILogger<NotificationService> logger,
+            IHubContext<NotificationHub> hubContext)
         {
             _notificationRepository = notificationRepository;
             _mapper = mapper;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         public async Task<NotificationReadDto> CreateAsync(NotificationCreateDto dto)
@@ -31,6 +39,18 @@ namespace AppEmit.API.Services
 
             var createdNotification = await _notificationRepository.AddAsync(notification);
             _logger.LogInformation("Notification créée pour l'utilisateur {UserId}", notification.UtilisateurId);
+
+            await _hubContext.Clients
+                .Group($"user_{notification.UtilisateurId}")
+                .SendAsync("NouvelleNotification", new
+                {
+                    id = createdNotification.Id,
+                    message = notification.Message,
+                    dateEnvoi = notification.DateEnvoi,
+                    estLu = false,
+                    utilisateurId = notification.UtilisateurId
+                });
+
             return _mapper.Map<NotificationReadDto>(createdNotification);
         }
 
@@ -55,6 +75,11 @@ namespace AppEmit.API.Services
         public async Task<bool> MarquerCommeLuAsync(int id)
         {
             return await _notificationRepository.MarquerCommeLuAsync(id);
+        }
+
+        public async Task<bool> MarquerToutCommeLuAsync(int utilisateurId)
+        {
+            return await _notificationRepository.MarquerToutCommeLuAsync(utilisateurId);
         }
 
         public async Task<bool> UpdateAsync(int id, NotificationCreateDto dto)

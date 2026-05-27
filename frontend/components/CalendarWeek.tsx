@@ -90,7 +90,7 @@ const CalendarWeek: React.FC<CalendarWeekProps> = ({ seances, onSeanceClick }) =
                         <span className="text-[9px] font-semibold text-emit-orange">
                           {seance.salleNom}
                         </span>
-                        <Badge status={getBadgeStatus(seance.statut as any)} />
+                        <Badge status={getBadgeStatus(seance.statut ?? 'Normal')} />
                       </div>
                     </div>
                   </motion.div>

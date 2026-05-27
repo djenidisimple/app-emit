@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/seances")]
     [ApiController]
     public class SeanceCoursController : ControllerBase
     {
@@ -64,6 +64,35 @@ namespace AppEmit.API.Controllers
                 nameof(GetById),
                 new { id = created.Id },
                 created
+            );
+        }
+
+        // POST /api/SeanceCours/generer — matches frontend GenerationSeancePayload
+        [HttpPost("generer")]
+        public async Task<ActionResult<List<SeanceCoursReadDto>>> Generer(
+            [FromBody] GenerationSeancePayloadDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var createDto = new SeanceCoursCreateDto
+            {
+                ProfesseurId = dto.ProfId,
+                MatiereId = dto.MatiereId,
+                SalleId = dto.SalleId,
+                CreneauId = dto.CreneauId,
+                ParcoursId = dto.ParcoursId,
+                NiveauId = dto.NiveauId,
+                DateDebutAnnee = dto.DateDebut,
+                DateFinAnnee = dto.DateFin,
+            };
+
+            var created = await _seanceCoursService.CreateAsync(createDto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.Id },
+                new List<SeanceCoursReadDto> { created }
             );
         }
     }

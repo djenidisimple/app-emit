@@ -1,23 +1,21 @@
 import React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label?: string;
   error?: string;
 }
 
-const Input: React.FC<InputProps> = ({ label, error, className, ...props }) => {
+export default function Input({ label, error, className = '', ...props }: InputProps) {
   return (
-    <div className="w-full space-y-1.5">
-      <label className="text-sm font-semibold text-emit-blue ml-1">
-        {label}
-      </label>
-      <input 
-        className={`w-full px-4 py-2.5 bg-white border border-emit-border rounded-lg outline-none focus:ring-2 focus:ring-emit-orange/20 focus:border-emit-orange transition-all placeholder:text-emit-text/30 text-sm ${error ? 'border-red-500' : ''} ${className || ''}`} 
-        {...props} 
+    <div className="flex flex-col gap-1">
+      {label && (
+        <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">{label}</label>
+      )}
+      <input
+        className={`w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] bg-white text-sm text-[#212529] placeholder:text-[#ADB5BD] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150 ${error ? 'border-[#C62828]' : ''} ${className}`}
+        {...props}
       />
-      {error && <p className="text-[11px] text-red-500 font-medium ml-1">{error}</p>}
+      {error && <p className="text-xs text-[#C62828] font-medium mt-0.5">{error}</p>}
     </div>
   );
-};
-
-export default Input;
+}

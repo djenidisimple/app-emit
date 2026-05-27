@@ -86,13 +86,14 @@ namespace AppEmit.API.Services
             if (demande.Statut != "EnAttente")
                 throw new Exception("Cette demande a déjà été traitée.");
 
-            // Échanger les séances entre les deux professeurs
+            // FIX: Use transaction for the swap operation
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             var seanceDemandeur = await _context.SeancesCours
                 .FindAsync(demande.SeanceDemandeurId)!;
             var seanceCible = await _context.SeancesCours
                 .FindAsync(demande.SeanceCibleId)!;
 
-            // Swap des professeurs
             (seanceDemandeur!.ProfesseurId, seanceCible!.ProfesseurId) =
                 (seanceCible.ProfesseurId, seanceDemandeur.ProfesseurId);
 
@@ -100,6 +101,7 @@ namespace AppEmit.API.Services
             demande.DateReponse = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
             _logger.LogInformation("Demande {Id} acceptée, échange effectué.", id);
 
             return MapToReadDtoSync(demande);

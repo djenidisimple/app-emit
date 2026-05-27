@@ -31,8 +31,11 @@ const useAuthStore = create<AuthState>((set) => ({
       Cookies.set('app-emit-token', token, { expires: 1 });
       set({ user: userData, token, isLoading: false });
       return true;
-    } catch (err: any) {
-      set({ error: err.response?.data?.message || 'Erreur de connexion', isLoading: false });
+    } catch (err: unknown) {
+      const message = err instanceof Error && 'response' in err
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        : undefined;
+      set({ error: message || 'Erreur de connexion', isLoading: false });
       return false;
     }
   },
@@ -46,8 +49,11 @@ const useAuthStore = create<AuthState>((set) => ({
       Cookies.set('app-emit-token', token, { expires: 1 });
       set({ user: userData, token, isLoading: false });
       return true;
-    } catch (err: any) {
-      set({ error: err.response?.data?.message || "Erreur lors de l'inscription", isLoading: false });
+    } catch (err: unknown) {
+      const message = err instanceof Error && 'response' in err
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        : undefined;
+      set({ error: message || "Erreur lors de l'inscription", isLoading: false });
       return false;
     }
   },

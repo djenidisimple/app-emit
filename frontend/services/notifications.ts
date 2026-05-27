@@ -5,4 +5,7 @@ export const getNotifications = async (utilisateurId: number, page = 1, pageSize
   api.get(`/Notification/utilisateur/${utilisateurId}?page=${page}&pageSize=${pageSize}`);
 
 export const marquerCommeLu = async (id: number): Promise<boolean> =>
-  api.patch(`/Notification/${id}/marquer-lu`);
+  api.patch(`/Notification/${id}/lu`);
+
+export const marquerToutLu = async (utilisateurId: number): Promise<{ success: boolean }> =>
+  api.put(`/Notification/tout-lire?utilisateurId=${utilisateurId}`);

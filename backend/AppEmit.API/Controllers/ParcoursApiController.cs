@@ -26,14 +26,14 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ParcoursDto>> Create(ParcoursCreateDto dto)
+        public async Task<ActionResult<ParcoursDto>> Create([FromBody] ParcoursCreateDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<ParcoursDto>> Update(int id, ParcoursCreateDto dto)
+        public async Task<ActionResult<ParcoursDto>> Update(int id, [FromBody] ParcoursCreateDto dto)
         {
             var updated = await _service.UpdateAsync(id, dto);
             if (updated == null) return NotFound();

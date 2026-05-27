@@ -87,6 +87,7 @@ namespace AppEmit.API.Services
                 MatiereId = dto.MatiereId,
                 SalleId = dto.SalleId,
                 CreneauId = dto.CreneauId,
+                ParcoursId = dto.ParcoursId,
                 NiveauId = dto.NiveauId,
                 DateDebutAnnee = dto.DateDebutAnnee,
                 DateFinAnnee = dto.DateFinAnnee,

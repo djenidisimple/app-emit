@@ -47,7 +47,7 @@ const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
       </div>
 
       <Button 
-        variant={estDisponible ? 'orange' : 'glass'} 
+        variant={estDisponible ? 'primary' : 'secondary'} 
         disabled={!estDisponible}
         onClick={() => onReserve?.(salle.id)}
         className="w-full"

@@ -100,7 +100,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
         {user?.roles?.includes('Professeur') && (
           <div className="px-6 pt-4">
             <Button
-              variant="glass"
+              variant="secondary"
               icon={CheckCircle}
               isLoading={isFinishing}
               onClick={handleTerminer}
@@ -113,11 +113,11 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Type d'exception</label>
+            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Type d&apos;exception</label>
             <select 
               className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none transition-all text-sm"
               value={formData.typeException}
-              onChange={(e) => setFormData({ ...formData, typeException: e.target.value as any })}
+              onChange={(e) => setFormData({ ...formData, typeException: e.target.value as ExceptionPlanning['typeException'] })}
             >
               <option value="Annulation">Annulation de cours</option>
               <option value="Report">Report de séance</option>
@@ -158,14 +158,14 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
               >
                 <option value="">Sélectionner une salle</option>
                 {salles.map(s => (
-                  <option key={s.id} value={s.id}>{(s as any).libelle || s.nom} ({s.capacite} places)</option>
+                  <option key={s.id} value={s.id}>{s.libelle ?? s.nom} ({s.capacite} places)</option>
                 ))}
               </select>
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Motif de l'exception</label>
+            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Motif de l&apos;exception</label>
             <textarea 
               className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none min-h-[80px] text-sm"
               placeholder="Expliquez la raison..."
@@ -178,7 +178,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
           <div className="pt-4 flex gap-3">
             <Button 
               type="button" 
-              variant="glass" 
+              variant="secondary" 
               onClick={onClose}
               className="flex-1"
             >
@@ -186,11 +186,11 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
             </Button>
             <Button 
               type="submit" 
-              variant="orange" 
+              variant="primary" 
               isLoading={isSubmitting}
               className="flex-1"
             >
-              Enregistrer l'exception
+               Enregistrer l&apos;exception
             </Button>
           </div>
         </form>

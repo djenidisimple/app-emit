@@ -1,302 +1,199 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Filter, Download, Plus } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Button from '@/components/ui/Button';
-import api from '@/services/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Plus, AlertCircle, Calendar } from 'lucide-react';
+import ProtectedLayout from '@/components/layout/ProtectedLayout';
+import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
+import EmptyState from '@/components/global/EmptyState';
+import { api } from '@/services/api';
 import { SeancePlanningDto, PlanningHebdoResponse } from '@/types';
+import useAuthStore from '@/store/authStore';
 
-const HOURS = Array.from({ length: 13 }, (_, i) => i + 7); // 7h to 19h
+const HOURS = ['07h30', '09h30', '11h30', '14h00', '16h00'];
+const HOUR_RANGES = [
+  { start: '07:30', end: '09:30' },
+  { start: '09:30', end: '11:30' },
+  { start: '11:30', end: '13:00' },
+  { start: '14:00', end: '16:00' },
+  { start: '16:00', end: '18:00' },
+];
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+
+function getWeekRange(date: Date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  const end = new Date(d);
+  end.setDate(d.getDate() + 5);
+  return { start: d, end, mon: d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }), sat: end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) };
+}
+
+function getSeanceStyle(seance: SeancePlanningDto) {
+  if (seance.statut === 'Annule' || seance.statut === 'Annulé') {
+    return { bg: 'bg-[#F1F3F5]', border: 'border-l-[#ADB5BD]', label: 'ANNULÉ', labelClass: 'bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-bold' };
+  }
+  if (seance.statut === 'Reporte' || seance.statut === 'Reporté') {
+    return { bg: 'bg-[#FFF3E0]', border: 'border-l-[#FF8F00]', label: null, labelClass: '' };
+  }
+  const color = seance.couleurAffichage || '#1B3A6B';
+  return {
+    bg: '',
+    border: `border-l-[${color}]`,
+    label: null,
+    labelClass: '',
+    customBg: { backgroundColor: `${color}26` },
+    customBorder: { borderLeftColor: color },
+  };
+}
 
 export default function PlanningPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [seances, setSeances] = useState<SeancePlanningDto[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'Admin' || user?.roles?.includes('Admin');
 
-  useEffect(() => {
-    fetchPlanning();
-  }, [currentDate]);
+  const weekRange = getWeekRange(currentDate);
 
-  const fetchPlanning = async () => {
+  const fetchPlanning = useCallback(async () => {
     setIsLoading(true);
+    setError('');
     try {
-      // Calculer le début de la semaine (Lundi)
-      const startOfWeek = new Date(currentDate);
-      const day = startOfWeek.getDay();
-      const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const response = await api.get<PlanningHebdoResponse>('/Planning/hebdo', { 
-        params: { StartDate: startOfWeek.toISOString() } 
-      });
-      
-      setSeances(response.data.seances || []);
-    } catch (err) {
-      console.error('Erreur lors du chargement du planning:', err);
+      const startOfWeek = weekRange.start;
+      const data = await api.get<PlanningHebdoResponse>(`/Planning/hebdo?startDate=${startOfWeek.toISOString()}`);
+      setSeances(data.seances || []);
+    } catch {
+      setError('Impossible de charger le planning.');
     } finally {
       setIsLoading(false);
     }
+  }, [weekRange.start]);
+
+  useEffect(() => { fetchPlanning(); }, [fetchPlanning]);
+
+  const nextWeek = () => { const n = new Date(currentDate); n.setDate(n.getDate() + 7); setCurrentDate(n); };
+  const prevWeek = () => { const n = new Date(currentDate); n.setDate(n.getDate() - 7); setCurrentDate(n); };
+  const today = () => setCurrentDate(new Date());
+
+  const getSeancesForSlot = (jour: string, rangeStart: string, rangeEnd: string) => {
+    return seances.filter(s => {
+      if (s.jour !== jour) return false;
+      return s.heureDebut >= rangeStart && s.heureDebut < rangeEnd;
+    });
   };
 
-  const nextWeek = () => {
-    const next = new Date(currentDate);
-    next.setDate(next.getDate() + 7);
-    setCurrentDate(next);
-  };
-
-  const prevWeek = () => {
-    const prev = new Date(currentDate);
-    prev.setDate(prev.getDate() - 7);
-    setCurrentDate(prev);
-  };
-
-  const getPosition = (heureDebut: string, heureFin: string) => {
-    const start = parseInt(heureDebut.split(':')[0]) + parseInt(heureDebut.split(':')[1]) / 60;
-    const end = parseInt(heureFin.split(':')[0]) + parseInt(heureFin.split(':')[1]) / 60;
-    
-    const top = ((start - 7) / 13) * 100;
-    const height = ((end - start) / 13) * 100;
-    
-    return { top: `${top}%`, height: `${height}%` };
-  };
+  const legendColors = [...new Set(seances.filter(s => s.couleurAffichage).map(s => ({ color: s.couleurAffichage, name: s.matiereNom })))];
 
   return (
-    <div className="planning-wrapper">
-      <Navbar />
-
-      <main className="planning-content">
-        <header className="planning-header">
-          <div className="header-left">
-            <h1>Planning <span className="text-gradient">Hebdomadaire</span></h1>
-            <div className="date-navigation">
-              <button onClick={prevWeek} className="nav-btn glass"><ChevronLeft size={20} /></button>
-              <span className="current-range">Semaine du {currentDate.toLocaleDateString()}</span>
-              <button onClick={nextWeek} className="nav-btn glass"><ChevronRight size={20} /></button>
-            </div>
+    <ProtectedLayout pageTitle="Planning de la semaine">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-sm text-[#6C757D]">Semaine du {weekRange.mon} au {weekRange.sat}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={prevWeek} className="p-2 rounded-lg border border-[#E9ECEF] text-[#6C757D] hover:bg-[#E8EEF8] hover:text-[#1B3A6B] transition-colors duration-150">
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button onClick={today} className="px-3 py-1.5 text-sm font-medium text-[#1B3A6B] border border-[#1B3A6B] rounded-lg hover:bg-[#E8EEF8] transition-colors duration-150">
+            Aujourd&apos;hui
+          </button>
+          <div className="text-sm font-semibold text-[#212529] min-w-[140px] text-center">
+            {weekRange.mon} — {weekRange.sat}
           </div>
+          <button onClick={nextWeek} className="p-2 rounded-lg border border-[#E9ECEF] text-[#6C757D] hover:bg-[#E8EEF8] hover:text-[#1B3A6B] transition-colors duration-150">
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-          <div className="header-right">
-            <Button variant="glass" icon={Filter}>Filtres</Button>
-            <Button variant="glass" icon={Download}>Exporter</Button>
-            <Button variant="orange" icon={Plus}>Nouvelle séance</Button>
-          </div>
-        </header>
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-2 text-sm text-red-700">
+          <AlertCircle className="w-4 h-4" />
+          {error}
+          <button onClick={fetchPlanning} className="ml-auto text-red-600 font-semibold hover:underline">Réessayer</button>
+        </div>
+      )}
 
-        <div className="calendar-container glass">
-          <div className="calendar-grid">
-            <div className="time-column">
-              <div className="time-header"></div>
-              {HOURS.map(hour => (
-                <div key={hour} className="time-slot">{hour}h:00</div>
-              ))}
-            </div>
-
-            {DAYS.map((day, index) => (
-              <div key={day} className="day-column">
-                <div className="day-header">
-                  <span className="day-name">{day}</span>
-                </div>
-                
-                <div className="slots-container">
-                  {HOURS.map(hour => (
-                    <div key={`${day}-${hour}`} className="slot-bg"></div>
+      {isLoading ? (
+        <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-6">
+          <LoadingSkeleton lines={8} />
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide w-20">Horaire</th>
+                  {DAYS.map(day => (
+                    <th key={day} className="px-3 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide border-l border-[#E9ECEF]">
+                      {day}
+                    </th>
                   ))}
-                  
-                  {seances
-                    .filter(s => s.jour === day)
-                    .map(seance => {
-                      const pos = getPosition(seance.heureDebut, seance.heureFin);
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F1F3F5]">
+                {HOUR_RANGES.map((range, ri) => (
+                  <tr key={ri} className="hover:bg-[#F8F9FA]/50 transition-colors">
+                    <td className="px-3 py-4 text-xs font-medium text-[#6C757D] align-top whitespace-nowrap">{HOURS[ri]}</td>
+                    {DAYS.map(jour => {
+                      const slotSeances = getSeancesForSlot(jour, range.start, range.end);
                       return (
-                        <motion.div 
-                          key={seance.id}
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className={`seance-item glass ${seance.statut === 'Annule' ? 'seance-red' : 'seance-blue'}`}
-                          style={pos}
-                        >
-                          <div className="seance-content">
-                            <p className="seance-time">{seance.heureDebut} - {seance.heureFin}</p>
-                            <p className="seance-title">{seance.matiereNom}</p>
-                            <p className="seance-info">{seance.professeurNomComplet} • {seance.salleNom}</p>
+                        <td key={`${jour}-${ri}`} className="px-2 py-2 align-top border-l border-[#E9ECEF] min-h-[80px]">
+                          <div className="flex flex-col gap-1.5">
+                            {slotSeances.map(seance => {
+                              const style = getSeanceStyle(seance);
+                              const color = seance.couleurAffichage || '#1B3A6B';
+                              return (
+                                <div
+                                  key={seance.id}
+                                  className={`rounded-lg px-2.5 py-2 border-l-[3px] transition-shadow hover:shadow-sm cursor-pointer ${style.bg || ''}`}
+                                  style={{ borderLeftColor: color, backgroundColor: `${color}15` }}
+                                >
+                                  <p className="text-xs font-bold" style={{ color }}>{seance.matiereNom}</p>
+                                  {style.label && <span className={style.labelClass}>{style.label}</span>}
+                                  <p className="text-[11px] text-[#6C757D]">{seance.salleNom}</p>
+                                  <p className="text-[11px] text-[#6C757D]">{seance.professeurNomComplet}</p>
+                                  {seance.motifException && <p className="text-[11px] text-[#FF8F00]">→ {seance.motifException}</p>}
+                                </div>
+                              );
+                            })}
                           </div>
-                        </motion.div>
+                        </td>
                       );
-                    })
-                  }
-                </div>
-              </div>
-            ))}
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </main>
+      )}
 
-      <style jsx>{`
-        .planning-wrapper {
-          padding-top: 8rem;
-          padding-bottom: 3rem;
-          max-width: 1400px;
-          margin: 0 auto;
-          padding-left: 2rem;
-          padding-right: 2rem;
-        }
+      {legendColors.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-[#6C757D]">
+          {legendColors.map((l, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: l.color }} />
+              <span>{l.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
-        .planning-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          margin-bottom: 2.5rem;
-        }
-
-        .planning-header h1 {
-          font-size: 2.25rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-        }
-
-        .date-navigation {
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-        }
-
-        .nav-btn {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: none;
-          color: white;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-
-        .nav-btn:hover {
-          background: var(--emit-orange);
-        }
-
-        .current-range {
-          font-weight: 600;
-          font-size: 1.125rem;
-          min-width: 250px;
-          text-align: center;
-        }
-
-        .header-right {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .calendar-container {
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          background: rgba(10, 15, 30, 0.6);
-        }
-
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: 80px repeat(6, 1fr);
-          min-width: 1000px;
-        }
-
-        .time-header {
-          height: 80px;
-          border-bottom: 1px solid var(--glass-border);
-          border-right: 1px solid var(--glass-border);
-        }
-
-        .time-slot {
-          height: 65px;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 10px;
-          font-size: 0.75rem;
-          color: var(--text-muted);
-          border-right: 1px solid var(--glass-border);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .day-header {
-          height: 80px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255, 255, 255, 0.02);
-          border-bottom: 1px solid var(--glass-border);
-          border-right: 1px solid var(--glass-border);
-        }
-
-        .day-name {
-          font-weight: 700;
-          font-size: 1rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .slots-container {
-          position: relative;
-          height: calc(65px * 13);
-          border-right: 1px solid var(--glass-border);
-        }
-
-        .slot-bg {
-          height: 65px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .seance-item {
-          position: absolute;
-          left: 6px;
-          right: 6px;
-          border-radius: 12px;
-          padding: 12px;
-          overflow: hidden;
-          cursor: pointer;
-          transition: var(--transition);
-          z-index: 10;
-        }
-
-        .seance-item:hover {
-          transform: scale(1.02);
-          z-index: 50;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .seance-blue {
-          background: rgba(30, 64, 175, 0.1);
-          border-left: 4px solid var(--emit-blue);
-        }
-
-        .seance-red {
-          background: rgba(239, 68, 68, 0.1);
-          border-left: 4px solid #ef4444;
-        }
-
-        .seance-time {
-          font-size: 0.75rem;
-          font-weight: 700;
-          color: var(--emit-blue);
-          margin-bottom: 0.25rem;
-        }
-
-        .seance-title {
-          font-weight: 700;
-          font-size: 0.9375rem;
-          margin-bottom: 0.25rem;
-          line-height: 1.2;
-        }
-
-        .seance-info {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-        }
-      `}</style>
-    </div>
+      {seances.length === 0 && !isLoading && !error && (
+        <EmptyState
+          icon={Calendar}
+          title="Aucune séance cette semaine"
+          description="Aucun cours n'est planifié pour cette période."
+          action={isAdmin ? <button className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150 flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Nouvelle séance
+          </button> : undefined}
+        />
+      )}
+    </ProtectedLayout>
   );
 }

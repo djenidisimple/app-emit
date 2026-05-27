@@ -1,116 +1,117 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Button from '@/components/ui/Button';
+import { Plus, Pencil, Trash2, BookOpen, AlertCircle } from 'lucide-react';
+import ProtectedLayout from '@/components/layout/ProtectedLayout';
+import EmptyState from '@/components/global/EmptyState';
+import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { MatiereDto } from '@/types';
 import api from '@/services/api';
 
 export default function AdminMatieresPage() {
   const [items, setItems] = useState<MatiereDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [code, setCode] = useState('');
   const [nom, setNom] = useState('');
 
-  useEffect(() => { fetchData(); }, []);
-
   const fetchData = async () => {
+    setIsLoading(true);
+    setError('');
     try {
       const res = await api.get<MatiereDto[]>('/matieres');
-      setItems(res.data);
-    } catch (err) { console.error(err); }
+      setItems(res.data || res);
+    } catch { setError('Impossible de charger les matières.'); }
     finally { setIsLoading(false); }
   };
+
+  useEffect(() => { fetchData(); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editId) {
-        await api.put(`/matieres/${editId}`, { code, nom });
-      } else {
-        await api.post('/matieres', { code, nom });
-      }
+      if (editId) await api.put(`/matieres/${editId}`, { code, nom });
+      else await api.post('/matieres', { code, nom });
       setShowForm(false); setEditId(null); setCode(''); setNom('');
       fetchData();
-    } catch (err) { console.error(err); }
-  };
-
-  const handleEdit = (item: MatiereDto) => {
-    setEditId(item.id); setCode(item.code); setNom(item.nom); setShowForm(true);
+    } catch { setError('Erreur lors de l\'enregistrement.'); }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('Supprimer cette matière ?')) return;
-    try {
-      await api.delete(`/matieres/${id}`);
-      setItems(items.filter(i => i.id !== id));
-    } catch (err) { console.error(err); }
+    try { await api.delete(`/matieres/${id}`); setItems(items.filter(i => i.id !== id)); }
+    catch { setError('Erreur lors de la suppression.'); }
   };
 
   return (
-    <div className="min-h-screen bg-emit-bg">
-      <Navbar />
-      <div className="max-w-4xl mx-auto pt-28 pb-10 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-poppins font-bold text-emit-blue">Matières</h1>
-            <p className="text-emit-text/60 mt-1">Gestion des matières enseignées.</p>
-          </div>
-          <Button variant="orange" icon={Plus} onClick={() => { setShowForm(true); setEditId(null); setCode(''); setNom(''); }}>Ajouter</Button>
-        </div>
+    <ProtectedLayout pageTitle="Matières">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => { setShowForm(true); setEditId(null); setCode(''); setNom(''); }}
+          className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150 flex items-center gap-2">
+          <Plus className="w-4 h-4" /> Ajouter
+        </button>
+      </div>
 
-        {showForm && (
-          <form onSubmit={handleSubmit} className="bg-white border border-emit-border rounded-md p-4 mb-6 flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">Code</label>
+      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5 mb-6">
+          <div className="flex gap-4 items-end">
+            <div className="flex flex-col gap-1 flex-1">
+              <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Code</label>
               <input type="text" placeholder="Ex: MATH101" value={code} onChange={e => setCode(e.target.value)}
-                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm" required />
+                className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required />
             </div>
-            <div className="flex-[2]">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider block mb-1">Nom</label>
+            <div className="flex flex-col gap-1 flex-[2]">
+              <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Nom</label>
               <input type="text" placeholder="Ex: Mathématiques" value={nom} onChange={e => setNom(e.target.value)}
-                className="w-full p-2 border border-emit-border rounded-md outline-none text-sm" required />
+                className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required />
             </div>
             <div className="flex gap-2">
-              <Button type="submit" variant="orange">{editId ? 'Modifier' : 'Créer'}</Button>
-              <Button type="button" variant="glass" onClick={() => setShowForm(false)}>Annuler</Button>
+              <button type="submit" className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">
+                {editId ? 'Modifier' : 'Créer'}
+              </button>
+              <button type="button" onClick={() => setShowForm(false)} className="border border-[#E9ECEF] text-[#6C757D] hover:bg-[#F8F9FA] font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">
+                Annuler
+              </button>
             </div>
-          </form>
-        )}
-
-        {isLoading ? (
-          <div className="flex justify-center py-20"><div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin"></div></div>
-        ) : (
-          <div className="bg-white border border-emit-border rounded-md overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-emit-bg border-b border-emit-border">
-                  <th className="text-left p-4 font-semibold text-emit-blue">Code</th>
-                  <th className="text-left p-4 font-semibold text-emit-blue">Nom</th>
-                  <th className="text-right p-4 font-semibold text-emit-blue">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, i) => (
-                  <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-                    className="border-b border-emit-border/50 hover:bg-emit-bg/50">
-                    <td className="p-4 font-mono text-xs">{item.code}</td>
-                    <td className="p-4 font-medium">{item.nom}</td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-emit-blue hover:bg-emit-blue/10 rounded-md mr-1"><Pencil size={16} /></button>
-                      <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-md"><Trash2 size={16} /></button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
           </div>
-        )}
-      </div>
-    </div>
+        </form>
+      )}
+
+      {isLoading ? (
+        <LoadingSkeleton lines={5} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5" />
+      ) : items.length === 0 ? (
+        <EmptyState icon={BookOpen} title="Aucune matière" description="Aucune matière enregistrée." />
+      ) : (
+        <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Code</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Nom</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F3F5]">
+              {items.map(item => (
+                <tr key={item.id} className="hover:bg-[#F8F9FA] transition-colors">
+                  <td className="px-4 py-3 font-mono text-xs text-[#212529]">{item.code}</td>
+                  <td className="px-4 py-3 font-medium text-[#212529]">{item.nom}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => { setEditId(item.id); setCode(item.code); setNom(item.nom); setShowForm(true); }}
+                      className="p-1.5 text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(item.id)}
+                      className="p-1.5 text-[#C62828] hover:bg-red-50 rounded-lg transition-colors duration-150 ml-1"><Trash2 className="w-4 h-4" /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </ProtectedLayout>
   );
 }

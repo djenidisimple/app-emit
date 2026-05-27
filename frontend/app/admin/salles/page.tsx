@@ -8,7 +8,7 @@ import {
   Users, ChevronDown, ChevronUp, Filter, RefreshCw, Eye,
   EyeOff, ToggleLeft, ToggleRight
 } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import Button from '@/components/ui/Button';
 import api from '@/services/api';
 
@@ -125,8 +125,8 @@ function Field({
 }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-bold text-emit-blue uppercase tracking-wider">
-        {label}{required && <span className="text-emit-orange ml-1">*</span>}
+      <label className="block text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">
+        {label}{required && <span className="text-[#1B3A6B] ml-1">*</span>}
       </label>
       {children}
       {error && (
@@ -159,8 +159,8 @@ function SalleModal({
   onSubmit: () => void;
 }) {
   const inputClass = (hasError?: string) =>
-    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-emit-orange/20 focus:border-emit-orange ${
-      hasError ? 'border-red-400 bg-red-50/30' : 'border-emit-border bg-white'
+    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] ${
+      hasError ? 'border-red-400 bg-red-50/30' : 'border-[#E9ECEF] bg-white'
     }`;
 
   return (
@@ -182,20 +182,20 @@ function SalleModal({
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-emit-border">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-[#E9ECEF]">
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-emit-border">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9ECEF]">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emit-blue/10 rounded-lg flex items-center justify-center">
-                    <Building2 size={16} className="text-emit-blue" />
+                  <div className="w-8 h-8 bg-[#E8EEF8] rounded-lg flex items-center justify-center">
+                    <Building2 size={16} className="text-[#1B3A6B]" />
                   </div>
-                  <h2 className="text-base font-bold text-emit-blue font-poppins">
+                  <h2 className="text-base font-bold text-[#1B3A6B]">
                     {mode === 'create' ? 'Ajouter une salle' : 'Modifier la salle'}
                   </h2>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-emit-text/40 hover:text-emit-text hover:bg-emit-border/50 rounded-md transition-colors"
+                  className="p-1.5 text-[#ADB5BD] hover:text-[#212529] hover:bg-emit-border/50 rounded-md transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -278,18 +278,18 @@ function SalleModal({
                     value={form.equipements}
                     onChange={(e) => onChange('equipements', e.target.value)}
                     rows={2}
-                    className="w-full px-3 py-2 border border-emit-border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-emit-orange/20 focus:border-emit-orange resize-none"
+                    className="w-full px-3 py-2 border border-[#E9ECEF] rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] resize-none"
                   />
                 </Field>
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-emit-border flex justify-end gap-2">
-                <Button variant="glass" onClick={onClose} disabled={isSubmitting}>
+              <div className="px-6 py-4 border-t border-[#E9ECEF] flex justify-end gap-2">
+                <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
                   Annuler
                 </Button>
                 <Button
-                  variant="orange"
+                  variant="primary"
                   onClick={onSubmit}
                   isLoading={isSubmitting}
                 >
@@ -338,18 +338,18 @@ function DeleteModal({
               <div className="flex items-center justify-center w-12 h-12 bg-red-50 rounded-full mx-auto mb-4">
                 <Trash2 size={22} className="text-red-500" />
               </div>
-              <h3 className="text-base font-bold text-emit-text text-center font-poppins mb-1">
+              <h3 className="text-base font-bold text-[#212529] text-center mb-1">
                 Supprimer la salle ?
               </h3>
-              <p className="text-sm text-emit-text/60 text-center mb-5">
-                La salle <strong className="text-emit-text">{salle.codeSalle} — {salle.libelle}</strong> sera
+              <p className="text-sm text-[#6C757D] text-center mb-5">
+                La salle <strong className="text-[#212529]">{salle.codeSalle} — {salle.libelle}</strong> sera
                 définitivement supprimée. Cette action est irréversible.
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={onCancel}
                   disabled={isDeleting}
-                  className="flex-1 py-2 border border-emit-border rounded-md text-sm font-semibold text-emit-text hover:bg-emit-bg transition-colors"
+                  className="flex-1 py-2 border border-[#E9ECEF] rounded-md text-sm font-semibold text-[#212529] hover:bg-[#F8F9FA] transition-colors"
                 >
                   Annuler
                 </button>
@@ -447,35 +447,35 @@ function ImportModal({
             className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" onClick={onClose} />
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-emit-border">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-emit-border">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-[#E9ECEF]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9ECEF]">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emit-orange/10 rounded-lg flex items-center justify-center">
-                    <Upload size={16} className="text-emit-orange" />
+                  <div className="w-8 h-8 bg-[#E8EEF8] rounded-lg flex items-center justify-center">
+                    <Upload size={16} className="text-[#1B3A6B]" />
                   </div>
-                  <h2 className="text-base font-bold text-emit-blue font-poppins">Importer des salles</h2>
+                  <h2 className="text-base font-bold text-[#1B3A6B]">Importer des salles</h2>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-emit-text/40 hover:text-emit-text rounded-md transition-colors">
+                <button onClick={onClose} className="p-1.5 text-[#ADB5BD] hover:text-[#212529] rounded-md transition-colors">
                   <X size={18} />
                 </button>
               </div>
 
               <div className="px-6 py-5 space-y-4">
-                <div className="flex items-center justify-between bg-emit-bg border border-emit-border rounded-lg p-3">
-                  <div className="text-sm text-emit-text/60">Télécharger le modèle CSV</div>
+                <div className="flex items-center justify-between bg-[#F8F9FA] border border-[#E9ECEF] rounded-lg p-3">
+                  <div className="text-sm text-[#6C757D]">Télécharger le modèle CSV</div>
                   <button onClick={downloadTemplate}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-emit-blue hover:text-emit-orange transition-colors">
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#1B3A6B] hover:text-[#1B3A6B] transition-colors">
                     <Download size={14} /> Modèle CSV
                   </button>
                 </div>
 
                 <div
                   onClick={() => fileRef.current?.click()}
-                  className="border-2 border-dashed border-emit-border rounded-xl p-8 text-center cursor-pointer hover:border-emit-orange/50 hover:bg-emit-orange/5 transition-all"
+                  className="border-2 border-dashed border-[#E9ECEF] rounded-xl p-8 text-center cursor-pointer hover:border-[#1B3A6B]/50 hover:bg-[#E8EEF8] transition-all"
                 >
-                  <FileSpreadsheet size={32} className="mx-auto text-emit-text/30 mb-2" />
-                  <p className="text-sm font-medium text-emit-text">Cliquer pour choisir un fichier</p>
-                  <p className="text-xs text-emit-text/40 mt-1">Format accepté : CSV</p>
+                  <FileSpreadsheet size={32} className="mx-auto text-[#ADB5BD] mb-2" />
+                  <p className="text-sm font-medium text-[#212529]">Cliquer pour choisir un fichier</p>
+                  <p className="text-xs text-[#ADB5BD] mt-1">Format accepté : CSV</p>
                   <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} className="hidden" />
                 </div>
 
@@ -487,22 +487,22 @@ function ImportModal({
 
                 {preview.length > 0 && (
                   <div>
-                    <p className="text-xs font-bold text-emit-blue uppercase tracking-wider mb-2">
+                    <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
                       Aperçu ({preview.length} ligne{preview.length > 1 ? 's' : ''})
                     </p>
-                    <div className="overflow-x-auto border border-emit-border rounded-lg">
+                    <div className="overflow-x-auto border border-[#E9ECEF] rounded-lg">
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="bg-emit-bg border-b border-emit-border">
-                            <th className="p-2 text-left font-semibold text-emit-blue">Code</th>
-                            <th className="p-2 text-left font-semibold text-emit-blue">Libellé</th>
-                            <th className="p-2 text-left font-semibold text-emit-blue">Capa.</th>
-                            <th className="p-2 text-left font-semibold text-emit-blue">Type</th>
+                          <tr className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+                            <th className="p-2 text-left font-semibold text-[#1B3A6B]">Code</th>
+                            <th className="p-2 text-left font-semibold text-[#1B3A6B]">Libellé</th>
+                            <th className="p-2 text-left font-semibold text-[#1B3A6B]">Capa.</th>
+                            <th className="p-2 text-left font-semibold text-[#1B3A6B]">Type</th>
                           </tr>
                         </thead>
                         <tbody>
                           {preview.map((s, i) => (
-                            <tr key={i} className="border-b border-emit-border/50 hover:bg-emit-bg/50">
+                            <tr key={i} className="border-b border-[#E9ECEF] hover:bg-[#F8F9FA]">
                               <td className="p-2 font-mono">{s.codeSalle}</td>
                               <td className="p-2">{s.libelle}</td>
                               <td className="p-2">{s.capacite}</td>
@@ -516,9 +516,9 @@ function ImportModal({
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-emit-border flex justify-end gap-2">
-                <Button variant="glass" onClick={onClose}>Annuler</Button>
-                <Button variant="orange" onClick={handleConfirm} disabled={preview.length === 0} icon={Upload}>
+              <div className="px-6 py-4 border-t border-[#E9ECEF] flex justify-end gap-2">
+                <Button variant="secondary" onClick={onClose}>Annuler</Button>
+                <Button variant="primary" onClick={handleConfirm} disabled={preview.length === 0} icon={Upload}>
                   Importer {preview.length > 0 ? `(${preview.length})` : ''}
                 </Button>
               </div>
@@ -556,27 +556,27 @@ function SalleRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="border-b border-emit-border/40 hover:bg-emit-bg/60 transition-colors group"
+      className="border-b border-[#E9ECEF] hover:bg-[#F8F9FA] transition-colors group"
     >
       <td className="p-3 pl-4">
-        <span className="font-mono text-xs font-bold text-emit-blue bg-emit-blue/8 px-2 py-0.5 rounded">
+        <span className="font-mono text-xs font-bold text-[#1B3A6B] bg-[#E8EEF8] px-2 py-0.5 rounded">
           {salle.codeSalle}
         </span>
       </td>
-      <td className="p-3 font-medium text-emit-text text-sm">{salle.libelle}</td>
+      <td className="p-3 font-medium text-[#212529] text-sm">{salle.libelle}</td>
       <td className="p-3">
         {salle.type ? (
           <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${typeColors[salle.type] || 'bg-gray-100 text-gray-600'}`}>
             {salle.type}
           </span>
         ) : (
-          <span className="text-emit-text/30 text-xs">—</span>
+          <span className="text-[#ADB5BD] text-xs">—</span>
         )}
       </td>
       <td className="p-3">
         <div className="flex items-center gap-1.5 text-sm">
-          <Users size={13} className="text-emit-text/40" />
-          <span className="font-semibold text-emit-text">{salle.capacite}</span>
+          <Users size={13} className="text-[#ADB5BD]" />
+          <span className="font-semibold text-[#212529]">{salle.capacite}</span>
         </div>
       </td>
       <td className="p-3">
@@ -591,7 +591,7 @@ function SalleRow({
           <button
             onClick={() => onEdit(salle)}
             title="Modifier"
-            className="p-1.5 text-emit-blue hover:bg-emit-blue/10 rounded-md transition-colors"
+            className="p-1.5 text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-md transition-colors"
           >
             <Pencil size={15} />
           </button>
@@ -660,7 +660,20 @@ export default function AdminSallesPage() {
     }
   };
 
-  useEffect(() => { fetchSalles(); }, []);
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const res = await api.get<Salle[]>('/Salles');
+        setSalles(res.data);
+      } catch {
+        addToast('error', 'Impossible de charger les salles.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [addToast]);
 
   // ── Filter + Sort ──────────────────────────────────────────────────────────
   const filtered = salles
@@ -841,9 +854,7 @@ export default function AdminSallesPage() {
   const totalCapacity = salles.reduce((sum, s) => sum + s.capacite, 0);
 
   return (
-    <div className="min-h-screen bg-emit-bg">
-      <Navbar />
-
+    <ProtectedLayout pageTitle="Salles">
       {/* Toast Container */}
       <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2">
         <AnimatePresence>
@@ -853,13 +864,13 @@ export default function AdminSallesPage() {
         </AnimatePresence>
       </div>
 
-      <div className="max-w-7xl mx-auto pt-28 pb-12 px-4">
+      <div className="p-8">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-poppins font-bold text-emit-blue">Gestion des Salles</h1>
-            <p className="text-emit-text/50 mt-1 text-sm">
-              Configurez et gérez les ressources physiques de l'EMIT.
+            <h1 className="text-3xl font-bold text-[#1B3A6B]">Gestion des Salles</h1>
+            <p className="text-[#6C757D] mt-1 text-sm">
+              Configurez et g&eacute;rez les ressources physiques de l&apos;EMIT.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -868,22 +879,22 @@ export default function AdminSallesPage() {
               <button
                 onClick={exportCSV}
                 title="Exporter CSV"
-                className="flex items-center gap-1.5 px-3 py-2 border border-emit-border rounded-md text-xs font-semibold text-emit-text hover:bg-emit-bg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 border border-[#E9ECEF] rounded-md text-xs font-semibold text-[#212529] hover:bg-[#F8F9FA] transition-colors"
               >
                 <FileSpreadsheet size={14} className="text-green-600" /> CSV
               </button>
               <button
                 onClick={exportPDF}
                 title="Exporter PDF"
-                className="flex items-center gap-1.5 px-3 py-2 border border-emit-border rounded-md text-xs font-semibold text-emit-text hover:bg-emit-bg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 border border-[#E9ECEF] rounded-md text-xs font-semibold text-[#212529] hover:bg-[#F8F9FA] transition-colors"
               >
                 <FileText size={14} className="text-red-500" /> PDF
               </button>
             </div>
-            <Button variant="glass" icon={Upload} onClick={() => setImportOpen(true)}>
+            <Button variant="secondary" icon={Upload} onClick={() => setImportOpen(true)}>
               Importer
             </Button>
-            <Button variant="orange" icon={Plus} onClick={openCreate}>
+            <Button variant="primary" icon={Plus} onClick={openCreate}>
               Ajouter une salle
             </Button>
           </div>
@@ -892,34 +903,34 @@ export default function AdminSallesPage() {
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Total salles', value: salles.length, color: 'text-emit-blue' },
+            { label: 'Total salles', value: salles.length, color: 'text-[#1B3A6B]' },
             { label: 'Salles actives', value: totalActive, color: 'text-green-600' },
             { label: 'Salles inactives', value: salles.length - totalActive, color: 'text-red-500' },
-            { label: 'Capacité totale', value: `${totalCapacity} pers.`, color: 'text-emit-orange' },
+            { label: 'Capacité totale', value: `${totalCapacity} pers.`, color: 'text-[#1B3A6B]' },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white border border-emit-border rounded-lg p-3">
-              <div className={`text-2xl font-poppins font-bold ${stat.color}`}>{stat.value}</div>
-              <div className="text-xs text-emit-text/50 mt-0.5">{stat.label}</div>
+            <div key={stat.label} className="bg-white border border-[#E9ECEF] rounded-lg p-3">
+              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+              <div className="text-xs text-[#6C757D] mt-0.5">{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* ── Search & Filters ── */}
-        <div className="bg-white border border-emit-border rounded-lg p-3 mb-4 space-y-3">
+        <div className="bg-white border border-[#E9ECEF] rounded-lg p-3 mb-4 space-y-3">
           <div className="flex gap-2 flex-wrap items-center">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-emit-text/30" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" size={16} />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher par code, libellé, type, équipements..."
-                className="w-full pl-9 pr-4 py-2 border border-emit-border rounded-md text-sm outline-none focus:ring-2 focus:ring-emit-orange/20 focus:border-emit-orange transition-all"
+                className="w-full pl-9 pr-4 py-2 border border-[#E9ECEF] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-emit-text/30 hover:text-emit-text"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ADB5BD] hover:text-[#212529]"
                 >
                   <X size={14} />
                 </button>
@@ -929,20 +940,20 @@ export default function AdminSallesPage() {
               onClick={() => setShowFilters((v) => !v)}
               className={`flex items-center gap-1.5 px-3 py-2 border rounded-md text-sm font-medium transition-colors ${
                 showFilters || filterType || filterStatus
-                  ? 'border-emit-orange bg-emit-orange/5 text-emit-orange'
-                  : 'border-emit-border text-emit-text hover:bg-emit-bg'
+                  ? 'border-[#1B3A6B] bg-[#E8EEF8] text-[#1B3A6B]'
+                  : 'border-[#E9ECEF] text-[#212529] hover:bg-[#F8F9FA]'
               }`}
             >
               <Filter size={14} />
               Filtres
               {(filterType || filterStatus) && (
-                <span className="w-1.5 h-1.5 bg-emit-orange rounded-full" />
+                <span className="w-1.5 h-1.5 bg-[#1B3A6B] rounded-full" />
               )}
             </button>
             <button
               onClick={fetchSalles}
               title="Rafraîchir"
-              className="p-2 border border-emit-border rounded-md text-emit-text/50 hover:text-emit-blue hover:bg-emit-bg transition-colors"
+              className="p-2 border border-[#E9ECEF] rounded-md text-[#6C757D] hover:text-[#1B3A6B] hover:bg-[#F8F9FA] transition-colors"
             >
               <RefreshCw size={15} />
             </button>
@@ -954,25 +965,25 @@ export default function AdminSallesPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex gap-3 flex-wrap pt-1 border-t border-emit-border"
+                className="flex gap-3 flex-wrap pt-1 border-t border-[#E9ECEF]"
               >
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Type :</label>
+                  <label className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">Type :</label>
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="border border-emit-border rounded-md px-2 py-1.5 text-sm outline-none focus:border-emit-orange"
+                    className="border border-[#E9ECEF] rounded-md px-2 py-1.5 text-sm outline-none focus:border-[#1B3A6B]"
                   >
                     <option value="">Tous</option>
                     {TYPES_SALLE.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Statut :</label>
+                  <label className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">Statut :</label>
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-emit-border rounded-md px-2 py-1.5 text-sm outline-none focus:border-emit-orange"
+                    className="border border-[#E9ECEF] rounded-md px-2 py-1.5 text-sm outline-none focus:border-[#1B3A6B]"
                   >
                     <option value="">Tous</option>
                     <option value="active">Actives</option>
@@ -982,7 +993,7 @@ export default function AdminSallesPage() {
                 {(filterType || filterStatus) && (
                   <button
                     onClick={() => { setFilterType(''); setFilterStatus(''); }}
-                    className="text-xs text-emit-orange hover:underline font-medium"
+                    className="text-xs text-[#1B3A6B] hover:underline font-medium"
                   >
                     Réinitialiser
                   </button>
@@ -998,27 +1009,27 @@ export default function AdminSallesPage() {
             <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-emit-text/40">
+          <div className="text-center py-20 text-[#ADB5BD]">
             <Building2 size={40} className="mx-auto mb-3 opacity-30" />
             <p className="font-medium">
               {salles.length === 0 ? 'Aucune salle enregistrée.' : 'Aucun résultat pour cette recherche.'}
             </p>
             {salles.length === 0 && (
-              <button onClick={openCreate} className="mt-3 text-sm text-emit-orange hover:underline font-semibold">
+              <button onClick={openCreate} className="mt-3 text-sm text-[#1B3A6B] hover:underline font-semibold">
                 + Ajouter la première salle
               </button>
             )}
           </div>
         ) : (
           <>
-            <div className="text-xs text-emit-text/40 mb-2 px-1">
+            <div className="text-xs text-[#ADB5BD] mb-2 px-1">
               {filtered.length} salle{filtered.length > 1 ? 's' : ''} affichée{filtered.length > 1 ? 's' : ''}
               {salles.length !== filtered.length && ` sur ${salles.length}`}
             </div>
-            <div className="bg-white border border-emit-border rounded-lg overflow-hidden">
+            <div className="bg-white border border-[#E9ECEF] rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-emit-border bg-emit-bg">
+                  <tr className="border-b border-[#E9ECEF] bg-[#F8F9FA]">
                     {[
                       { key: 'codeSalle', label: 'Code' },
                       { key: 'libelle', label: 'Libellé' },
@@ -1029,14 +1040,14 @@ export default function AdminSallesPage() {
                       <th
                         key={key}
                         onClick={() => toggleSort(key as keyof Salle)}
-                        className="p-3 pl-4 text-left font-bold text-emit-blue uppercase tracking-wider text-xs cursor-pointer select-none hover:text-emit-orange transition-colors"
+                        className="p-3 pl-4 text-left font-bold text-[#1B3A6B] uppercase tracking-wider text-xs cursor-pointer select-none hover:text-[#1B3A6B] transition-colors"
                       >
                         <span className="inline-flex items-center gap-1">
                           {label} <SortIcon field={key as keyof Salle} />
                         </span>
                       </th>
                     ))}
-                    <th className="p-3 pr-4 text-right font-bold text-emit-blue uppercase tracking-wider text-xs">
+                    <th className="p-3 pr-4 text-right font-bold text-[#1B3A6B] uppercase tracking-wider text-xs">
                       Actions
                     </th>
                   </tr>
@@ -1082,6 +1093,6 @@ export default function AdminSallesPage() {
         onClose={() => setImportOpen(false)}
         onImport={handleImport}
       />
-    </div>
+    </ProtectedLayout>
   );
 }

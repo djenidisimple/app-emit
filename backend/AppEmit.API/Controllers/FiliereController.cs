@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/filieres")]
     [ApiController]
     public class FiliereController : ControllerBase
     {
@@ -26,14 +26,14 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<FiliereDto>> Create(FiliereCreateDto dto)
+        public async Task<ActionResult<FiliereDto>> Create([FromBody] FiliereCreateDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<FiliereDto>> Update(int id, FiliereCreateDto dto)
+        public async Task<ActionResult<FiliereDto>> Update(int id, [FromBody] FiliereCreateDto dto)
         {
             var updated = await _service.UpdateAsync(id, dto);
             if (updated == null) return NotFound();

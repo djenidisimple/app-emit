@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Calendar, MapPin, FileText } from 'lucide-react';
+import { X, MapPin } from 'lucide-react';
 import { Salle, ReservationCreateDto } from '@/types';
 import Button from './ui/Button';
 import { api } from '@/services/api';
@@ -73,7 +73,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
               </svg>
             </div>
             <p className="text-lg font-bold text-emit-blue">Demande envoyée !</p>
-            <p className="text-sm text-emit-text/60 mt-1">En attente de validation par l'administration.</p>
+            <p className="text-sm text-emit-text/60 mt-1">En attente de validation par l&apos;administration.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -86,7 +86,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Titre de l'événement</label>
+              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Titre de l&apos;événement</label>
               <input
                 type="text"
                 className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none text-sm"
@@ -126,10 +126,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
             </div>
 
             <div className="pt-4 flex gap-3">
-              <Button type="button" variant="glass" onClick={onClose} className="flex-1">
+              <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
                 Annuler
               </Button>
-              <Button type="submit" variant="orange" isLoading={isSubmitting} className="flex-1">
+              <Button type="submit" variant="primary" isLoading={isSubmitting} className="flex-1">
                 Envoyer la demande
               </Button>
             </div>

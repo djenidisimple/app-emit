@@ -5,7 +5,7 @@ namespace AppEmit.API.DTOs.SeanceCours
     public class SeanceCoursCreateDto
     {
         [Required]
-        public int ProfesseurId { get; set; }  // corrigé : ProfId → ProfesseurId
+        public int ProfesseurId { get; set; }
 
         [Required]
         public int MatiereId { get; set; }
@@ -15,6 +15,8 @@ namespace AppEmit.API.DTOs.SeanceCours
 
         [Required]
         public int CreneauId { get; set; }
+
+        public int? ParcoursId { get; set; }
 
         public int? NiveauId { get; set; }
 

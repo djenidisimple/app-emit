@@ -40,14 +40,14 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<NotificationReadDto>> Create(NotificationCreateDto dto)
+        public async Task<ActionResult<NotificationReadDto>> Create([FromBody] NotificationCreateDto dto)
         {
             var created = await _notificationService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, NotificationCreateDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] NotificationCreateDto dto)
         {
             var success = await _notificationService.UpdateAsync(id, dto);
             if (!success) return NotFound();
@@ -68,6 +68,13 @@ namespace AppEmit.API.Controllers
             var success = await _notificationService.MarquerCommeLuAsync(id);
             if (!success) return NotFound();
             return NoContent();
+        }
+
+        [HttpPut("tout-lire")]
+        public async Task<IActionResult> MarquerToutLu([FromQuery] int utilisateurId)
+        {
+            var success = await _notificationService.MarquerToutCommeLuAsync(utilisateurId);
+            return Ok(new { success });
         }
     }
 }

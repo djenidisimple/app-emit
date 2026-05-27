@@ -67,6 +67,15 @@ namespace AppEmit.API.Services
             if (salle == null)
                 throw new NotFoundException("Salle non trouvée.");
 
+            // FIX: Vérifier conflit de salle
+            var conflit = await _reservationRepository.GetAllAsync();
+            if (conflit.Any(r =>
+                r.SalleId == dto.SalleId &&
+                r.DateReservation.Date == dto.DatePrecise.Date &&
+                r.Session == dto.Session &&
+                r.Statut != "Annulée"))
+                throw new BadRequestException("Cette salle est déjà réservée pour ce créneau.");
+
             var evenement = new Evenement
             {
                 Nom = dto.Titre,
@@ -115,8 +124,9 @@ namespace AppEmit.API.Services
                     Message = message
                 });
 
+            // FIX: Use same event name as NotificationService (NouvelleNotification)
             await _hubContext.Clients.Group($"user_{reservation.UtilisateurId}")
-                .SendAsync("RecevoirNotification", new
+                .SendAsync("NouvelleNotification", new
                 {
                     message,
                     dateEnvoi = DateTime.UtcNow,

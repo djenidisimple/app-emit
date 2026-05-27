@@ -33,6 +33,14 @@ public class NotificationRepository : GenericRepository<Notification>, INotifica
         return rows > 0;
     }
 
+    public async Task<bool> MarquerToutCommeLuAsync(int utilisateurId)
+    {
+        var rows = await _dbSet
+            .Where(n => n.UtilisateurId == utilisateurId && !n.EstLu)
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.EstLu, true));
+        return rows > 0;
+    }
+
     public async Task<int> CountNonLuesAsync(int utilisateurId)
     {
         return await _dbSet

@@ -1,6 +1,6 @@
 // components/modals/EditFiliereModal.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Filiere } from '@/types';
 import api from '@/services/api';
 
@@ -16,8 +16,12 @@ export default function EditFiliereModal({ isOpen, filiere, onClose, onSaved }: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const prevId = useRef<number | null>(null);
   useEffect(() => {
-    if (filiere) setNom(filiere.nom);
+    if (filiere && filiere.id !== prevId.current) {
+      prevId.current = filiere.id;
+      setNom(filiere.nom);
+    }
   }, [filiere]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,8 +33,8 @@ export default function EditFiliereModal({ isOpen, filiere, onClose, onSaved }: 
       await api.put(`/Filiere/${filiere.id}`, { nom });
       onSaved();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la modification');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification');
     } finally {
       setLoading(false);
     }

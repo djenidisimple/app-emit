@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using AppEmit.API.DTOs.Auth;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
@@ -9,10 +11,12 @@ namespace AppEmit.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUtilisateurService _utilisateurService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUtilisateurService utilisateurService)
         {
             _authService = authService;
+            _utilisateurService = utilisateurService;
         }
 
         /// <summary>Créer un nouveau compte</summary>
@@ -45,6 +49,24 @@ namespace AppEmit.API.Controllers
             {
                 return Unauthorized(new { message = ex.Message });
             }
+        }
+
+        /// <summary>Retourne l'utilisateur connecté</summary>
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? User.FindFirst("sub")?.Value
+                           ?? User.FindFirst("nameid")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var user = await _utilisateurService.GetByIdAsync(userId);
+            if (user == null) return NotFound(new { message = "Utilisateur non trouvé" });
+
+            return Ok(user);
         }
     }
 }

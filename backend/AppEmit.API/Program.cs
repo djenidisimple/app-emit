@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -46,6 +47,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -110,6 +112,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtKey)
         )
+    };
+
+    // FIX: Allow SignalR to pass JWT via query string
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -270,7 +287,7 @@ using (var scope = app.Services.CreateScope())
         var admin = new Utilisateur
         {
             Nom = "Admin", Prenom = "System", Email = "admin@emit.mg",
-            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234"),
             Role = "Admin", Matricule = "ADM001",
             Roles = new List<Role> { adminRole }
         };
@@ -298,7 +315,7 @@ using (var scope = app.Services.CreateScope())
         };
         context.Utilisateurs.AddRange(admin, prof1, prof2, etudiant);
         context.SaveChanges();
-        Console.WriteLine("[SEED] Utilisateurs créés (admin/admin123, prof1/prof123, etudiant/etud123) !");
+        Console.WriteLine("[SEED] Utilisateurs créés (admin@emit.mg / Admin@1234, prof1@emit.mg / prof123, etudiant@emit.mg / etud123) !");
     }
 }
 

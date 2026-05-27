@@ -132,6 +132,7 @@ export interface SeancePlanningDto {
   heureFin: string;
   dateOccurrence: string;
   statut: string;
+  couleurAffichage?: string;
   motifException?: string;
   parcoursId?: number;
   niveauId?: number;

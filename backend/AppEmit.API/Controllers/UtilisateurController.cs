@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/utilisateurs")]
     [ApiController]
     public class UtilisateurController : ControllerBase
     {
@@ -26,14 +26,14 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UtilisateurDto>> Create(UtilisateurCreateDto dto)
+        public async Task<ActionResult<UtilisateurDto>> Create([FromBody] UtilisateurCreateDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<UtilisateurDto>> Update(int id, UtilisateurUpdateDto dto)
+        public async Task<ActionResult<UtilisateurDto>> Update(int id, [FromBody] UtilisateurUpdateDto dto)
         {
             var updated = await _service.UpdateAsync(id, dto);
             if (updated == null) return NotFound();

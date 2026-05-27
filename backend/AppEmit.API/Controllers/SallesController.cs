@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using AppEmit.API.Data;
 using AppEmit.API.Interfaces;
 using AppEmit.API.DTOs.Salle;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +11,12 @@ namespace AppEmit.API.Controllers
     public class SallesController : ControllerBase
     {
         private readonly ISalleService _salleService;
+        private readonly AppDbContext _context;
 
-        public SallesController(ISalleService salleService)
+        public SallesController(ISalleService salleService, AppDbContext context)
         {
             _salleService = salleService;
+            _context = context;
         }
 
         [HttpGet]
@@ -30,15 +34,67 @@ namespace AppEmit.API.Controllers
             return Ok(salle);
         }
 
+        [HttpGet("disponibles")]
+        public async Task<ActionResult<IEnumerable<SalleResponseDto>>> GetDisponibles(
+            [FromQuery] DateTime date,
+            [FromQuery] int creneauId)
+        {
+            var creneau = await _context.Creneaux.FindAsync(creneauId);
+            if (creneau == null) return BadRequest(new { message = "Créneau non trouvé" });
+
+            var dateOnly = date.Date;
+            var salles = await _context.Salles
+                .Where(s => s.EstActive)
+                .ToListAsync();
+
+            var disponibles = new List<SalleResponseDto>();
+
+            foreach (var salle in salles)
+            {
+                var occupeeParSeance = await _context.SeancesCours
+                    .AnyAsync(s =>
+                        s.SalleId == salle.Id &&
+                        s.DateDebutAnnee <= dateOnly &&
+                        s.DateFinAnnee >= dateOnly &&
+                        s.CreneauId == creneauId &&
+                        !s.EstTerminee);
+
+                // FIX: Use the same statut values as ReservationService
+                var occupeeParReservation = await _context.Set<Entities.Reservation>()
+                    .AnyAsync(r =>
+                        r.SalleId == salle.Id &&
+                        r.DateReservation.Date == dateOnly &&
+                        r.Statut == "Confirmée");
+
+                if (!occupeeParSeance && !occupeeParReservation)
+                {
+                    disponibles.Add(new SalleResponseDto
+                    {
+                        Id = salle.Id,
+                        CodeSalle = salle.CodeSalle ?? "",
+                        Libelle = salle.Libelle ?? salle.Nom,
+                        Nom = salle.Nom,
+                        Capacite = salle.Capacite,
+                        Equipements = salle.Equipements,
+                        EstActive = salle.EstActive,
+                        EstDisponible = true,
+                        Type = salle.Type
+                    });
+                }
+            }
+
+            return Ok(disponibles);
+        }
+
         [HttpPost]
-        public async Task<ActionResult<SalleResponseDto>> Create(SalleCreateDto dto)
+        public async Task<ActionResult<SalleResponseDto>> Create([FromBody] SalleCreateDto dto)
         {
             var created = await _salleService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SalleResponseDto>> Update(int id, SalleUpdateDto dto)
+        public async Task<ActionResult<SalleResponseDto>> Update(int id, [FromBody] SalleUpdateDto dto)
         {
             var updated = await _salleService.UpdateAsync(id, dto);
             if (updated == null) return NotFound();

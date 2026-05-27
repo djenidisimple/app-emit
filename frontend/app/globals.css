@@ -1,77 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette EMIT - Fond Blanc & Boutons Bleus */
-  --color-emit-blue: #0A2B4E;
-  --color-emit-orange: #E67A2B;
-  --color-emit-bg: #FFFFFF;
-  --color-emit-text: #1E2A3A;
-  --color-emit-border: #E2E8F0;
-  
-  /* Status Colors */
-  --color-status-cancelled: #FEE2E2;
-  --color-status-confirmed: #DCFCE7;
-  --color-status-pending: #FEF3C7;
-  
-  /* Fonts */
-  --font-poppins: "Poppins", sans-serif;
-  --font-open-sans: "Open Sans", sans-serif;
-  
-  /* Radii - Limité à MD (8px) */
-  --radius-card: 8px;
-  --radius-btn: 6px;
-  --radius-input: 6px;
+  --color-emit-navy: #1B3A6B;
+  --color-emit-navy-dark: #122850;
+  --color-emit-navy-light: #E8EEF8;
+  --color-emit-green: #2E7D32;
+  --color-emit-green-light: #E8F5E9;
+  --color-white: #FFFFFF;
+  --color-gray-50: #F8F9FA;
+  --color-gray-100: #F1F3F5;
+  --color-gray-200: #E9ECEF;
+  --color-gray-400: #ADB5BD;
+  --color-gray-600: #6C757D;
+  --color-gray-900: #212529;
+  --color-status-pending: #FF8F00;
+  --color-status-validated: #2E7D32;
+  --color-status-rejected: #C62828;
+  --color-status-cancelled: #546E7A;
+  --color-status-done: #1565C0;
 }
 
 @layer base {
   body {
-    @apply bg-emit-bg text-emit-text font-open-sans;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins font-semibold;
+    background-color: #F8F9FA;
+    color: #212529;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
-/* Animations personnalisées */
-.fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Glassmorphism léger pour les cartes EMIT */
-.card-emit {
-  @apply border border-emit-border shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md;
-  border-radius: var(--radius-card);
-}
-
-/* Scrollbar stylisée */
-*::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-*::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
 
-*::-webkit-scrollbar-thumb {
-  background-color: var(--color-emit-border);
+::-webkit-scrollbar-thumb {
+  background-color: #E9ECEF;
   border-radius: 4px;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-emit-text);
-  opacity: 0.4;
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ADB5BD;
 }
-
