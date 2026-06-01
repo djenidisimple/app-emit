@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/authStore';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,51 +16,82 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await login(email, password);
-    if (success) {
-      router.push('/planning');
-    }
+    if (success) router.push('/planning');
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex w-1/2 bg-[#1B3A6B] flex-col items-center justify-center relative p-12">
-        <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center mb-6">
-            <span className="text-[#1B3A6B] text-[28px] font-bold">GS</span>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* ── Left panel ─────────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-2/5 bg-[#0052FF] flex-col justify-between p-12">
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            <span className="text-white text-sm font-bold">GS</span>
           </div>
-          <h1 className="text-white text-[28px] font-bold">G-Salles EMIT</h1>
-          <p className="text-white/70 text-sm mt-2">Système de gestion du planning</p>
+          <span className="text-white font-semibold text-base">
+            G-Salles EMIT
+          </span>
         </div>
-        <svg className="absolute bottom-20 opacity-20" width="200" height="200" viewBox="0 0 200 200" fill="none">
-          <rect x="20" y="30" width="160" height="140" rx="8" stroke="white" strokeWidth="2" />
-          <line x1="20" y1="60" x2="180" y2="60" stroke="white" strokeWidth="2" />
-          <line x1="60" y1="60" x2="60" y2="170" stroke="white" strokeWidth="1" />
-          <line x1="100" y1="60" x2="100" y2="170" stroke="white" strokeWidth="1" />
-          <line x1="140" y1="60" x2="140" y2="170" stroke="white" strokeWidth="1" />
-          <rect x="25" y="70" width="30" height="25" rx="3" fill="white" fillOpacity="0.1" />
-          <rect x="65" y="70" width="30" height="25" rx="3" fill="white" fillOpacity="0.1" />
-          <rect x="105" y="110" width="30" height="25" rx="3" fill="white" fillOpacity="0.1" />
-          <rect x="145" y="110" width="30" height="25" rx="3" fill="white" fillOpacity="0.1" />
-        </svg>
-        <p className="absolute bottom-6 text-white/40 text-[11px]">© 2025 EMIT — Université de Fianarantsoa</p>
+
+        {/* Hero */}
+        <div className="relative z-10">
+          <div className="bg-white/20 inline-block px-3 py-1 mb-6 rounded-lg">
+            <span className="text-white text-xs font-semibold uppercase tracking-widest">
+              Connexion
+            </span>
+          </div>
+          <h1 className="text-7xl font-bold text-white leading-none">
+            Accédez
+            <br />
+            à votre
+            <br />
+            <span className="text-white/70">espace</span>
+          </h1>
+          <p className="text-white/60 text-sm mt-6 leading-relaxed max-w-xs">
+            Gérez le planning, les salles et les réservations depuis votre espace personnel.
+          </p>
+        </div>
+
+        <p className="relative z-10 text-white/30 text-xs font-medium">
+          © 2025 EMIT — Université de Fianarantsoa
+        </p>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+      {/* ── Right panel: form ──────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-blue-50">
         <div className="w-full max-w-sm">
-          <h2 className="text-[24px] font-bold text-[#1B3A6B] mb-1">Connexion</h2>
-          <p className="text-[#6C757D] text-sm mb-8">Accédez à votre espace G-Salles</p>
+          {/* Mobile logo */}
+          <div className="flex items-center gap-3 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-[#0052FF] rounded-xl flex items-center justify-center">
+              <span className="text-white text-xs font-bold">GS</span>
+            </div>
+            <span className="text-xl font-bold text-blue-900">G-Salles EMIT</span>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold text-blue-900 leading-none">
+              Connexion
+            </h2>
+            <p className="text-blue-500 text-sm mt-2">
+              Accédez à votre espace G-Salles
+            </p>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-                {error}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Email</label>
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-blue-700">
+                Email
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#ADB5BD]" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
@@ -67,13 +99,16 @@ export default function LoginPage() {
                   placeholder="votre.nom@emit.mg"
                   required
                   autoFocus
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E9ECEF] bg-white text-sm text-[#212529] placeholder:text-[#ADB5BD] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150"
+                  className="w-full pl-9 pr-3 py-3 bg-white border border-blue-200 rounded-xl text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Mot de passe</label>
+            {/* Password */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-blue-700">
+                Mot de passe
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -81,27 +116,44 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pr-9 pl-3 py-2.5 rounded-lg border border-[#E9ECEF] bg-white text-sm text-[#212529] placeholder:text-[#ADB5BD] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150"
+                  className="w-full pl-3 pr-10 py-3 bg-white border border-blue-200 rounded-xl text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ADB5BD] hover:text-[#6C757D] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-700 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full flex items-center justify-between px-5 py-4 rounded-xl bg-[#0052FF] text-white font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {isLoading ? "Connexion..." : "Se connecter"}
+              <span className="flex items-center gap-2">
+                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {isLoading ? 'Connexion...' : 'Se connecter'}
+              </span>
+              {!isLoading && <ArrowRight size={16} />}
             </button>
           </form>
+
+          {/* Register link */}
+          <div className="mt-8 pt-6 border-t border-blue-100 text-center">
+            <p className="text-sm text-blue-500">
+              Pas encore de compte ?{' '}
+              <Link
+                href="/register"
+                className="text-blue-900 font-semibold hover:text-[#0052FF] transition-colors underline underline-offset-2"
+              >
+                Créer un compte →
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
