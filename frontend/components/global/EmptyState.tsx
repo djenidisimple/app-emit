@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export default function EmptyState({
   icon: Icon,
@@ -12,13 +12,13 @@ export default function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="w-16 h-16 bg-[#E8EEF8] rounded-full flex items-center justify-center mb-4">
-        <Icon className="w-8 h-8 text-[#1B3A6B]/40" />
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-16 h-16 bg-blue-50 rounded-2xl border border-blue-200 flex items-center justify-center mb-5">
+        <Icon className="w-8 h-8 text-blue-400" />
       </div>
-      <p className="text-[#212529] font-semibold text-base mb-1">{title}</p>
-      <p className="text-[#6C757D] text-sm">{description}</p>
-      {action && <div className="mt-4">{action}</div>}
+      <p className="text-2xl font-bold text-blue-900 mb-1">{title}</p>
+      <p className="text-blue-400 text-sm max-w-xs">{description}</p>
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }

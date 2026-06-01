@@ -14,40 +14,39 @@ const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
   const estDisponible = salle.estDisponible;
 
   return (
-    <div className="card-emit p-5 flex flex-col justify-between h-full group bg-white border border-emit-border rounded-md shadow-sm">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-2.5 rounded-md ${estDisponible ? 'bg-emit-blue/10 text-emit-blue' : 'bg-red-50 text-red-600'}`}>
-          <MapPin size={22} />
+    <div className="bg-white border border-blue-100 rounded-2xl p-5 flex flex-col h-full group hover:shadow-lg transition-shadow">
+      <div className="flex-1">
+        <div className="flex justify-between items-start mb-3">
+          <div className={`p-2 rounded-xl ${estDisponible ? 'bg-blue-100 text-[#0052FF]' : 'bg-red-50 text-red-500'}`}>
+            <MapPin size={18} />
+          </div>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${estDisponible ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+            {estDisponible ? 'Disponible' : 'Occupée'}
+          </span>
         </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${estDisponible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${estDisponible ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          {estDisponible ? 'Disponible' : 'Occupée'}
-        </div>
-      </div>
 
-      <div>
-        <h3 className="text-xl font-poppins font-bold text-emit-blue mb-2 group-hover:text-emit-orange transition-colors">
+        <h3 className="text-lg font-bold text-blue-900 mb-2 group-hover:text-[#0052FF] transition-colors">
           {salle.libelle}
         </h3>
-        
-        <div className="space-y-2 mb-6">
-          <div className="flex items-center gap-2 text-sm text-emit-text/70">
-            <Users size={16} className="text-emit-blue/50" />
+
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2 text-sm text-blue-500">
+            <Users size={14} className="text-blue-400" />
             <span>{salle.capacite} places</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-emit-text/70">
-            <Monitor size={16} className="text-emit-blue/50" />
+          <div className="flex items-center gap-2 text-sm text-blue-500">
+            <Monitor size={14} className="text-blue-400" />
             <span>Type : {salle.type}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-emit-text/70">
-            <ShieldCheck size={16} className="text-emit-blue/50" />
+          <div className="flex items-center gap-2 text-sm text-blue-500">
+            <ShieldCheck size={14} className="text-blue-400" />
             <span>Code : {salle.codeSalle}</span>
           </div>
         </div>
       </div>
 
-      <Button 
-        variant={estDisponible ? 'primary' : 'secondary'} 
+      <Button
+        variant={estDisponible ? 'primary' : 'secondary'}
         disabled={!estDisponible}
         onClick={() => onReserve?.(salle.id)}
         className="w-full"

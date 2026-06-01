@@ -85,14 +85,14 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white w-full max-w-lg rounded-md shadow-xl border border-emit-border overflow-hidden"
+        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-blue-100 overflow-hidden"
       >
-        <div className="bg-white p-5 border-b border-emit-border flex justify-between items-center">
+        <div className="bg-white p-5 border-b border-blue-100 flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-poppins font-bold text-emit-blue">Gérer une Exception</h2>
-            <p className="text-xs text-emit-text/60">{seance.matiereNom} - {seance.jour} {seance.heureDebut}</p>
+            <h2 className="text-lg font-semibold text-blue-900">Gérer une Exception</h2>
+            <p className="text-xs text-blue-500">{seance.matiereNom} - {seance.jour} {seance.heureDebut}</p>
           </div>
-          <button onClick={onClose} className="p-2 text-emit-text/40 hover:text-emit-blue transition-colors">
+          <button onClick={onClose} className="p-2 text-blue-400 hover:text-blue-700 transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -113,9 +113,9 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Type d&apos;exception</label>
+            <label className="text-xs font-semibold text-blue-700">Type d&apos;exception</label>
             <select 
-              className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none transition-all text-sm"
+              className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none transition-all text-sm"
               value={formData.typeException}
               onChange={(e) => setFormData({ ...formData, typeException: e.target.value as ExceptionPlanning['typeException'] })}
             >
@@ -127,20 +127,20 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Date de début</label>
+              <label className="text-xs font-semibold text-blue-700">Date de début</label>
               <input 
                 type="date"
-                className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none text-sm"
+                className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none text-sm"
                 value={formData.dateDebut}
                 onChange={(e) => setFormData({ ...formData, dateDebut: e.target.value })}
                 required
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Date de fin</label>
+              <label className="text-xs font-semibold text-blue-700">Date de fin</label>
               <input 
                 type="date"
-                className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none text-sm"
+                className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none text-sm"
                 value={formData.dateFin}
                 onChange={(e) => setFormData({ ...formData, dateFin: e.target.value })}
               />
@@ -149,9 +149,9 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
 
           {formData.typeException === 'Report' && (
             <div className="space-y-1">
-              <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Nouvelle Salle</label>
+              <label className="text-xs font-semibold text-blue-700">Nouvelle Salle</label>
               <select 
-                className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none text-sm"
+                className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none text-sm"
                 value={formData.nouvelleSalleId}
                 onChange={(e) => setFormData({ ...formData, nouvelleSalleId: parseInt(e.target.value) })}
                 required
@@ -165,9 +165,9 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-emit-blue uppercase tracking-wider">Motif de l&apos;exception</label>
+            <label className="text-xs font-semibold text-blue-700">Motif de l&apos;exception</label>
             <textarea 
-              className="w-full p-2.5 rounded-md border border-emit-border focus:ring-1 focus:ring-emit-blue outline-none min-h-[80px] text-sm"
+              className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none min-h-[80px] text-sm"
               placeholder="Expliquez la raison..."
               value={formData.motif}
               onChange={(e) => setFormData({ ...formData, motif: e.target.value })}

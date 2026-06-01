@@ -34,28 +34,28 @@ const CalendarWeek: React.FC<CalendarWeekProps> = ({ seances, onSeanceClick }) =
   };
 
   return (
-    <div className="w-full overflow-x-auto rounded-md border border-emit-border bg-white shadow-sm">
+    <div className="w-full overflow-x-auto rounded-2xl border border-blue-100 bg-white shadow-sm">
       <div className="grid grid-cols-[80px_repeat(6,1fr)] min-w-[800px]">
-        <div className="h-12 border-b border-r border-emit-border bg-emit-bg"></div>
+        <div className="h-12 border-b border-r border-blue-100 bg-blue-50"></div>
         
         {DAYS.map((day) => (
-          <div key={day} className="h-12 flex items-center justify-center font-poppins font-semibold text-emit-blue border-b border-r border-emit-border bg-emit-bg last:border-r-0">
+          <div key={day} className="h-12 flex items-center justify-center font-semibold text-blue-900 border-b border-r border-blue-100 bg-blue-50 last:border-r-0">
             {day}
           </div>
         ))}
 
-        <div className="bg-emit-bg border-r border-emit-border">
+        <div className="bg-blue-50 border-r border-blue-100">
           {HOURS.map((hour) => (
-            <div key={hour} className="h-16 flex items-start justify-center pt-2 text-xs text-emit-text/60 border-b border-emit-border/50">
+            <div key={hour} className="h-16 flex items-start justify-center pt-2 text-xs text-blue-400 border-b border-blue-100/50">
               {hour.toString().padStart(2, '0')}h00
             </div>
           ))}
         </div>
 
         {DAYS.map((day) => (
-          <div key={day} className="relative h-[calc(64px*12)] border-r border-emit-border last:border-r-0">
+          <div key={day} className="relative h-[calc(64px*12)] border-r border-blue-100 last:border-r-0">
             {HOURS.map((hour) => (
-              <div key={hour} className="h-16 border-b border-emit-border/30"></div>
+              <div key={hour} className="h-16 border-b border-blue-100/30"></div>
             ))}
 
             {seances
@@ -69,25 +69,25 @@ const CalendarWeek: React.FC<CalendarWeekProps> = ({ seances, onSeanceClick }) =
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.02, zIndex: 10 }}
                     onClick={() => onSeanceClick(seance)}
-                    className="absolute inset-x-1 p-2 rounded-md border cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md"
+                    className="absolute inset-x-1 p-2 rounded-lg border cursor-pointer overflow-hidden shadow-sm transition-shadow hover:shadow-md"
                     style={{
                       ...pos,
-                      backgroundColor: `#0A2B4E15`,
-                      borderLeft: `4px solid #0A2B4E`,
-                      borderColor: `#0A2B4E30`,
+                      backgroundColor: `#0052FF15`,
+                      borderLeft: `4px solid #0052FF`,
+                      borderColor: `#0052FF30`,
                     }}
                   >
                     <div className="flex flex-col h-full justify-between">
                       <div>
-                        <p className="text-[10px] font-bold text-emit-blue uppercase truncate">
+                        <p className="text-[10px] font-bold text-[#0052FF] uppercase truncate">
                           {seance.matiereNom}
                         </p>
-                        <p className="text-[10px] text-emit-text/70 truncate">
+                        <p className="text-[10px] text-blue-500 truncate">
                           {seance.professeurNomComplet}
                         </p>
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[9px] font-semibold text-emit-orange">
+                        <span className="text-[9px] font-semibold text-amber-600">
                           {seance.salleNom}
                         </span>
                         <Badge status={getBadgeStatus(seance.statut ?? 'Normal')} />
