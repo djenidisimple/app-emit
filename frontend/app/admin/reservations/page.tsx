@@ -46,7 +46,7 @@ export default function AdminReservationsPage() {
         {['En attente', 'Confirmée', 'Annulée'].map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
-              filter === s ? 'bg-[#1B3A6B] text-white' : 'border border-[#E9ECEF] text-[#6C757D] hover:bg-[#E8EEF8]'
+              filter === s ? 'bg-[#0052FF] text-white' : 'border border-blue-100 text-blue-500 hover:bg-blue-100'
             }`}>{s}</button>
         ))}
       </div>
@@ -54,43 +54,43 @@ export default function AdminReservationsPage() {
       {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
 
       {isLoading ? (
-        <LoadingSkeleton lines={5} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5" />
+        <LoadingSkeleton lines={5} className="bg-white rounded-xl border border-blue-100 shadow-sm p-5" />
       ) : reservations.length === 0 ? (
         <EmptyState icon={Calendar} title="Aucune réservation" description={`Aucune réservation ${filter.toLowerCase()}.`} />
       ) : (
-        <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+            <thead className="bg-blue-50 border-b border-blue-100">
               <tr>
                 {['Demandeur', 'Salle', 'Date', 'Créneau', 'Type', 'Statut', 'Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-blue-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F3F5]">
               {reservations.map(r => (
-                <tr key={r.id} className="hover:bg-[#F8F9FA] transition-colors">
+                <tr key={r.id} className="hover:bg-blue-50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-[#ADB5BD]" />
-                      <span className="text-[#212529] font-medium">{r.demandeurNom}</span>
+                      <User className="w-4 h-4 text-blue-300" />
+                      <span className="text-blue-900 font-medium">{r.demandeurNom}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#ADB5BD]" />
+                      <MapPin className="w-4 h-4 text-blue-300" />
                       <span>{r.salleLibelle}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-[#ADB5BD]" />
+                      <Calendar className="w-4 h-4 text-blue-300" />
                       <span>{formatDate(r.datePrecise)}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#ADB5BD]" />
+                      <Clock className="w-4 h-4 text-blue-300" />
                       <span>{r.type}</span>
                     </div>
                   </td>
@@ -113,7 +113,7 @@ export default function AdminReservationsPage() {
                       )}
                       {(r.statut === 'Confirmée' || r.statut === 'Annulée') && (
                         <button onClick={() => setConfirmAction({ id: r.id, action: 'Annulée' })}
-                          className="text-[#546E7A] hover:bg-[#F8F9FA] text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
+                          className="text-blue-600 hover:bg-blue-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
                           Annuler
                         </button>
                       )}
@@ -129,13 +129,13 @@ export default function AdminReservationsPage() {
       {confirmAction && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold text-[#212529] mb-2">Confirmer</h3>
-            <p className="text-sm text-[#6C757D] mb-4">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Confirmer</h3>
+            <p className="text-sm text-blue-500 mb-4">
               Êtes-vous sûr de vouloir {confirmAction.action === 'Confirmée' ? 'valider' : 'rejeter'} cette réservation ?
             </p>
             <div className="flex gap-2">
               <button onClick={() => setConfirmAction(null)}
-                className="flex-1 border border-[#E9ECEF] text-[#6C757D] hover:bg-[#F8F9FA] font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">
+                className="flex-1 border border-blue-100 text-blue-500 hover:bg-blue-50 font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">
                 Annuler
               </button>
               <button onClick={() => handleStatus(confirmAction.id, confirmAction.action)}

@@ -46,45 +46,45 @@ export default function AdminParcoursPage() {
     <ProtectedLayout pageTitle="Parcours">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => { setShowForm(true); setEditId(null); setNom(''); setFiliereId(''); }}
-          className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150 flex items-center gap-2"><Plus className="w-4 h-4" /> Ajouter</button>
+          className="bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150 flex items-center gap-2"><Plus className="w-4 h-4" /> Ajouter</button>
       </div>
-      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700"><AlertCircle className="w-4 h-4 inline mr-1" />{error}</div>}
+      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700"><AlertCircle className="w-4 h-4 inline mr-1" />{error}</div>}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5 mb-6 flex gap-4 items-end">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5 mb-6 flex gap-4 items-end">
           <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Nom</label>
+            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Nom</label>
             <input type="text" placeholder="Ex: Informatique" value={nom} onChange={e => setNom(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required />
+              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required />
           </div>
           <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Filière</label>
+            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Filière</label>
             <select value={filiereId} onChange={e => setFiliereId(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150" required>
+              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required>
               <option value="">Sélectionner...</option>
             </select>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">{editId ? 'Modifier' : 'Créer'}</button>
-            <button type="button" onClick={() => setShowForm(false)} className="border border-[#E9ECEF] text-[#6C757D] hover:bg-[#F8F9FA] font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-150">Annuler</button>
+            <button type="submit" className="bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">{editId ? 'Modifier' : 'Créer'}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="border border-blue-200 text-blue-500 hover:bg-blue-50 font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">Annuler</button>
           </div>
         </form>
       )}
-      {isLoading ? <LoadingSkeleton lines={5} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-5" />
+      {isLoading ? <LoadingSkeleton lines={5} className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5" />
       : items.length === 0 ? <EmptyState icon={FolderTree} title="Aucun parcours" description="Aucun parcours enregistré." />
-      : <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm overflow-hidden">
+      : <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
-              <tr><th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Nom</th><th className="px-4 py-3 text-left text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Filière</th><th className="px-4 py-3 text-right text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Actions</th></tr>
+            <thead className="bg-blue-50 border-b border-blue-100">
+              <tr><th className="px-4 py-3 text-left text-xs font-semibold text-blue-500 uppercase tracking-wide">Nom</th><th className="px-4 py-3 text-left text-xs font-semibold text-blue-500 uppercase tracking-wide">Filière</th><th className="px-4 py-3 text-right text-xs font-semibold text-blue-500 uppercase tracking-wide">Actions</th></tr>
             </thead>
-            <tbody className="divide-y divide-[#F1F3F5]">
+            <tbody className="divide-y divide-blue-100">
               {items.map(item => (
-                <tr key={item.id} className="hover:bg-[#F8F9FA] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[#212529]">{item.nom}</td>
-                  <td className="px-4 py-3 text-[#6C757D]">{item.filiereNom || `ID: ${item.filiereId}`}</td>
+                <tr key={item.id} className="hover:bg-blue-50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-blue-900">{item.nom}</td>
+                  <td className="px-4 py-3 text-blue-500">{item.filiereNom || `ID: ${item.filiereId}`}</td>
                   <td className="px-4 py-3 text-right">
                     <button onClick={() => { setEditId(item.id); setNom(item.nom); setFiliereId(String(item.filiereId)); setShowForm(true); }}
-                      className="p-1.5 text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-[#C62828] hover:bg-red-50 rounded-lg transition-colors duration-150 ml-1"><Trash2 className="w-4 h-4" /></button>
+                      className="p-1.5 text-[#0052FF] hover:bg-blue-50 rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 ml-1"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}

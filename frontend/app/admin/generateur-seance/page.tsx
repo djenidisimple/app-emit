@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function GenerateurSeancePage() {
   return (
     <ProtectedLayout pageTitle="Génération de séances">
-      <Link href="/admin" className="inline-flex items-center gap-2 text-[#6C757D] hover:text-[#1B3A6B] transition-colors text-sm mb-4">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-blue-500 hover:text-[#0052FF] transition-colors text-sm mb-4">
         <ArrowLeft className="w-4 h-4" /> Retour à l&apos;administration
       </Link>
       <GenerateurSeanceForm />

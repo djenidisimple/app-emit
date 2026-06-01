@@ -134,8 +134,8 @@ function Field({
 }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">
-        {label}{required && <span className="text-[#1B3A6B] ml-1">*</span>}
+      <label className="block text-xs font-bold text-[#0052FF] uppercase tracking-wider">
+        {label}{required && <span className="text-[#0052FF] ml-1">*</span>}
       </label>
       {children}
       {error && (
@@ -212,7 +212,7 @@ function PasswordStrength({ pwd }: { pwd: string }) {
           <div key={s} className={`flex-1 h-1 rounded-full transition-all ${s <= score ? lvl.color : 'bg-emit-border'}`} />
         ))}
       </div>
-      <p className="text-[11px] text-[#6C757D]">{lvl.label}</p>
+      <p className="text-[11px] text-blue-500">{lvl.label}</p>
     </div>
   );
 }
@@ -222,8 +222,8 @@ function PasswordInput({
   value, onChange, placeholder, error,
 }: { value: string; onChange: (v: string) => void; placeholder?: string; error?: string }) {
   const [show, setShow] = useState(false);
-  const inputClass = `w-full pl-3 pr-9 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] ${
-    error ? 'border-red-400 bg-red-50/30' : 'border-[#E9ECEF] bg-white'
+  const inputClass = `w-full pl-3 pr-9 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] ${
+    error ? 'border-red-400 bg-red-50/30' : 'border-blue-100 bg-white'
   }`;
   return (
     <div className="relative">
@@ -237,7 +237,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={() => setShow((v) => !v)}
-        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#ADB5BD] hover:text-[#212529] transition-colors"
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-blue-300 hover:text-blue-900 transition-colors"
       >
         {show ? <EyeOff size={15} /> : <Eye size={15} />}
       </button>
@@ -254,8 +254,8 @@ function CreateModal({
   onClose: () => void; onChange: (f: keyof UserCreateForm, v: string) => void; onSubmit: () => void;
 }) {
   const ic = (err?: string) =>
-    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] ${
-      err ? 'border-red-400 bg-red-50/30' : 'border-[#E9ECEF] bg-white'
+    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] ${
+      err ? 'border-red-400 bg-red-50/30' : 'border-blue-100 bg-white'
     }`;
 
   return (
@@ -270,16 +270,16 @@ function CreateModal({
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-[#E9ECEF] my-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-blue-100 my-4">
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9ECEF]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-blue-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#E8EEF8] rounded-lg flex items-center justify-center">
-                    <User size={16} className="text-[#1B3A6B]" />
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <User size={16} className="text-[#0052FF]" />
                   </div>
-                  <h2 className="text-base font-bold text-[#1B3A6B]">Ajouter un utilisateur</h2>
+                  <h2 className="text-base font-bold text-[#0052FF]">Ajouter un utilisateur</h2>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-[#ADB5BD] hover:text-[#212529] hover:bg-emit-border/50 rounded-md transition-colors">
+                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-emit-border/50 rounded-md transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -299,7 +299,7 @@ function CreateModal({
 
                 <Field label="Email" required error={errors.email}>
                   <div className="relative">
-                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                     <input type="email" value={form.email} onChange={(e) => onChange('email', e.target.value)}
                       placeholder="jean.rakoto@emit.edu" className={`pl-8 ${ic(errors.email)}`} />
                   </div>
@@ -308,7 +308,7 @@ function CreateModal({
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Rôle" required error={errors.role}>
                     <div className="relative">
-                      <ShieldCheck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                      <ShieldCheck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                       <select value={form.role} onChange={(e) => onChange('role', e.target.value)}
                         className={`pl-8 appearance-none ${ic(errors.role)}`}>
                         <option value="">Choisir...</option>
@@ -318,7 +318,7 @@ function CreateModal({
                   </Field>
                   <Field label="Matricule (optionnel)">
                     <div className="relative">
-                      <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                      <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                       <input type="text" value={form.matricule} onChange={(e) => onChange('matricule', e.target.value)}
                         placeholder="Ex: 2024001" maxLength={20} className={`pl-8 ${ic()}`} />
                     </div>
@@ -330,8 +330,8 @@ function CreateModal({
                     placeholder="ID du niveau (ex: 1)" min={1} className={ic()} />
                 </Field>
 
-                <div className="border-t border-[#E9ECEF] pt-4 space-y-4">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">
+                <div className="border-t border-blue-100 pt-4 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#0052FF] uppercase tracking-wider">
                     <Lock size={12} /> Sécurité
                   </div>
                   <Field label="Mot de passe" required error={errors.motDePasse}>
@@ -347,7 +347,7 @@ function CreateModal({
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-[#E9ECEF] flex justify-end gap-2">
+              <div className="px-6 py-4 border-t border-blue-100 flex justify-end gap-2">
                 <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>Annuler</Button>
                 <Button variant="primary" onClick={onSubmit} isLoading={isSubmitting}>Créer l&apos;utilisateur</Button>
               </div>
@@ -368,8 +368,8 @@ function EditModal({
   onClose: () => void; onChange: (f: keyof UserEditForm, v: string) => void; onSubmit: () => void;
 }) {
   const ic = (err?: string) =>
-    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] ${
-      err ? 'border-red-400 bg-red-50/30' : 'border-[#E9ECEF] bg-white'
+    `w-full px-3 py-2 border rounded-md text-sm outline-none transition-all focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] ${
+      err ? 'border-red-400 bg-red-50/30' : 'border-blue-100 bg-white'
     }`;
 
   return (
@@ -384,16 +384,16 @@ function EditModal({
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-[#E9ECEF] my-4">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9ECEF]">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-blue-100 my-4">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-blue-100">
                 <div className="flex items-center gap-3">
                   <Avatar nom={user.nom} prenom={user.prenom} />
                   <div>
-                    <h2 className="text-base font-bold text-[#1B3A6B]">Modifier l&apos;utilisateur</h2>
-                    <p className="text-xs text-[#6C757D]">{user.email}</p>
+                    <h2 className="text-base font-bold text-[#0052FF]">Modifier l&apos;utilisateur</h2>
+                    <p className="text-xs text-blue-500">{user.email}</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-[#ADB5BD] hover:text-[#212529] hover:bg-emit-border/50 rounded-md transition-colors">
+                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-emit-border/50 rounded-md transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -412,7 +412,7 @@ function EditModal({
 
                 <Field label="Email" required error={errors.email}>
                   <div className="relative">
-                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                     <input type="email" value={form.email} onChange={(e) => onChange('email', e.target.value)}
                       className={`pl-8 ${ic(errors.email)}`} />
                   </div>
@@ -421,7 +421,7 @@ function EditModal({
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Rôle" required error={errors.role}>
                     <div className="relative">
-                      <ShieldCheck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                      <ShieldCheck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                       <select value={form.role} onChange={(e) => onChange('role', e.target.value)}
                         className={`pl-8 appearance-none ${ic(errors.role)}`}>
                         <option value="">Choisir...</option>
@@ -431,7 +431,7 @@ function EditModal({
                   </Field>
                   <Field label="Matricule">
                     <div className="relative">
-                      <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" />
+                      <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" />
                       <input type="text" value={form.matricule} onChange={(e) => onChange('matricule', e.target.value)}
                         maxLength={20} className={`pl-8 ${ic()}`} />
                     </div>
@@ -449,7 +449,7 @@ function EditModal({
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-[#E9ECEF] flex justify-end gap-2">
+              <div className="px-6 py-4 border-t border-blue-100 flex justify-end gap-2">
                 <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>Annuler</Button>
                 <Button variant="primary" onClick={onSubmit} isLoading={isSubmitting}>Enregistrer</Button>
               </div>
@@ -481,16 +481,16 @@ function DeleteModal({
               <div className="flex items-center justify-center w-12 h-12 bg-red-50 rounded-full mx-auto mb-4">
                 <Trash2 size={22} className="text-red-500" />
               </div>
-              <h3 className="text-base font-bold text-[#212529] text-center mb-1">
+              <h3 className="text-base font-bold text-blue-900 text-center mb-1">
                 Supprimer cet utilisateur ?
               </h3>
-              <p className="text-sm text-[#6C757D] text-center mb-5">
-                Le compte de <strong className="text-[#212529]">{user.prenom} {user.nom}</strong>{' '}
+              <p className="text-sm text-blue-500 text-center mb-5">
+                Le compte de <strong className="text-blue-900">{user.prenom} {user.nom}</strong>{' '}
                 (<span className="font-mono text-xs">{user.email}</span>) sera définitivement supprimé.
               </p>
               <div className="flex gap-2">
                 <button onClick={onCancel} disabled={isDeleting}
-                  className="flex-1 py-2 border border-[#E9ECEF] rounded-md text-sm font-semibold text-[#212529] hover:bg-[#F8F9FA] transition-colors">
+                  className="flex-1 py-2 border border-blue-100 rounded-md text-sm font-semibold text-blue-900 hover:bg-blue-50 transition-colors">
                   Annuler
                 </button>
                 <Button variant="danger" onClick={onConfirm} isLoading={isDeleting} className="flex-1 justify-center">
@@ -567,33 +567,33 @@ function ImportModal({
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}>
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-[#E9ECEF]">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9ECEF]">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-blue-100">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-blue-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#E8EEF8] rounded-lg flex items-center justify-center">
-                    <Upload size={16} className="text-[#1B3A6B]" />
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Upload size={16} className="text-[#0052FF]" />
                   </div>
-                  <h2 className="text-base font-bold text-[#1B3A6B]">Importer des utilisateurs</h2>
+                  <h2 className="text-base font-bold text-[#0052FF]">Importer des utilisateurs</h2>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-[#ADB5BD] hover:text-[#212529] rounded-md transition-colors">
+                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 rounded-md transition-colors">
                   <X size={18} />
                 </button>
               </div>
 
               <div className="px-6 py-5 space-y-4">
-                <div className="flex items-center justify-between bg-[#F8F9FA] border border-[#E9ECEF] rounded-lg p-3">
-                  <span className="text-sm text-[#6C757D]">Télécharger le modèle CSV</span>
+                <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg p-3">
+                  <span className="text-sm text-blue-500">Télécharger le modèle CSV</span>
                   <button onClick={downloadTemplate}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-[#1B3A6B] hover:text-[#1B3A6B] transition-colors">
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#0052FF] hover:text-[#0052FF] transition-colors">
                     <Download size={14} /> Modèle CSV
                   </button>
                 </div>
 
                 <div onClick={() => fileRef.current?.click()}
-                  className="border-2 border-dashed border-[#E9ECEF] rounded-xl p-8 text-center cursor-pointer hover:border-[#1B3A6B]/50 hover:bg-[#E8EEF8] transition-all">
-                  <FileSpreadsheet size={32} className="mx-auto text-[#ADB5BD] mb-2" />
-                  <p className="text-sm font-medium text-[#212529]">Cliquer pour choisir un fichier</p>
-                  <p className="text-xs text-[#ADB5BD] mt-1">Format : CSV (Nom, Prenom, Email, Matricule, Role)</p>
+                  className="border-2 border-dashed border-blue-100 rounded-xl p-8 text-center cursor-pointer hover:border-[#0052FF]/50 hover:bg-blue-100 transition-all">
+                  <FileSpreadsheet size={32} className="mx-auto text-blue-300 mb-2" />
+                  <p className="text-sm font-medium text-blue-900">Cliquer pour choisir un fichier</p>
+                  <p className="text-xs text-blue-300 mt-1">Format : CSV (Nom, Prenom, Email, Matricule, Role)</p>
                   <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} className="hidden" />
                 </div>
 
@@ -605,21 +605,21 @@ function ImportModal({
 
                 {preview.length > 0 && (
                   <div>
-                    <p className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider mb-2">
+                    <p className="text-xs font-bold text-[#0052FF] uppercase tracking-wider mb-2">
                       Aperçu ({preview.length} utilisateur{preview.length > 1 ? 's' : ''})
                     </p>
-                    <div className="overflow-x-auto border border-[#E9ECEF] rounded-lg">
+                    <div className="overflow-x-auto border border-blue-100 rounded-lg">
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="bg-[#F8F9FA] border-b border-[#E9ECEF]">
+                          <tr className="bg-blue-50 border-b border-blue-100">
                             {['Nom', 'Prénom', 'Email', 'Rôle'].map((h) => (
-                              <th key={h} className="p-2 text-left font-semibold text-[#1B3A6B]">{h}</th>
+                              <th key={h} className="p-2 text-left font-semibold text-[#0052FF]">{h}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
                           {preview.map((u, i) => (
-                            <tr key={i} className="border-b border-[#E9ECEF]">
+                            <tr key={i} className="border-b border-blue-100">
                               <td className="p-2 font-medium">{u.nom}</td>
                               <td className="p-2">{u.prenom}</td>
                               <td className="p-2 font-mono text-[11px]">{u.email}</td>
@@ -636,7 +636,7 @@ function ImportModal({
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-[#E9ECEF] flex justify-end gap-2">
+              <div className="px-6 py-4 border-t border-blue-100 flex justify-end gap-2">
                 <Button variant="secondary" onClick={onClose}>Annuler</Button>
                 <Button variant="primary" onClick={() => { onImport(preview); onClose(); }}
                   disabled={preview.length === 0} icon={Upload}>
@@ -658,22 +658,22 @@ function UserRow({
   return (
     <motion.tr
       initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}
-      className="border-b border-[#E9ECEF] hover:bg-[#F8F9FA] transition-colors group"
+      className="border-b border-blue-100 hover:bg-blue-50 transition-colors group"
     >
       <td className="p-3 pl-4">
         <div className="flex items-center gap-2.5">
           <Avatar nom={user.nom} prenom={user.prenom} />
           <div>
-            <p className="font-semibold text-[#212529] text-sm leading-tight">{user.nom} {user.prenom}</p>
+            <p className="font-semibold text-blue-900 text-sm leading-tight">{user.nom} {user.prenom}</p>
             {user.matricule && (
-              <p className="text-[11px] text-[#ADB5BD] font-mono">{user.matricule}</p>
+              <p className="text-[11px] text-blue-300 font-mono">{user.matricule}</p>
             )}
           </div>
         </div>
       </td>
       <td className="p-3">
-        <div className="flex items-center gap-1.5 text-sm text-[#6C757D]">
-          <Mail size={12} className="text-[#ADB5BD] flex-shrink-0" />
+        <div className="flex items-center gap-1.5 text-sm text-blue-500">
+          <Mail size={12} className="text-blue-300 flex-shrink-0" />
           <span className="font-mono text-xs">{user.email}</span>
         </div>
       </td>
@@ -682,15 +682,15 @@ function UserRow({
           <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${ROLE_COLORS[user.role] || 'bg-gray-100 text-gray-600'}`}>
             {user.role}
           </span>
-        ) : <span className="text-[#ADB5BD] text-xs">—</span>}
+        ) : <span className="text-blue-300 text-xs">—</span>}
       </td>
-      <td className="p-3 text-sm text-[#6C757D]">
-        {user.niveauCode || <span className="text-[#ADB5BD]">—</span>}
+      <td className="p-3 text-sm text-blue-500">
+        {user.niveauCode || <span className="text-blue-300">—</span>}
       </td>
       <td className="p-3 pr-4">
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
           <button onClick={() => onEdit(user)} title="Modifier"
-            className="p-1.5 text-[#1B3A6B] hover:bg-[#E8EEF8] rounded-md transition-colors">
+            className="p-1.5 text-[#0052FF] hover:bg-blue-100 rounded-md transition-colors">
             <Pencil size={15} />
           </button>
           <button onClick={() => onDelete(user)} title="Supprimer"
@@ -979,16 +979,16 @@ export default function AdminUtilisateursPage() {
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <p className="text-sm text-[#6C757D]">Gestion des comptes et des accès de la plateforme EMIT.</p>
+            <p className="text-sm text-blue-500">Gestion des comptes et des accès de la plateforme EMIT.</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1">
               <button onClick={exportCSV}
-                className="flex items-center gap-1.5 px-3 py-2 border border-[#E9ECEF] rounded-lg text-xs font-semibold text-[#6C757D] hover:bg-[#F8F9FA] transition-colors duration-150">
+                className="flex items-center gap-1.5 px-3 py-2 border border-blue-100 rounded-lg text-xs font-semibold text-blue-500 hover:bg-blue-50 transition-colors duration-150">
                 <FileSpreadsheet size={14} className="text-green-600" /> CSV
               </button>
               <button onClick={exportPDF}
-                className="flex items-center gap-1.5 px-3 py-2 border border-[#E9ECEF] rounded-lg text-xs font-semibold text-[#6C757D] hover:bg-[#F8F9FA] transition-colors duration-150">
+                className="flex items-center gap-1.5 px-3 py-2 border border-blue-100 rounded-lg text-xs font-semibold text-blue-500 hover:bg-blue-50 transition-colors duration-150">
                 <FileText size={14} className="text-red-500" /> PDF
               </button>
             </div>
@@ -999,35 +999,35 @@ export default function AdminUtilisateursPage() {
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-          <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-3 sm:col-span-1">
-            <div className="text-2xl font-bold text-[#1B3A6B]">{users.length}</div>
-            <div className="text-xs text-[#6C757D] mt-0.5">Total</div>
+          <div className="bg-white rounded-xl border border-blue-100 shadow-sm p-3 sm:col-span-1">
+            <div className="text-2xl font-bold text-[#0052FF]">{users.length}</div>
+            <div className="text-xs text-blue-500 mt-0.5">Total</div>
           </div>
           {ROLES.map((role) => (
-            <div key={role} className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-3">
+            <div key={role} className="bg-white rounded-xl border border-blue-100 shadow-sm p-3">
               <div className={`text-2xl font-bold ${
                 role === 'Admin' ? 'text-red-600' :
                 role === 'Professeur' ? 'text-blue-600' :
                 role === 'Etudiant' ? 'text-green-600' : 'text-purple-600'
               }`}>{byRole[role] || 0}</div>
-              <div className="text-xs text-[#6C757D] mt-0.5">{role}s</div>
+              <div className="text-xs text-blue-500 mt-0.5">{role}s</div>
             </div>
           ))}
         </div>
 
         {/* ── Search & Filters ── */}
-        <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-3 mb-4 space-y-3">
+        <div className="bg-white rounded-xl border border-blue-100 shadow-sm p-3 mb-4 space-y-3">
           <div className="flex gap-2 flex-wrap items-center">
             <div className="relative flex-1 min-w-[220px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ADB5BD]" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300" size={16} />
               <input
                 type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher par nom, email, matricule, rôle..."
-                className="w-full pl-9 pr-8 py-2 border border-[#E9ECEF] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all"
+                className="w-full pl-9 pr-8 py-2 border border-blue-100 rounded-md text-sm outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
               />
               {search && (
                 <button onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#ADB5BD] hover:text-[#212529]">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-300 hover:text-blue-900">
                   <X size={14} />
                 </button>
               )}
@@ -1036,14 +1036,14 @@ export default function AdminUtilisateursPage() {
               onClick={() => setShowFilters((v) => !v)}
               className={`flex items-center gap-1.5 px-3 py-2 border rounded-md text-sm font-medium transition-colors ${
                 showFilters || filterRole
-                  ? 'border-[#1B3A6B] bg-[#E8EEF8] text-[#1B3A6B]'
-                  : 'border-[#E9ECEF] text-[#212529] hover:bg-[#F8F9FA]'
+                  ? 'border-[#0052FF] bg-blue-100 text-[#0052FF]'
+                  : 'border-blue-100 text-blue-900 hover:bg-blue-50'
               }`}
             >
-              <Filter size={14} /> Filtres {filterRole && <span className="w-1.5 h-1.5 bg-[#1B3A6B] rounded-full" />}
+              <Filter size={14} /> Filtres {filterRole && <span className="w-1.5 h-1.5 bg-[#0052FF] rounded-full" />}
             </button>
             <button onClick={fetchUsers} title="Rafraîchir"
-              className="p-2 border border-[#E9ECEF] rounded-md text-[#6C757D] hover:text-[#1B3A6B] hover:bg-[#F8F9FA] transition-colors">
+              className="p-2 border border-blue-100 rounded-md text-blue-500 hover:text-[#0052FF] hover:bg-blue-50 transition-colors">
               <RefreshCw size={15} />
             </button>
           </div>
@@ -1052,18 +1052,18 @@ export default function AdminUtilisateursPage() {
             {showFilters && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex gap-3 flex-wrap pt-1 border-t border-[#E9ECEF] items-center">
+                className="flex gap-3 flex-wrap pt-1 border-t border-blue-100 items-center">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wider">Rôle :</label>
+                  <label className="text-xs font-bold text-[#0052FF] uppercase tracking-wider">Rôle :</label>
                   <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}
-                    className="border border-[#E9ECEF] rounded-md px-2 py-1.5 text-sm outline-none focus:border-[#1B3A6B]">
+                    className="border border-blue-100 rounded-md px-2 py-1.5 text-sm outline-none focus:border-[#0052FF]">
                     <option value="">Tous</option>
                     {ROLES.map((r) => <option key={r}>{r}</option>)}
                   </select>
                 </div>
                 {filterRole && (
                   <button onClick={() => setFilterRole('')}
-                    className="text-xs text-[#1B3A6B] hover:underline font-medium">Réinitialiser</button>
+                    className="text-xs text-[#0052FF] hover:underline font-medium">Réinitialiser</button>
                 )}
               </motion.div>
             )}
@@ -1076,27 +1076,27 @@ export default function AdminUtilisateursPage() {
             <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-[#ADB5BD]">
+          <div className="text-center py-20 text-blue-300">
             <Users size={40} className="mx-auto mb-3 opacity-30" />
             <p className="font-medium">
               {users.length === 0 ? 'Aucun utilisateur enregistré.' : 'Aucun résultat pour cette recherche.'}
             </p>
             {users.length === 0 && (
-              <button onClick={openCreate} className="mt-3 text-sm text-[#1B3A6B] hover:underline font-semibold">
+              <button onClick={openCreate} className="mt-3 text-sm text-[#0052FF] hover:underline font-semibold">
                 + Ajouter le premier utilisateur
               </button>
             )}
           </div>
         ) : (
           <>
-            <div className="text-xs text-[#ADB5BD] mb-2 px-1">
+            <div className="text-xs text-blue-300 mb-2 px-1">
               {filtered.length} utilisateur{filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}
               {users.length !== filtered.length && ` sur ${users.length}`}
             </div>
-            <div className="bg-white border border-[#E9ECEF] rounded-lg overflow-hidden">
+            <div className="bg-white border border-blue-100 rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#E9ECEF] bg-[#F8F9FA]">
+                  <tr className="border-b border-blue-100 bg-blue-50">
                     {[
                       { key: 'nom', label: 'Utilisateur' },
                       { key: 'email', label: 'Email' },
@@ -1104,13 +1104,13 @@ export default function AdminUtilisateursPage() {
                       { key: 'niveauCode', label: 'Niveau' },
                     ].map(({ key, label }) => (
                       <th key={key} onClick={() => toggleSort(key as keyof UtilisateurDto)}
-                        className="p-3 pl-4 text-left font-bold text-[#1B3A6B] uppercase tracking-wider text-xs cursor-pointer select-none hover:text-[#1B3A6B] transition-colors">
+                        className="p-3 pl-4 text-left font-bold text-[#0052FF] uppercase tracking-wider text-xs cursor-pointer select-none hover:text-[#0052FF] transition-colors">
                         <span className="inline-flex items-center gap-1">
                           {label} <SortIcon field={key as keyof UtilisateurDto} />
                         </span>
                       </th>
                     ))}
-                    <th className="p-3 pr-4 text-right font-bold text-[#1B3A6B] uppercase tracking-wider text-xs">Actions</th>
+                    <th className="p-3 pr-4 text-right font-bold text-[#0052FF] uppercase tracking-wider text-xs">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
