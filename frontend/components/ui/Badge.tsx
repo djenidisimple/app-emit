@@ -1,19 +1,25 @@
 import React from 'react';
 
+type BadgeStatus = 'Confirmé' | 'Annulé' | 'Reporté' | 'Terminé' | 'En attente';
+
 interface BadgeProps {
-  status: 'Confirmé' | 'Annulé' | 'Reporté' | 'Terminé';
+  status: BadgeStatus;
+  className?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ status }) => {
-  const styles = {
-    'Confirmé': 'bg-green-100 text-green-800',
-    'Annulé': 'bg-red-100 text-red-800',
-    'Reporté': 'bg-amber-100 text-amber-800',
-    'Terminé': 'bg-gray-100 text-gray-800',
-  };
+const styles: Record<BadgeStatus, string> = {
+  'Confirmé':   'bg-emerald-100 text-emerald-700',
+  'Annulé':     'bg-zinc-100 text-zinc-600',
+  'Reporté':    'bg-amber-100 text-amber-700',
+  'Terminé':    'bg-violet-100 text-violet-700',
+  'En attente': 'bg-amber-100 text-amber-700',
+};
 
+const Badge: React.FC<BadgeProps> = ({ status, className = '' }) => {
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
+    <span
+      className={`inline-flex items-center px-2 py-1 text-[10px] font-medium rounded-md ${styles[status] ?? 'bg-zinc-50 text-zinc-600'} ${className}`}
+    >
       {status}
     </span>
   );
