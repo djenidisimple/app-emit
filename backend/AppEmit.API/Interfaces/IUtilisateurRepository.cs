@@ -8,5 +8,6 @@ namespace AppEmit.API.Interfaces
     {
         Task<Utilisateur?> GetProfesseurBySeanceAsync(int seanceCoursId);
         Task<List<Utilisateur>> GetEtudiantsBySeanceAsync(int seanceCoursId);
+        Task<IEnumerable<Utilisateur>> GetByRoleAsync(string role);
     }
 }

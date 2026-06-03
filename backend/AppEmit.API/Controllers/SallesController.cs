@@ -2,12 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using AppEmit.API.Data;
 using AppEmit.API.Interfaces;
 using AppEmit.API.DTOs.Salle;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SallesController : ControllerBase
     {
         private readonly ISalleService _salleService;
@@ -19,6 +21,7 @@ namespace AppEmit.API.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalleResponseDto>>> GetAll()
         {
@@ -26,6 +29,7 @@ namespace AppEmit.API.Controllers
             return Ok(salles);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<SalleResponseDto>> GetById(int id)
         {
@@ -34,6 +38,7 @@ namespace AppEmit.API.Controllers
             return Ok(salle);
         }
 
+        [AllowAnonymous]
         [HttpGet("disponibles")]
         public async Task<ActionResult<IEnumerable<SalleResponseDto>>> GetDisponibles(
             [FromQuery] DateTime date,
@@ -86,6 +91,7 @@ namespace AppEmit.API.Controllers
             return Ok(disponibles);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<SalleResponseDto>> Create([FromBody] SalleCreateDto dto)
         {
@@ -93,6 +99,7 @@ namespace AppEmit.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<SalleResponseDto>> Update(int id, [FromBody] SalleUpdateDto dto)
         {
@@ -101,6 +108,7 @@ namespace AppEmit.API.Controllers
             return Ok(updated);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

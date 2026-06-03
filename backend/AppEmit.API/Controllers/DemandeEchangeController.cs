@@ -1,11 +1,13 @@
 using AppEmit.API.DTOs.DemandeEchange;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DemandeEchangeController : ControllerBase
     {
         private readonly IDemandeEchangeService _service;
@@ -39,8 +41,7 @@ namespace AppEmit.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DemandeEchangeReadDto>> GetById(int id)
         {
-            var demandes = await _service.ObtenirDemandes(0);
-            var demande = demandes.FirstOrDefault(d => d.Id == id);
+            var demande = await _service.ObtenirDemandeParId(id);
             if (demande == null) return NotFound();
             return Ok(demande);
         }

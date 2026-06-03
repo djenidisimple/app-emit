@@ -1,5 +1,6 @@
 using AppEmit.API.Data;
 using AppEmit.API.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace AppEmit.API.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Creneau>>> GetAll()
         {

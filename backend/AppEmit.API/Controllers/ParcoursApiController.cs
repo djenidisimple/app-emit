@@ -1,22 +1,26 @@
 using AppEmit.API.DTOs.Parcours;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/parcours")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class ParcoursApiController : ControllerBase
     {
         private readonly IParcoursService _service;
         public ParcoursApiController(IParcoursService service) => _service = service;
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ParcoursDto>>> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<ParcoursDto>> GetById(int id)
         {

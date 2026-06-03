@@ -1,9 +1,12 @@
 using AppEmit.API.Interfaces;
 using AppEmit.API.DTOs.Matiere;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers;
 
+[Authorize(Roles = "Admin")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class MatiereController : Controller
 {
     private readonly IMatiereService _service;

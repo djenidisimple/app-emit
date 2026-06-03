@@ -33,5 +33,12 @@ namespace AppEmit.API.Repositories
                 .Where(u => u.Role == "Etudiant" && u.NiveauId == seance.NiveauId)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Utilisateur>> GetByRoleAsync(string role)
+        {
+            return await _context.Utilisateurs
+                .Where(u => u.Role == role)
+                .ToListAsync();
+        }
     }
 }

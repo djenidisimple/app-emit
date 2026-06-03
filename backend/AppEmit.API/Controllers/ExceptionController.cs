@@ -1,5 +1,6 @@
 using AppEmit.API.DTOs;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace AppEmit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ExceptionController : ControllerBase
     {
         private readonly IExceptionService _exceptionService;

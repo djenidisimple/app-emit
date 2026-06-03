@@ -75,6 +75,18 @@ namespace AppEmit.API.Services
             return demandes.Select(d => MapToReadDtoSync(d)).ToList();
         }
 
+        public async Task<DemandeEchangeReadDto?> ObtenirDemandeParId(int id)
+        {
+            var demande = await _context.DemandesEchange
+                .Include(d => d.Demandeur)
+                .Include(d => d.Cible)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (demande == null) return null;
+
+            return MapToReadDtoSync(demande);
+        }
+
         public async Task<DemandeEchangeReadDto> AccepterDemande(int id)
         {
             var demande = await _context.DemandesEchange

@@ -1,19 +1,23 @@
 using AppEmit.API.DTOs.Utilisateur;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/utilisateurs")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UtilisateurController : ControllerBase
     {
         private readonly IUtilisateurService _service;
         public UtilisateurController(IUtilisateurService service) => _service = service;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UtilisateurDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<UtilisateurDto>>> GetAll([FromQuery] string? role = null)
         {
+            if (!string.IsNullOrEmpty(role))
+                return Ok(await _service.GetByRoleAsync(role));
             return Ok(await _service.GetAllAsync());
         }
 

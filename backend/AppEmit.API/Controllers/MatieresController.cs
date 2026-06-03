@@ -1,22 +1,26 @@
 using AppEmit.API.DTOs.Matiere;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/matieres")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class MatieresController : ControllerBase
     {
         private readonly IMatiereService _service;
         public MatieresController(IMatiereService service) => _service = service;
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MatiereDto>>> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<MatiereDto>> GetById(int id)
         {

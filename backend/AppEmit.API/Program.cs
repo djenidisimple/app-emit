@@ -1,15 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
-// Data
 using AppEmit.API.Data;
-
 using AppEmit.API.Entities;
 using AppEmit.API.Hubs;
 using AppEmit.API.Interfaces;
@@ -84,6 +85,7 @@ builder.Services.AddAutoMapper(cfg =>
 // ======================================================
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<NotificationCreateDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
 // ======================================================
 // AUTH JWT
@@ -130,7 +132,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// ======================================================
+// RATE LIMITING
+// ======================================================
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddFixedWindowLimiter("Auth", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    options.AddFixedWindowLimiter("Strict", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+});
 
 // ======================================================
 // REPOSITORIES & SERVICES
@@ -160,18 +190,19 @@ builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
 
-// Ajouter ces lignes dans Program.cs dans la section DI
-
-// ── Matière & Parcours ───────────────────────────────────────────────
-builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
-builder.Services.AddScoped<IMatiereService, MatiereService>();
-builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
-builder.Services.AddScoped<IParcoursService, ParcoursService>();
+// (Les services Matière & Parcours sont déjà enregistrés ci-dessus)
 
 // ======================================================
 // BUILD APP
 // ======================================================
 var app = builder.Build();
+
+// Appliquer les migrations automatiquement au démarrage
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 // ======================================================
 // MIDDLEWARE
@@ -187,6 +218,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowNextJs");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

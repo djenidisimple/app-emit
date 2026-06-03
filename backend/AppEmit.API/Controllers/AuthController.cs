@@ -3,11 +3,13 @@ using AppEmit.API.DTOs.Auth;
 using AppEmit.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AppEmit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("Auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -20,6 +22,7 @@ namespace AppEmit.API.Controllers
         }
 
         /// <summary>Créer un nouveau compte</summary>
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
@@ -36,6 +39,7 @@ namespace AppEmit.API.Controllers
         }
 
         /// <summary>Se connecter et obtenir un token JWT</summary>
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {

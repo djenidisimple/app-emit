@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AppEmit.API.Hubs;
@@ -11,10 +12,16 @@ public class NotificationHub : Hub
         _logger = logger;
     }
 
+    private string? GetUserId()
+    {
+        return Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? Context.User?.FindFirst("sub")?.Value
+            ?? Context.User?.FindFirst("nameid")?.Value;
+    }
+
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.User?.FindFirst("sub")?.Value
-                  ?? Context.User?.FindFirst("nameid")?.Value;
+        var userId = GetUserId();
 
         if (!string.IsNullOrEmpty(userId))
         {
@@ -27,7 +34,7 @@ public class NotificationHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = Context.User?.FindFirst("sub")?.Value;
+        var userId = GetUserId();
         if (!string.IsNullOrEmpty(userId))
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");

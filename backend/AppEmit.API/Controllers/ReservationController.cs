@@ -1,5 +1,6 @@
 using AppEmit.API.DTOs.Reservation;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -7,6 +8,7 @@ namespace AppEmit.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReservationController : ControllerBase
     {
         private readonly IReservationService _reservationService;
@@ -59,6 +61,7 @@ namespace AppEmit.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id}/statut")]
         public async Task<ActionResult<ReservationReadDto>> UpdateStatut(int id, [FromBody] ReservationUpdateStatusDto dto)
         {

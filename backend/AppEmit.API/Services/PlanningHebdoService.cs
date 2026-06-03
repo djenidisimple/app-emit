@@ -13,22 +13,25 @@ namespace AppEmit.API.Services
     {
         private readonly ISeanceCoursRepository _seanceRepo;
         private readonly IExceptionPlanningRepository _exceptionRepo;
+        private readonly ISalleRepository _salleRepo;
         private readonly IMapper _mapper;
 
         public PlanningHebdoService(
             ISeanceCoursRepository seanceRepo,
             IExceptionPlanningRepository exceptionRepo,
+            ISalleRepository salleRepo,
             IMapper mapper)
         {
             _seanceRepo = seanceRepo;
             _exceptionRepo = exceptionRepo;
+            _salleRepo = salleRepo;
             _mapper = mapper;
         }
 
         public async Task<PlanningHebdoResponseDto> GetPlanningHebdomadaireAsync(PlanningHebdoRequestDto request)
         {
             // 1. Calculer le lundi et samedi de la semaine contenant StartDate
-            var startDate = request.StartDate.Date;
+            var startDate = DateTime.SpecifyKind(request.StartDate.Date, DateTimeKind.Unspecified);
             int diff = startDate.DayOfWeek == DayOfWeek.Sunday ? 6 : startDate.DayOfWeek - DayOfWeek.Monday;
             var monday = startDate.AddDays(-diff);
             var saturday = monday.AddDays(5); // samedi
@@ -47,7 +50,7 @@ namespace AppEmit.API.Services
                 var occurrences = GenerateOccurrences(seance, monday, saturday);
                 foreach (var occDate in occurrences)
                 {
-                    var (statut, motif, salleOverride) = ApplyExceptions(seance, occDate, exceptions);
+                    var (statut, motif, salleOverride) = await ApplyExceptionsAsync(seance, occDate, exceptions);
                     if (statut == "Annulé")
                         continue; // ne pas ajouter cette occurrence
 
@@ -99,12 +102,11 @@ namespace AppEmit.API.Services
             return result;
         }
 
-        private (string statut, string? motif, Salle? salleOverride) ApplyExceptions(
+        private async Task<(string statut, string? motif, Salle? salleOverride)> ApplyExceptionsAsync(
             SeanceCours seance,
             DateTime occurrenceDate,
             List<ExceptionPlanning> exceptions)
         {
-            // Chercher une exception qui concerne cette séance et qui couvre la date d'occurrence
             var exc = exceptions.FirstOrDefault(e => e.SeanceCoursId == seance.Id &&
                                                       occurrenceDate >= e.DateDebut &&
                                                       (e.DateFin == null || occurrenceDate < e.DateFin.Value));
@@ -112,22 +114,17 @@ namespace AppEmit.API.Services
             if (exc == null)
                 return ("Normal", null, null);
 
+            var salle = exc.NouvelleSalleId.HasValue
+                ? await _salleRepo.GetByIdAsync(exc.NouvelleSalleId.Value)
+                : null;
+
             return exc.TypeException switch
             {
                 "Annulation" => ("Annulé", exc.Motif, null),
-                "Report" => ("Reporté", exc.Motif, GetSalleById(exc.NouvelleSalleId)),
-                "Deplacement" => ("Reporté", exc.Motif, GetSalleById(exc.NouvelleSalleId)),
+                "Report" => ("Reporté", exc.Motif, salle),
+                "Deplacement" => ("Reporté", exc.Motif, salle),
                 _ => ("Normal", null, null)
             };
-        }
-
-        // Méthode utilitaire pour récupérer une salle (à injecter via repository si nécessaire)
-        // Pour simplifier, on retourne null ici ; tu pourras améliorer en injectant ISalleRepository.
-        private Salle? GetSalleById(int? salleId)
-        {
-            if (!salleId.HasValue) return null;
-            // Idéalement appeler un repository. On laisse en attente d'implémentation.
-            return null;
         }
     }
 }

@@ -1,22 +1,26 @@
 using AppEmit.API.DTOs.Filiere;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/filieres")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class FiliereController : ControllerBase
     {
         private readonly IFiliereService _service;
         public FiliereController(IFiliereService service) => _service = service;
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FiliereDto>>> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<FiliereDto>> GetById(int id)
         {

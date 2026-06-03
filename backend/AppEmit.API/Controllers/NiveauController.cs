@@ -1,22 +1,26 @@
 using AppEmit.API.DTOs.Niveau;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/niveaux")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class NiveauController : ControllerBase
     {
         private readonly INiveauService _service;
         public NiveauController(INiveauService service) => _service = service;
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NiveauDto>>> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<NiveauDto>> GetById(int id)
         {

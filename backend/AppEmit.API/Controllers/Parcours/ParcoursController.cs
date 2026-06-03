@@ -1,9 +1,12 @@
 using AppEmit.API.Interfaces;
 using AppEmit.API.DTOs.Parcours;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers;
 
+[Authorize(Roles = "Admin")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class ParcoursController : Controller
 {
     private readonly IParcoursService _service;

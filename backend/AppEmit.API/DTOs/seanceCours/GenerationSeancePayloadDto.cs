@@ -25,5 +25,7 @@ namespace AppEmit.API.DTOs.SeanceCours
 
         [Required]
         public DateTime DateFin { get; set; }
+
+        public string? CouleurAffichage { get; set; }
     }
 }

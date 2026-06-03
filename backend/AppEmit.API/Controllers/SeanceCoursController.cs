@@ -1,11 +1,13 @@
 using AppEmit.API.DTOs.SeanceCours;
 using AppEmit.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEmit.API.Controllers
 {
     [Route("api/seances")]
     [ApiController]
+    [Authorize]
     public class SeanceCoursController : ControllerBase
     {
         private readonly ISeanceCoursService _seanceCoursService;
@@ -26,6 +28,7 @@ namespace AppEmit.API.Controllers
             return Ok(seance);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<SeanceCoursReadDto>> Update(
             int id,
@@ -39,6 +42,7 @@ namespace AppEmit.API.Controllers
             return Ok(updated);
         }
 
+        [Authorize(Roles = "Admin,Professeur")]
         [HttpPatch("{id}/terminer")]
         public async Task<IActionResult> MarquerTerminee(int id)
         {
@@ -51,6 +55,7 @@ namespace AppEmit.API.Controllers
         }
 
         // POST /api/SeanceCours
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<SeanceCoursReadDto>> Create(
             [FromBody] SeanceCoursCreateDto dto)
@@ -68,6 +73,7 @@ namespace AppEmit.API.Controllers
         }
 
         // POST /api/SeanceCours/generer — matches frontend GenerationSeancePayload
+        [Authorize(Roles = "Admin")]
         [HttpPost("generer")]
         public async Task<ActionResult<List<SeanceCoursReadDto>>> Generer(
             [FromBody] GenerationSeancePayloadDto dto)
@@ -85,6 +91,7 @@ namespace AppEmit.API.Controllers
                 NiveauId = dto.NiveauId,
                 DateDebutAnnee = dto.DateDebut,
                 DateFinAnnee = dto.DateFin,
+                CouleurAffichage = dto.CouleurAffichage ?? "#3B82F6",
             };
 
             var created = await _seanceCoursService.CreateAsync(createDto);

@@ -79,9 +79,10 @@ namespace AppEmit.API.Services
         private AuthResponseDto GenererToken(Utilisateur utilisateur)
         {
             // Sécurité sur la configuration
-            var keyStr = _config["Jwt:Key"] ?? _config["JWT_KEY"] ?? "SecretKeyDefault_PleaseChangeInProduction_32Chars!";
-            var issuer = _config["Jwt:Issuer"] ?? _config["JWT_ISSUER"] ?? "AppEmit.API";
-            var audience = _config["Jwt:Audience"] ?? _config["JWT_AUDIENCE"] ?? "AppEmit.Frontend";
+            var keyStr = _config["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY")
+                ?? throw new InvalidOperationException("La clé JWT (JWT_KEY) est absente de la configuration.");
+            var issuer = _config["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "AppEmit.API";
+            var audience = _config["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "AppEmit.Frontend";
 
             var cle = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyStr));
             var credentials = new SigningCredentials(cle, SecurityAlgorithms.HmacSha256);

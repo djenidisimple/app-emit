@@ -1,4 +1,7 @@
-﻿
-.kilo
+﻿.kilo
 .kilo-rules
+# Secrets & environment
+.env
+.env.local
+*.env
 

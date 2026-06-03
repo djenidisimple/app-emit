@@ -27,6 +27,12 @@ namespace AppEmit.API.Services
             return _mapper.Map<IEnumerable<UtilisateurDto>>(utilisateurs);
         }
 
+        public async Task<IEnumerable<UtilisateurDto>> GetByRoleAsync(string role)
+        {
+            var utilisateurs = await _repository.GetByRoleAsync(role);
+            return _mapper.Map<IEnumerable<UtilisateurDto>>(utilisateurs);
+        }
+
         public async Task<UtilisateurDto?> GetByIdAsync(int id)
         {
             var utilisateur = await _repository.GetByIdAsync(id);
