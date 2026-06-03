@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, Check, CheckCircle, Building2 } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import { api } from '@/services/api';
-import { Salle } from '@/types';
+import { Salle, Creneau } from '@/types';
 import { useRouter } from 'next/navigation';
 
 type Step = 1 | 2 | 3;
@@ -12,7 +12,8 @@ type Step = 1 | 2 | 3;
 export default function NouvelleReservationPage() {
   const [step, setStep] = useState<Step>(1);
   const [date, setDate] = useState('');
-  const [creneau, setCreneau] = useState('');
+  const [creneaux, setCreneaux] = useState<Creneau[]>([]);
+  const [creneauId, setCreneauId] = useState('');
   const [salles, setSalles] = useState<Salle[]>([]);
   const [selectedSalleId, setSelectedSalleId] = useState<number | null>(null);
   const [titre, setTitre] = useState('');
@@ -22,6 +23,10 @@ export default function NouvelleReservationPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    api.get<Creneau[]>('/creneaux').then(setCreneaux).catch(() => {});
+  }, []);
 
   const StepCircle = ({ num, label, active, done }: { num: Step; label: string; active: boolean; done: boolean }) => (
     <div className="flex items-center gap-2">
@@ -35,11 +40,11 @@ export default function NouvelleReservationPage() {
   );
 
   const handleStep1 = async () => {
-    if (!date || !creneau) { setError('Veuillez remplir tous les champs.'); return; }
+    if (!date || !creneauId) { setError('Veuillez remplir tous les champs.'); return; }
     setLoading(true);
     setError('');
     try {
-      const data = await api.get<Salle[]>(`/Salles/disponibles?date=${date}&creneau=${creneau}`);
+      const data = await api.get<Salle[]>(`/Salles/disponibles?date=${date}&creneauId=${creneauId}`);
       setSalles(data);
       setStep(2);
     } catch {
@@ -54,7 +59,9 @@ export default function NouvelleReservationPage() {
     setLoading(true);
     setError('');
     try {
-      await api.post('/Reservation', { titre, type, datePrecise: date, salleId: selectedSalleId, session: creneau });
+      const creneauObj = creneaux.find(c => c.id === parseInt(creneauId));
+      const sessionLabel = creneauObj ? `${creneauObj.jour} ${creneauObj.heureDebut.slice(0,5)}-${creneauObj.heureFin.slice(0,5)}` : '';
+      await api.post('/Reservation', { titre, type, datePrecise: date, salleId: selectedSalleId, session: sessionLabel });
       setSubmitted(true);
     } catch {
       setError('Erreur lors de la soumission.');
@@ -112,11 +119,14 @@ export default function NouvelleReservationPage() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Créneau horaire</label>
-            <select value={creneau} onChange={e => setCreneau(e.target.value)}
+            <select value={creneauId} onChange={e => setCreneauId(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150">
               <option value="">Sélectionner...</option>
-              <option value="Matin">Matin (07h30 - 11h30)</option>
-              <option value="Apres-midi">Après-midi (14h00 - 16h00)</option>
+              {creneaux.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.jour} — {c.heureDebut.slice(0, 5)} - {c.heureFin.slice(0, 5)}
+                </option>
+              ))}
             </select>
           </div>
           <button onClick={handleStep1} disabled={loading}
@@ -170,7 +180,7 @@ export default function NouvelleReservationPage() {
         <div className="max-w-lg mx-auto space-y-4">
           <div className="bg-[#E8EEF8] rounded-xl p-4 space-y-2 text-sm">
             <p><strong>Date :</strong> {new Date(date).toLocaleDateString('fr-FR')}</p>
-            <p><strong>Créneau :</strong> {creneau}</p>
+            <p><strong>Créneau :</strong> {creneaux.find(c => c.id === parseInt(creneauId))?.jour} — {creneaux.find(c => c.id === parseInt(creneauId))?.heureDebut?.slice(0,5)} - {creneaux.find(c => c.id === parseInt(creneauId))?.heureFin?.slice(0,5)}</p>
             <p><strong>Salle :</strong> {selectedSalle?.libelle || selectedSalle?.nom}</p>
           </div>
           <div className="bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-6 space-y-4">

@@ -38,7 +38,7 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
 
   const handleMarkRead = async (id: number) => {
     try {
-      await api.patch(`/Notification/${id}/read`, {});
+      await api.patch(`/Notification/${id}/lu`, {});
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, estLu: true } : n)));
       markAsRead(id);
     } catch {}

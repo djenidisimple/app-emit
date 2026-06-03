@@ -38,7 +38,7 @@ export default function NotificationsPage() {
 
   const handleMarkAsRead = async (id: number) => {
     try {
-      await api.patch(`/Notification/${id}/read`, {});
+      await api.patch(`/Notification/${id}/lu`, {});
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, estLu: true } : n)));
       markAsRead(id);
     } catch {}
@@ -47,7 +47,7 @@ export default function NotificationsPage() {
   const handleMarkAllAsRead = async () => {
     if (!user?.id) return;
     try {
-      await api.patch(`/Notification/utilisateur/${user.id}/read-all`, {});
+      await api.put(`/Notification/tout-lire?utilisateurId=${user.id}`);
       setNotifications((prev) => prev.map((n) => ({ ...n, estLu: true })));
       markAllAsRead();
     } catch {}

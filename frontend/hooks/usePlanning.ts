@@ -28,8 +28,8 @@ export function usePlanning() {
 
       const response = await api.get<PlanningHebdoResponse>(`/Planning/hebdo?${params}`);
       setSeances(response.seances || []);
-      setWeekStart(response.semaineDebut || '');
-      setWeekEnd(response.semaineFin || '');
+      setWeekStart(response.lundi || '');
+      setWeekEnd(response.samedi || '');
     } catch (err) {
       console.error('Error fetching planning:', err);
       setSeances([]);

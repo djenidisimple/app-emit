@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import Button from '@/components/ui/Button';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface Salle {
@@ -652,7 +652,7 @@ export default function AdminSallesPage() {
     setIsLoading(true);
     try {
       const res = await api.get<Salle[]>('/Salles');
-      setSalles(res.data);
+      setSalles(res);
     } catch {
       addToast('error', 'Impossible de charger les salles.');
     } finally {
@@ -665,7 +665,7 @@ export default function AdminSallesPage() {
       setIsLoading(true);
       try {
         const res = await api.get<Salle[]>('/Salles');
-        setSalles(res.data);
+        setSalles(res);
       } catch {
         addToast('error', 'Impossible de charger les salles.');
       } finally {

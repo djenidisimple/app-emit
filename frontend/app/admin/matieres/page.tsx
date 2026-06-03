@@ -6,7 +6,7 @@ import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { MatiereDto } from '@/types';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 export default function AdminMatieresPage() {
   const [items, setItems] = useState<MatiereDto[]>([]);
@@ -22,7 +22,7 @@ export default function AdminMatieresPage() {
     setError('');
     try {
       const res = await api.get<MatiereDto[]>('/matieres');
-      setItems(res.data || res);
+      setItems(res);
     } catch { setError('Impossible de charger les matières.'); }
     finally { setIsLoading(false); }
   };

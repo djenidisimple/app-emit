@@ -5,7 +5,7 @@ import { Plus, Pencil, Trash2, FolderTree, AlertCircle } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 interface ParcoursItem { id: number; nom: string; filiereId: number; filiereNom: string; }
 
@@ -20,7 +20,7 @@ export default function AdminParcoursPage() {
 
   const fetchData = async () => {
     setIsLoading(true); setError('');
-    try { const res = await api.get<ParcoursItem[]>('/parcours'); setItems(res.data || res); }
+    try { const res = await api.get<ParcoursItem[]>('/parcours'); setItems(res); }
     catch { setError('Impossible de charger les parcours.'); }
     finally { setIsLoading(false); }
   };

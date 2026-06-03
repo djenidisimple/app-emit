@@ -7,7 +7,7 @@ import StatutBadge from '@/components/global/StatutBadge';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { ReservationReadDto } from '@/types';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<ReservationReadDto[]>([]);
@@ -22,7 +22,7 @@ export default function AdminReservationsPage() {
       setError('');
       try {
         const response = await api.get<ReservationReadDto[]>(`/Reservation/statut/${encodeURIComponent(filter)}`);
-        setReservations(response.data || response);
+        setReservations(response);
       } catch {
         setError('Impossible de charger les réservations.');
       } finally { setIsLoading(false); }

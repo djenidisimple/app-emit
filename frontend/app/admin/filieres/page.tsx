@@ -6,7 +6,7 @@ import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { Filiere } from '@/types';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 export default function AdminFilieresPage() {
   const [items, setItems] = useState<Filiere[]>([]);
@@ -19,7 +19,7 @@ export default function AdminFilieresPage() {
   const fetchData = async () => {
     setIsLoading(true);
     setError('');
-    try { const res = await api.get<Filiere[]>('/Filiere'); setItems(res.data); }
+    try { const res = await api.get<Filiere[]>('/Filiere'); setItems(res); }
     catch { setError('Impossible de charger les filières.'); }
     finally { setIsLoading(false); }
   };

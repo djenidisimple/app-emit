@@ -60,9 +60,9 @@ export default function PlanningPage() {
     setIsLoading(true);
     setError('');
     try {
-      const startOfWeek = weekRange.start;
+      const start = getWeekRange(currentDate).start;
       const data = await api.get<PlanningHebdoResponse>(
-        `/Planning/hebdo?startDate=${startOfWeek.toISOString()}`
+        `/Planning/hebdo?startDate=${start.toISOString()}`
       );
       setSeances(data.seances || []);
     } catch {
@@ -70,7 +70,7 @@ export default function PlanningPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [weekRange.start]);
+  }, [currentDate]);
 
   useEffect(() => { fetchPlanning(); }, [fetchPlanning]);
 

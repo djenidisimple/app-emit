@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import Button from '@/components/ui/Button';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface UtilisateurDto {
@@ -750,7 +750,7 @@ export default function AdminUtilisateursPage() {
     setIsLoading(true);
     try {
       const res = await api.get<UtilisateurDto[]>('/Utilisateur');
-      setUsers(res.data);
+      setUsers(res);
     } catch {
       addToast('error', 'Impossible de charger les utilisateurs.');
     } finally {
@@ -763,7 +763,7 @@ export default function AdminUtilisateursPage() {
       setIsLoading(true);
       try {
         const res = await api.get<UtilisateurDto[]>('/Utilisateur');
-        setUsers(res.data);
+        setUsers(res);
       } catch {
         addToast('error', 'Impossible de charger les utilisateurs.');
       } finally {

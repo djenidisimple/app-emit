@@ -8,7 +8,7 @@ import FilterBar from '@/components/FilterBar';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import useAuthStore from '@/store/authStore';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 interface Reservation {
   id: number;
@@ -39,8 +39,8 @@ export default function ReservationsPage() {
     setError('');
     try {
       const url = user.role === 'Admin' ? '/Reservation' : `/Reservation/utilisateur/${user.id}`;
-      const response = await api.get(url);
-      setReservations(response.data);
+      const response = await api.get<Reservation[]>(url);
+      setReservations(response);
     } catch {
       setError('Impossible de charger les réservations.');
     } finally {

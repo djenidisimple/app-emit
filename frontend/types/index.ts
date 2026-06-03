@@ -140,8 +140,8 @@ export interface SeancePlanningDto {
 
 export interface PlanningHebdoResponse {
   seances: SeancePlanningDto[];
-  semaineDebut: string;
-  semaineFin: string;
+  lundi: string;
+  samedi: string;
 }
 
 export interface Notification {
