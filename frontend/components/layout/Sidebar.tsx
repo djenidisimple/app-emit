@@ -11,7 +11,6 @@ import {
   Repeat,
   DoorOpen,
   LayoutList,
-  LogOut,
   LayoutDashboard,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -45,7 +44,7 @@ const etudiantLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { logout, user } = useAuthStore();
+  const { user } = useAuthStore();
   const role = user?.role || user?.roles?.[0] || '';
 
   const navLinks =
@@ -61,9 +60,6 @@ export default function Sidebar() {
     return pathname === path;
   };
 
-  const initials =
-    `${user?.nom?.charAt(0) ?? 'U'}${user?.prenom?.charAt(0) ?? ''}`.toUpperCase();
-
   return (
     <aside className="w-60 bg-white h-screen flex flex-col shrink-0 border-r border-blue-100">
       <div className="px-5 pt-5 pb-4 border-b border-blue-50">
@@ -74,22 +70,6 @@ export default function Sidebar() {
           <div>
             <span className="text-base font-bold text-blue-900 leading-none block">G-Salles</span>
             <span className="text-[10px] text-blue-400 font-medium uppercase tracking-wider">EMIT</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 py-3 border-b border-blue-50">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#0052FF] flex items-center justify-center text-white font-bold text-sm shrink-0">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-blue-900 truncate">
-              {user?.nom} {user?.prenom}
-            </p>
-            <p className="text-[11px] text-blue-400 font-medium">
-              {role || 'Utilisateur'}
-            </p>
           </div>
         </div>
       </div>
@@ -119,15 +99,6 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      <div className="p-4 border-t border-blue-50">
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-blue-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-150"
-        >
-          <LogOut size={16} />
-          Déconnexion
-        </button>
-      </div>
     </aside>
   );
 }

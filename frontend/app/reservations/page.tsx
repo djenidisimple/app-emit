@@ -82,14 +82,14 @@ export default function ReservationsPage() {
             onClick={() => setActiveTab(tab)}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
               activeTab === tab
-                ? 'bg-violet-600 text-white'
-                : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'
+                ? 'bg-[#0052FF] text-white'
+                : 'bg-white text-blue-600 border border-blue-100 hover:bg-blue-50'
             }`}
           >
             {tab}
             {counts[tab] > 0 && (
               <span className={`ml-1.5 px-1 py-0.5 text-[9px] font-semibold rounded ${
-                activeTab === tab ? 'bg-white/20 text-white' : 'bg-zinc-100 text-zinc-700'
+                activeTab === tab ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'
               }`}>
                 {counts[tab]}
               </span>
@@ -121,7 +121,7 @@ export default function ReservationsPage() {
       )}
 
       {loading ? (
-        <div className="bg-white border border-zinc-200 rounded-xl p-5">
+        <div className="bg-white border border-blue-100 rounded-xl p-5">
           <LoadingSkeleton lines={6} />
         </div>
       ) : filtered.length === 0 ? (
@@ -135,15 +135,15 @@ export default function ReservationsPage() {
           {filtered.map((res) => (
             <div
               key={res.id}
-              className="bg-white border border-zinc-200 rounded-xl p-5 hover:shadow-md transition-shadow"
+              className="bg-white border border-blue-100 rounded-xl p-5 hover:shadow-md transition-shadow"
             >
               {/* Bloc visuel - haut */}
               <div className="mb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-zinc-500">{res.titre}</span>
-                    <span className="text-zinc-400">·</span>
-                    <span className="text-zinc-600">{res.salleLibelle}</span>
+                    <span className="font-medium text-blue-500">{res.titre}</span>
+                    <span className="text-blue-300">·</span>
+                    <span className="text-blue-600">{res.salleLibelle}</span>
                   </div>
                   <StatutBadge statut={res.statut} />
                 </div>
@@ -151,8 +151,8 @@ export default function ReservationsPage() {
 
               {/* Bloc infos - bas */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                  <Calendar size={12} className="text-zinc-400" />
+                <div className="flex items-center gap-2 text-xs text-blue-400">
+                  <Calendar size={12} className="text-blue-300" />
                   <span>
                     {new Date(res.datePrecise).toLocaleDateString('fr-FR', {
                       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -160,14 +160,14 @@ export default function ReservationsPage() {
                   </span>
                 </div>
                 {res.session && (
-                  <div className="flex items-center gap-2 text-xs text-zinc-500">
-                    <Clock size={12} className="text-zinc-400" />
+                  <div className="flex items-center gap-2 text-xs text-blue-400">
+                    <Clock size={12} className="text-blue-300" />
                     <span>{res.session}</span>
-                    <span className="text-zinc-400">·</span>
+                    <span className="text-blue-300">·</span>
                     <span>{res.type}</span>
                   </div>
                 )}
-                <p className="text-[11px] text-zinc-500 pt-2">
+                <p className="text-[11px] text-blue-400 pt-2">
                   Demandé le{' '}
                   {new Date(res.datePrecise).toLocaleDateString('fr-FR', {
                     day: 'numeric', month: 'short', year: 'numeric',

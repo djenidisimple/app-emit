@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, X, Search } from 'lucide-react';
+import { Bell, X, Search, LogOut, User, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useNotificationStore } from '@/components/NotificationProvider';
 import useAuthStore from '@/store/authStore';
@@ -10,10 +10,13 @@ import { Notification } from '@/types';
 
 export default function Topbar({ pageTitle }: { pageTitle: string }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuthStore();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuthStore();
+  const role = user?.role || user?.roles?.[0] || '';
   const { markAsRead } = useNotificationStore();
 
   useEffect(() => {
@@ -26,8 +29,11 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -51,7 +57,8 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
     <header className="h-16 bg-white border-b border-blue-100 flex items-center justify-between px-6 shrink-0">
       <h1 className="text-base font-bold text-blue-900">{pageTitle}</h1>
 
-      <div className="flex items-center gap-2" ref={dropdownRef}>
+      <div className="flex items-center gap-2">
+        {/* Search */}
         <div className="relative">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
@@ -71,9 +78,10 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
           )}
         </div>
 
-        <div className="relative">
+        {/* Notifications */}
+        <div className="relative" ref={notifRef}>
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => setNotifOpen(!notifOpen)}
             className="relative w-9 h-9 rounded-xl border border-blue-200 flex items-center justify-center text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
           >
             <Bell size={16} />
@@ -84,11 +92,11 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
             )}
           </button>
 
-          {dropdownOpen && (
+          {notifOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white border border-blue-100 rounded-xl shadow-lg z-50 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-blue-50 bg-blue-50/50">
                 <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Notifications</p>
-                <button onClick={() => setDropdownOpen(false)} className="text-blue-400 hover:text-blue-600">
+                <button onClick={() => setNotifOpen(false)} className="text-blue-400 hover:text-blue-600">
                   <X size={14} />
                 </button>
               </div>
@@ -121,7 +129,7 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
 
               <Link
                 href="/notifications"
-                onClick={() => setDropdownOpen(false)}
+                onClick={() => setNotifOpen(false)}
                 className="block px-4 py-3 text-center text-xs font-semibold text-[#0052FF] hover:bg-blue-50 border-t border-blue-50 transition-colors rounded-b-xl"
               >
                 Voir toutes →
@@ -130,8 +138,45 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
           )}
         </div>
 
-        <div className="w-9 h-9 rounded-xl bg-[#0052FF] flex items-center justify-center text-white font-bold text-xs shrink-0">
-          {initials}
+        {/* Account dropdown */}
+        <div className="relative" ref={accountRef}>
+          <button
+            onClick={() => setAccountOpen(!accountOpen)}
+            className="flex items-center gap-2 pl-3 border-l border-blue-200 hover:bg-blue-50 rounded-xl py-1.5 pr-2 transition-colors"
+          >
+            <div className="text-right min-w-0 hidden sm:block">
+              <p className="text-sm font-semibold text-blue-900 truncate max-w-[120px] leading-tight">
+                {user?.nom} {user?.prenom}
+              </p>
+              <p className="text-[11px] text-blue-400 font-medium text-left">
+                {role || 'Utilisateur'}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-[#0052FF] flex items-center justify-center text-white font-bold text-xs shrink-0">
+              {initials}
+            </div>
+            <ChevronDown size={14} className={`text-blue-400 transition-transform duration-150 ${accountOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {accountOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white border border-blue-100 rounded-xl shadow-lg z-50 overflow-hidden">
+              <div className="px-4 py-3 border-b border-blue-50">
+                <p className="text-sm font-semibold text-blue-900 truncate">
+                  {user?.nom} {user?.prenom}
+                </p>
+                <p className="text-[11px] text-blue-400 font-medium">
+                  {role || 'Utilisateur'}
+                </p>
+              </div>
+              <button
+                onClick={() => { setAccountOpen(false); logout(); }}
+                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-blue-500 hover:text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={16} />
+                Déconnexion
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
