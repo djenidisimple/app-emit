@@ -350,6 +350,9 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
         Console.WriteLine("[SEED] Utilisateurs créés (admin@emit.mg / Admin@1234, prof1@emit.mg / prof123, etudiant@emit.mg / etud123) !");
     }
+
+    // ── Données supplémentaires pour les tests ──
+    SeedData.SeedAll(context);
 }
 
 app.Run();
