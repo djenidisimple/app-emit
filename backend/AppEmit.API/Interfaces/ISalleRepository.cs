@@ -5,6 +5,7 @@ namespace AppEmit.API.Interfaces;
 public interface ISalleRepository : IGenericRepository<Salle>
 {
     Task<bool> ExistsByCodeAsync(string codeSalle, int? excludeId = null);
+    Task<bool> ExistsByLibelleAsync(string libelle, int? excludeId = null);
     new Task<Salle?> GetByIdAsync(int id);
     Task<IEnumerable<Salle>> GetSallesDisponiblesAsync(DateTime date, TimeSpan debut, TimeSpan fin);
     Task<IEnumerable<Salle>> GetSallesByCapaciteMinAsync(int capaciteMin);
@@ -13,5 +14,5 @@ public interface ISalleRepository : IGenericRepository<Salle>
     Task<Salle?> GetSalleByCodeAsync(string codeSalle);
     Task<Salle?> GetSalleWithSeancesAsync(int id);
     Task<bool> IsSalleOccupedAsync(int salleId, DateTime date, TimeSpan debut, TimeSpan fin);
-    new Task<bool> DeleteAsync(Salle entity);
+    Task<bool> DeleteSalleAsync(Salle entity);
 }

@@ -13,7 +13,5 @@ namespace AppEmit.API.Entities
         public TimeSpan HeureDebut { get; set; }
         [Required]
         public TimeSpan HeureFin { get; set; }
-
-        public DateTime? Date { get; set; }
     }
 }

@@ -26,8 +26,8 @@ const CalendarWeek: React.FC<CalendarWeekProps> = ({ seances, onSeanceClick }) =
 
   const getBadgeStatus = (statut: string): 'Confirmé' | 'Annulé' | 'Reporté' | 'Terminé' => {
     switch (statut) {
-      case 'Annule': return 'Annulé';
-      case 'Reporte': return 'Reporté';
+      case 'Annulé': return 'Annulé';
+      case 'Reporté': return 'Reporté';
       case 'Normal': return 'Confirmé';
       default: return 'Confirmé';
     }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AppEmit.API.Data;
 using AppEmit.API.DTOs.DemandeEchange;
 using AppEmit.API.Entities;
@@ -11,12 +12,21 @@ namespace AppEmit.API.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<DemandeEchangeService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DemandeEchangeService(AppDbContext context,
-            ILogger<DemandeEchangeService> logger)
+            ILogger<DemandeEchangeService> logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+            return claim != null ? int.Parse(claim.Value) : throw new UnauthorizedException("Utilisateur non authentifié.");
         }
 
         public async Task<DemandeEchangeReadDto> CreerDemande(
@@ -98,7 +108,10 @@ namespace AppEmit.API.Services
             if (demande.Statut != "EnAttente")
                 throw new Exception("Cette demande a déjà été traitée.");
 
-            // FIX: Use transaction for the swap operation
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId != demande.CibleId)
+                throw new UnauthorizedException("Seul le professeur cible peut accepter cette demande.");
+
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var seanceDemandeur = await _context.SeancesCours
@@ -129,6 +142,10 @@ namespace AppEmit.API.Services
 
             if (demande.Statut != "EnAttente")
                 throw new Exception("Cette demande a déjà été traitée.");
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId != demande.CibleId)
+                throw new UnauthorizedException("Seul le professeur cible peut refuser cette demande.");
 
             demande.Statut = "Refusee";
             demande.DateReponse = DateTime.UtcNow;

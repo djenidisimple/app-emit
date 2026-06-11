@@ -20,11 +20,14 @@ axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+let isRedirecting = false;
+
 // Intercepteur pour gérer le 401
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isRedirecting) {
+      isRedirecting = true;
       Cookies.remove('app-emit-token');
       if (typeof window !== 'undefined') {
         window.location.href = '/login';

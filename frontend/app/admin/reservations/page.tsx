@@ -32,7 +32,7 @@ export default function AdminReservationsPage() {
 
   const handleStatus = async (id: number, statut: string) => {
     try {
-      await api.patch(`/Reservation/${id}/statut`, { id, statut });
+      await api.patch(`/Reservation/${id}/statut`, { statut });
       setReservations(reservations.filter(r => r.id !== id));
       setConfirmAction(null);
     } catch {}

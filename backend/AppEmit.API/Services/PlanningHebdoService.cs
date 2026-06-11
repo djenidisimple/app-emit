@@ -109,7 +109,7 @@ namespace AppEmit.API.Services
         {
             var exc = exceptions.FirstOrDefault(e => e.SeanceCoursId == seance.Id &&
                                                       occurrenceDate >= e.DateDebut &&
-                                                      (e.DateFin == null || occurrenceDate < e.DateFin.Value));
+                                                       (e.DateFin == null || occurrenceDate <= e.DateFin.Value));
 
             if (exc == null)
                 return ("Normal", null, null);

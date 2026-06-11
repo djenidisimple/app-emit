@@ -8,4 +8,4 @@ export const marquerCommeLu = async (id: number): Promise<boolean> =>
   api.patch(`/Notification/${id}/lu`);
 
 export const marquerToutLu = async (utilisateurId: number): Promise<{ success: boolean }> =>
-  api.put(`/Notification/tout-lire?utilisateurId=${utilisateurId}`);
+  api.patch(`/Notification/tout-lire?utilisateurId=${utilisateurId}`);

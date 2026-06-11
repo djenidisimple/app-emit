@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, CheckCircle } from 'lucide-react';
 import { SeancePlanningDto, Salle, ExceptionPlanning } from '@/types';
@@ -24,6 +24,16 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && seance) {
+      setFormData({
+        typeException: 'Annulation',
+        motif: '',
+        dateDebut: new Date().toISOString().split('T')[0],
+      });
+    }
+  }, [isOpen, seance]);
 
   if (!isOpen || !seance) return null;
 

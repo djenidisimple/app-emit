@@ -21,7 +21,13 @@ namespace AppEmit.API.Repositories
                 .AnyAsync(s => s.CodeSalle == codeSalle && (!excludeId.HasValue || s.Id != excludeId.Value));
         }
 
-        public new async Task<bool> DeleteAsync(Salle entity)
+        public async Task<bool> ExistsByLibelleAsync(string libelle, int? excludeId = null)
+        {
+            return await _context.Salles
+                .AnyAsync(s => s.Libelle == libelle && (!excludeId.HasValue || s.Id != excludeId.Value));
+        }
+
+        public async Task<bool> DeleteSalleAsync(Salle entity)
         {
             _context.Salles.Remove(entity);
             await _context.SaveChangesAsync();

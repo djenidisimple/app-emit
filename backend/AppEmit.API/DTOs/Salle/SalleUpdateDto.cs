@@ -4,9 +4,6 @@ namespace AppEmit.API.DTOs.Salle
 {
     public class SalleUpdateDto
     {
-        [Required]
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "Le code de la salle est requis")]
         [StringLength(20, ErrorMessage = "Le code ne peut pas dépasser 20 caractères")]
         public string CodeSalle { get; set; } = string.Empty;

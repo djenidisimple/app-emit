@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function proxy(request: NextRequest) {
+export function authMiddleware(request: NextRequest) {
   const token = request.cookies.get('app-emit-token')?.value;
   const { pathname } = request.nextUrl;
 

@@ -86,6 +86,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<NotificationCreateDtoValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
 // ======================================================
 // AUTH JWT
@@ -189,6 +190,7 @@ builder.Services.AddScoped<IExceptionService, ExceptionService>();
 builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
+builder.Services.AddHttpContextAccessor();
 
 // (Les services Matière & Parcours sont déjà enregistrés ci-dessus)
 
@@ -200,8 +202,16 @@ var app = builder.Build();
 // Appliquer les migrations automatiquement au démarrage
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "La migration automatique a échoué. L'application continuera sans migration.");
+    }
 }
 
 // ======================================================

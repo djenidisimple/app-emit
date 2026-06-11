@@ -8,9 +8,7 @@ namespace AppEmit.API.Mappings;
     {
         public SalleMappingProfile()
         {
-            CreateMap<Salle, SalleResponseDto>()
-                .ForMember(dest => dest.CodeSalle, opt => opt.MapFrom(src => src.CodeSalle))
-                .ForMember(dest => dest.Libelle, opt => opt.MapFrom(src => src.Libelle));
+            CreateMap<Salle, SalleResponseDto>();
             CreateMap<Salle, SalleDetailsDto>();
             CreateMap<SalleCreateDto, Salle>();
             CreateMap<SalleUpdateDto, Salle>();

@@ -72,7 +72,7 @@ namespace AppEmit.API.Controllers
             return NoContent();
         }
 
-        [HttpPut("tout-lire")]
+        [HttpPatch("tout-lire")]
         public async Task<IActionResult> MarquerToutLu([FromQuery] int utilisateurId)
         {
             var success = await _notificationService.MarquerToutCommeLuAsync(utilisateurId);

@@ -4,5 +4,5 @@ import { Utilisateur } from '@/types';
 
 export const utilisateurService = {
   getEnseignants: () =>
-    api.get<Utilisateur[]>('/utilisateurs?role=Prof'),
+    api.get<Utilisateur[]>('/utilisateurs?role=Professeur'),
 };

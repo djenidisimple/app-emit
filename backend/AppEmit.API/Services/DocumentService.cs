@@ -30,6 +30,8 @@ namespace AppEmit.API.Services
                 .Include(s => s.Creneau)
                 .Where(s => s.DateDebutAnnee >= dto.DateDebut
                          && s.DateFinAnnee <= dto.DateFin)
+                .Where(s => !dto.ProfesseurId.HasValue || s.ProfesseurId == dto.ProfesseurId.Value)
+                .Where(s => !dto.SalleId.HasValue || s.SalleId == dto.SalleId.Value)
                 .ToListAsync();
 
             var document = Document.Create(container =>
@@ -102,6 +104,8 @@ namespace AppEmit.API.Services
                 .Include(s => s.Creneau)
                 .Where(s => s.DateDebutAnnee >= dto.DateDebut
                          && s.DateFinAnnee <= dto.DateFin)
+                .Where(s => !dto.ProfesseurId.HasValue || s.ProfesseurId == dto.ProfesseurId.Value)
+                .Where(s => !dto.SalleId.HasValue || s.SalleId == dto.SalleId.Value)
                 .ToListAsync();
 
             using var workbook = new XLWorkbook();

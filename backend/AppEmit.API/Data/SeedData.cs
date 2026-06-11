@@ -253,9 +253,9 @@ public static class SeedData
 
             var reservations = new List<Reservation>
             {
-                new() { UtilisateurId = admin.Id, EvenementId = confIA.Id, SalleId = amphi1.Id, DateReservation = new DateTime(2026, 6, 15, 0, 0, 0, DateTimeKind.Utc), Session = "Matin", Statut = "Approuvé" },
-                new() { UtilisateurId = prof1.Id, EvenementId = soutenance.Id, SalleId = amphi2.Id, DateReservation = new DateTime(2026, 6, 20, 0, 0, 0, DateTimeKind.Utc), Session = "Matin", Statut = "Approuvé" },
-                new() { UtilisateurId = admin.Id, EvenementId = reunion.Id, SalleId = td01.Id, DateReservation = new DateTime(2026, 6, 10, 0, 0, 0, DateTimeKind.Utc), Session = "Après-midi", Statut = "Approuvé" },
+                new() { UtilisateurId = admin.Id, EvenementId = confIA.Id, SalleId = amphi1.Id, DateReservation = new DateTime(2026, 6, 15, 0, 0, 0, DateTimeKind.Utc), Session = "Matin", Statut = "Confirmée" },
+                new() { UtilisateurId = prof1.Id, EvenementId = soutenance.Id, SalleId = amphi2.Id, DateReservation = new DateTime(2026, 6, 20, 0, 0, 0, DateTimeKind.Utc), Session = "Matin", Statut = "Confirmée" },
+                new() { UtilisateurId = admin.Id, EvenementId = reunion.Id, SalleId = td01.Id, DateReservation = new DateTime(2026, 6, 10, 0, 0, 0, DateTimeKind.Utc), Session = "Après-midi", Statut = "Confirmée" },
                 new() { UtilisateurId = prof1.Id, EvenementId = atelier.Id, SalleId = tp01.Id, DateReservation = new DateTime(2026, 6, 18, 0, 0, 0, DateTimeKind.Utc), Session = "Matin", Statut = "En attente" },
             };
             context.Reservations.AddRange(reservations);

@@ -28,7 +28,7 @@ const useAuthStore = create<AuthState>((set) => ({
       const authResponse = await api.post<AuthResponse>('/Auth/login', { email, motDePasse });
       const { token, ...userData } = authResponse;
       
-      Cookies.set('app-emit-token', token, { expires: 1 });
+      Cookies.set('app-emit-token', token, { expires: 1, secure: true, sameSite: 'Strict' });
       set({ user: userData, token, isLoading: false });
       return true;
     } catch (err: unknown) {
@@ -46,7 +46,7 @@ const useAuthStore = create<AuthState>((set) => ({
       const authResponse = await api.post<AuthResponse>('/Auth/register', data);
       const { token, ...userData } = authResponse;
       
-      Cookies.set('app-emit-token', token, { expires: 1 });
+      Cookies.set('app-emit-token', token, { expires: 1, secure: true, sameSite: 'Strict' });
       set({ user: userData, token, isLoading: false });
       return true;
     } catch (err: unknown) {

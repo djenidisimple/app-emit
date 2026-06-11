@@ -9,11 +9,10 @@ import { api } from '@/services/api';
 import { SeancePlanningDto, PlanningHebdoResponse } from '@/types';
 import useAuthStore from '@/store/authStore';
 
-const HOURS = ['07h30', '09h30', '11h30', '14h00', '16h00'];
+const HOURS = ['08h00', '10h00', '14h00', '16h00'];
 const HOUR_RANGES = [
-  { start: '07:30', end: '09:30' },
-  { start: '09:30', end: '11:30' },
-  { start: '11:30', end: '13:00' },
+  { start: '08:00', end: '10:00' },
+  { start: '10:00', end: '12:00' },
   { start: '14:00', end: '16:00' },
   { start: '16:00', end: '18:00' },
 ];

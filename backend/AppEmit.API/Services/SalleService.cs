@@ -43,6 +43,9 @@ public class SalleService : ISalleService
         if (await _salleRepository.ExistsByCodeAsync(createDto.CodeSalle))
             throw new ConflictException("Une salle avec ce code existe déjà.");
 
+        if (!string.IsNullOrEmpty(createDto.Libelle) && await _salleRepository.ExistsByLibelleAsync(createDto.Libelle))
+            throw new ConflictException("Une salle avec ce libellé existe déjà.");
+
         var entity = _mapper.Map<Salle>(createDto);
         var created = await _salleRepository.AddAsync(entity);
         

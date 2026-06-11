@@ -18,7 +18,8 @@ public class PlanningMappingProfile : Profile
             .ForMember(dest => dest.ProfesseurNomComplet, opt => opt.MapFrom(src => src.Professeur != null ? $"{src.Professeur.Nom} {src.Professeur.Prenom}" : string.Empty))
             .ForMember(dest => dest.ProfesseurId, opt => opt.MapFrom(src => src.ProfesseurId))
             .ForMember(dest => dest.ParcoursId, opt => opt.MapFrom(src => src.ParcoursId))
-            .ForMember(dest => dest.NiveauId, opt => opt.MapFrom(src => src.NiveauId));
+            .ForMember(dest => dest.NiveauId, opt => opt.MapFrom(src => src.NiveauId))
+            .ForMember(dest => dest.CouleurAffichage, opt => opt.MapFrom(src => src.CouleurAffichage));
 
         CreateMap<SeanceCours, SeanceCoursReadDto>()
             .ForMember(dest => dest.ProfesseurId, opt => opt.MapFrom(src => src.ProfesseurId))

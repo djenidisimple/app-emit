@@ -34,6 +34,13 @@ namespace AppEmit.API.Repositories
 
         public async Task DeleteAsync(T entity)
         {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var entry = _context.Entry(entity);
+            if (entry.State == EntityState.Detached)
+                _dbSet.Attach(entity);
+
             _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
         }

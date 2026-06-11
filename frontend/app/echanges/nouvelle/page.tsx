@@ -78,7 +78,7 @@ export default function NouvelleEchangePage() {
     return (
       <ProtectedLayout pageTitle="Nouvel échange">
         <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-4 border-[#1B3A6B] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[#0052FF] border-t-transparent rounded-full animate-spin" />
         </div>
       </ProtectedLayout>
     );
@@ -86,67 +86,67 @@ export default function NouvelleEchangePage() {
 
   return (
     <ProtectedLayout pageTitle="Proposer un échange">
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white rounded-xl border border-[#E9ECEF] shadow-sm p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white rounded-xl border border-blue-100 shadow-sm p-6 space-y-5">
         {error && <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{error}</div>}
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Professeur cible *</label>
+          <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Professeur cible *</label>
           <select value={form.cibleId} onChange={e => handleCibleChange(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150">
+            className="w-full px-3 py-2.5 rounded-lg border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150">
             <option value="">Sélectionner un professeur...</option>
             {professeurs.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>)}
           </select>
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Ma séance à échanger *</label>
+          <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Ma séance à échanger *</label>
           <select value={form.seanceDemandeurId} onChange={e => setForm({ ...form, seanceDemandeurId: e.target.value })}
-            className="w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150">
+            className="w-full px-3 py-2.5 rounded-lg border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150">
             <option value="">Sélectionner ma séance...</option>
             {mesSeances.map(s => <option key={s.id} value={s.id}>{s.jour} {s.heureDebut}-{s.heureFin} — {s.matiereNom}</option>)}
           </select>
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Séance souhaitée en échange *</label>
+          <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Séance souhaitée en échange *</label>
           <select value={form.seanceCibleId} onChange={e => setForm({ ...form, seanceCibleId: e.target.value })}
             disabled={!form.cibleId}
-            className="w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150 disabled:opacity-50">
+            className="w-full px-3 py-2.5 rounded-lg border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150 disabled:opacity-50">
             <option value="">{form.cibleId ? 'Sélectionner la séance...' : 'Choisir un professeur d\'abord'}</option>
             {seancesCible.map(s => <option key={s.id} value={s.id}>{s.jour} {s.heureDebut}-{s.heureFin} — {s.matiereNom}</option>)}
           </select>
         </div>
 
         {form.seanceDemandeurId && form.seanceCibleId && (
-          <div className="bg-[#E8EEF8] rounded-lg p-4">
-            <p className="text-xs font-semibold text-[#1B3A6B] uppercase tracking-wide mb-2">Aperçu de l&apos;échange</p>
+          <div className="bg-blue-50 rounded-lg p-4">
+            <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-2">Aperçu de l&apos;échange</p>
             <div className="flex items-center gap-3 text-sm">
-              <div className="flex-1 bg-white rounded-lg p-2.5 text-center border border-[#E9ECEF]">
-                <p className="text-xs text-[#6C757D] mb-1">Ma séance</p>
-                <p className="font-semibold text-[#212529]">{mesSeances.find(s => s.id === parseInt(form.seanceDemandeurId))?.matiereNom}</p>
+              <div className="flex-1 bg-white rounded-lg p-2.5 text-center border border-blue-100">
+                <p className="text-xs text-blue-500 mb-1">Ma séance</p>
+                <p className="font-semibold text-blue-900">{mesSeances.find(s => s.id === parseInt(form.seanceDemandeurId))?.matiereNom}</p>
               </div>
-              <Repeat className="w-5 h-5 text-[#1B3A6B]" />
-              <div className="flex-1 bg-white rounded-lg p-2.5 text-center border border-[#E9ECEF]">
-                <p className="text-xs text-[#6C757D] mb-1">Séance souhaitée</p>
-                <p className="font-semibold text-[#212529]">{seancesCible.find(s => s.id === parseInt(form.seanceCibleId))?.matiereNom}</p>
+              <Repeat className="w-5 h-5 text-[#0052FF]" />
+              <div className="flex-1 bg-white rounded-lg p-2.5 text-center border border-blue-100">
+                <p className="text-xs text-blue-500 mb-1">Séance souhaitée</p>
+                <p className="font-semibold text-blue-900">{seancesCible.find(s => s.id === parseInt(form.seanceCibleId))?.matiereNom}</p>
               </div>
             </div>
           </div>
         )}
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-[#6C757D] uppercase tracking-wide">Motif (optionnel)</label>
+          <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Motif (optionnel)</label>
           <textarea value={form.motif} onChange={e => setForm({ ...form, motif: e.target.value })} rows={3}
-            className="w-full px-3 py-2.5 rounded-lg border border-[#E9ECEF] text-sm text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20 focus:border-[#1B3A6B] transition-all duration-150 resize-none" />
+            className="w-full px-3 py-2.5 rounded-lg border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150 resize-none" />
         </div>
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => router.back()}
-            className="flex-1 border border-[#E9ECEF] text-[#6C757D] hover:bg-[#F8F9FA] font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center gap-2">
+            className="flex-1 border border-blue-200 text-blue-500 hover:bg-blue-50 font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center gap-2">
             <ArrowLeft className="w-4 h-4" /> Annuler
           </button>
           <button type="submit" disabled={isSubmitting}
-            className="flex-1 bg-[#1B3A6B] hover:bg-[#122850] text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center gap-2 disabled:opacity-50">
+            className="flex-1 bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center gap-2 disabled:opacity-50">
             <Send className="w-4 h-4" /> {isSubmitting ? 'Envoi...' : 'Envoyer la proposition'}
           </button>
         </div>

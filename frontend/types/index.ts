@@ -23,7 +23,7 @@ export interface Utilisateur {
   nom: string;
   prenom: string;
   email: string;
-  role: 'Admin' | 'Prof' | 'Etudiant';
+  role: 'Admin' | 'Professeur' | 'Etudiant';
   matricule?: string;
   niveauId?: number;
 }
