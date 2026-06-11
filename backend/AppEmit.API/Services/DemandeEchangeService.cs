@@ -68,7 +68,7 @@ namespace AppEmit.API.Services
             _logger.LogInformation(
                 "Demande d'échange créée. Id={Id}", demande.Id);
 
-            return await MapToReadDto(demande);
+            return MapToReadDtoSync(demande);
         }
 
         public async Task<List<DemandeEchangeReadDto>> ObtenirDemandes(
@@ -115,11 +115,14 @@ namespace AppEmit.API.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             var seanceDemandeur = await _context.SeancesCours
-                .FindAsync(demande.SeanceDemandeurId)!;
+                .FindAsync(demande.SeanceDemandeurId);
             var seanceCible = await _context.SeancesCours
-                .FindAsync(demande.SeanceCibleId)!;
+                .FindAsync(demande.SeanceCibleId);
 
-            (seanceDemandeur!.ProfesseurId, seanceCible!.ProfesseurId) =
+            if (seanceDemandeur == null || seanceCible == null)
+                throw new NotFoundException("Une des séances n'existe plus.");
+
+            (seanceDemandeur.ProfesseurId, seanceCible.ProfesseurId) =
                 (seanceCible.ProfesseurId, seanceDemandeur.ProfesseurId);
 
             demande.Statut = "Acceptee";
@@ -154,15 +157,6 @@ namespace AppEmit.API.Services
             _logger.LogInformation("Demande {Id} refusée.", id);
 
             return MapToReadDtoSync(demande);
-        }
-
-        // Helpers
-        private async Task<DemandeEchangeReadDto> MapToReadDto(
-            DemandeEchange d)
-        {
-            var demandeur = await _context.Utilisateurs.FindAsync(d.DemandeurId);
-            var cible = await _context.Utilisateurs.FindAsync(d.CibleId);
-            return BuildDto(d, demandeur, cible);
         }
 
         private DemandeEchangeReadDto MapToReadDtoSync(DemandeEchange d)

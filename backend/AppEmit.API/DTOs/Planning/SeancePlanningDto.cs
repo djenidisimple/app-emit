@@ -16,5 +16,6 @@ namespace AppEmit.API.DTOs
         public string? MotifException { get; set; }
         public int? ParcoursId { get; set; }
         public int? NiveauId { get; set; }
+        public string? CouleurAffichage { get; set; }
     }
 }

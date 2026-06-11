@@ -110,24 +110,27 @@ namespace AppEmit.API.Services
         private async Task EnvoyerNotificationsPourSeance(SeanceCours seance, string message)
         {
             var prof = await _utilisateurRepo.GetProfesseurBySeanceAsync(seance.Id);
+            var tasks = new List<Task>();
+
             if (prof != null)
             {
-                await _notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
+                tasks.Add(_notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
                 {
                     UtilisateurId = prof.Id,
                     Message = message
-                });
+                }));
             }
 
             var etudiants = await _utilisateurRepo.GetEtudiantsBySeanceAsync(seance.Id);
-            foreach (var etudiant in etudiants)
-            {
-                await _notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
+            tasks.AddRange(etudiants.Select(etudiant =>
+                _notificationService.CreateAsync(new DTOs.Notification.NotificationCreateDto
                 {
                     UtilisateurId = etudiant.Id,
                     Message = message
-                });
-            }
+                })
+            ));
+
+            await Task.WhenAll(tasks);
         }
 
         private ReponseExceptionDto MapToDto(ExceptionPlanning e)

@@ -22,7 +22,10 @@ namespace AppEmit.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NotificationReadDto>>> GetAll()
         {
-            var notifications = await _notificationService.GetAllAsync();
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+            var notifications = await _notificationService.GetByUtilisateurIdAsync(userId, 1, int.MaxValue);
             return Ok(notifications);
         }
 

@@ -84,7 +84,7 @@ namespace AppEmit.API.Data
                 .HasOne(s => s.Niveau)
                 .WithMany(n => n.Seances)
                 .HasForeignKey(s => s.NiveauId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<SeanceCours>()
                 .HasOne(s => s.Parcours)

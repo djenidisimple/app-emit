@@ -19,7 +19,8 @@ public class PlanningMappingProfile : Profile
             .ForMember(dest => dest.ProfesseurId, opt => opt.MapFrom(src => src.ProfesseurId))
             .ForMember(dest => dest.ParcoursId, opt => opt.MapFrom(src => src.ParcoursId))
             .ForMember(dest => dest.NiveauId, opt => opt.MapFrom(src => src.NiveauId))
-            .ForMember(dest => dest.CouleurAffichage, opt => opt.MapFrom(src => src.CouleurAffichage));
+            .ForMember(dest => dest.CouleurAffichage, opt => opt.MapFrom(src => src.CouleurAffichage))
+            .ForMember(dest => dest.Jour, opt => opt.MapFrom(src => src.Creneau != null ? src.Creneau.Jour : string.Empty));
 
         CreateMap<SeanceCours, SeanceCoursReadDto>()
             .ForMember(dest => dest.ProfesseurId, opt => opt.MapFrom(src => src.ProfesseurId))

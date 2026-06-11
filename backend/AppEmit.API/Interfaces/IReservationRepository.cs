@@ -8,5 +8,6 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<Reservation>> GetReservationsByStatutAsync(string statut);
         Task<IEnumerable<Reservation>> GetAllWithIncludesAsync();
         Task<Reservation?> GetByIdWithIncludesAsync(int id);
+        Task<bool> HasConflictAsync(int salleId, DateTime date, string session);
     }
 }

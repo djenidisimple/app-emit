@@ -3,8 +3,6 @@ using AppEmit.API.DTOs.Reservation;
 using AppEmit.API.Entities;
 using AppEmit.API.Exceptions;
 using AppEmit.API.Interfaces;
-using Microsoft.AspNetCore.SignalR;
-using AppEmit.API.Hubs;
 using Microsoft.Extensions.Logging;
 
 namespace AppEmit.API.Services
@@ -15,7 +13,6 @@ namespace AppEmit.API.Services
         private readonly IGenericRepository<Evenement> _evenementRepository;
         private readonly IGenericRepository<Salle> _salleRepository;
         private readonly INotificationService _notificationService;
-        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IMapper _mapper;
         private readonly ILogger<ReservationService> _logger;
 
@@ -24,7 +21,6 @@ namespace AppEmit.API.Services
             IGenericRepository<Evenement> evenementRepository,
             IGenericRepository<Salle> salleRepository,
             INotificationService notificationService,
-            IHubContext<NotificationHub> hubContext,
             IMapper mapper,
             ILogger<ReservationService> logger)
         {
@@ -32,7 +28,6 @@ namespace AppEmit.API.Services
             _evenementRepository = evenementRepository;
             _salleRepository = salleRepository;
             _notificationService = notificationService;
-            _hubContext = hubContext;
             _mapper = mapper;
             _logger = logger;
         }
@@ -67,13 +62,8 @@ namespace AppEmit.API.Services
             if (salle == null)
                 throw new NotFoundException("Salle non trouvée.");
 
-            // FIX: Vérifier conflit de salle
-            var conflit = await _reservationRepository.GetAllAsync();
-            if (conflit.Any(r =>
-                r.SalleId == dto.SalleId &&
-                r.DateReservation.Date == dto.DatePrecise.Date &&
-                r.Session == dto.Session &&
-                r.Statut != "Annulée"))
+            var conflit = await _reservationRepository.HasConflictAsync(dto.SalleId, dto.DatePrecise, dto.Session);
+            if (conflit)
                 throw new BadRequestException("Cette salle est déjà réservée pour ce créneau.");
 
             var evenement = new Evenement
@@ -122,16 +112,6 @@ namespace AppEmit.API.Services
                 {
                     UtilisateurId = reservation.UtilisateurId,
                     Message = message
-                });
-
-            // FIX: Use same event name as NotificationService (NouvelleNotification)
-            await _hubContext.Clients.Group($"user_{reservation.UtilisateurId}")
-                .SendAsync("NouvelleNotification", new
-                {
-                    message,
-                    dateEnvoi = DateTime.UtcNow,
-                    estLu = false,
-                    id = 0
                 });
 
             _logger.LogInformation("Réservation {Id} {Statut}", id, statut);

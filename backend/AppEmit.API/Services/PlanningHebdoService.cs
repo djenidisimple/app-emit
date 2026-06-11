@@ -102,21 +102,30 @@ namespace AppEmit.API.Services
             return result;
         }
 
+        private static readonly Dictionary<int, Salle> SalleCache = new();
+
         private async Task<(string statut, string? motif, Salle? salleOverride)> ApplyExceptionsAsync(
             SeanceCours seance,
             DateTime occurrenceDate,
             List<ExceptionPlanning> exceptions)
         {
             var exc = exceptions.FirstOrDefault(e => e.SeanceCoursId == seance.Id &&
-                                                      occurrenceDate >= e.DateDebut &&
-                                                       (e.DateFin == null || occurrenceDate <= e.DateFin.Value));
+                                                       occurrenceDate >= e.DateDebut &&
+                                                        (e.DateFin == null || occurrenceDate <= e.DateFin.Value));
 
             if (exc == null)
                 return ("Normal", null, null);
 
-            var salle = exc.NouvelleSalleId.HasValue
-                ? await _salleRepo.GetByIdAsync(exc.NouvelleSalleId.Value)
-                : null;
+            Salle? salle = null;
+            if (exc.NouvelleSalleId.HasValue)
+            {
+                if (!SalleCache.TryGetValue(exc.NouvelleSalleId.Value, out salle))
+                {
+                    salle = await _salleRepo.GetByIdAsync(exc.NouvelleSalleId.Value);
+                    if (salle != null)
+                        SalleCache[exc.NouvelleSalleId.Value] = salle;
+                }
+            }
 
             return exc.TypeException switch
             {

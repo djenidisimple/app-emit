@@ -35,6 +35,8 @@ namespace AppEmit.API.Repositories
                 .Include(s => s.Professeur)
                 .Include(s => s.Salle)
                 .Include(s => s.Creneau)
+                .Include(s => s.Niveau)
+                .Include(s => s.Parcours)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
     }

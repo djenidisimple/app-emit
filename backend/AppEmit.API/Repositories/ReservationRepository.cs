@@ -46,5 +46,14 @@ namespace AppEmit.API.Repositories
                 .Include(r => r.Salle)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
+
+        public async Task<bool> HasConflictAsync(int salleId, DateTime date, string session)
+        {
+            return await _dbSet.AnyAsync(r =>
+                r.SalleId == salleId &&
+                r.DateReservation.Date == date.Date &&
+                r.Session == session &&
+                r.Statut != "Annulée");
+        }
     }
 }
