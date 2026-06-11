@@ -7,7 +7,7 @@ import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import StatutBadge from '@/components/global/StatutBadge';
 import Link from 'next/link';
-import api from '@/services/api';
+import { api } from '@/services/api';
 import useAuthStore from '@/store/authStore';
 import { DemandeEchangeReadDto } from '@/types';
 
@@ -20,8 +20,8 @@ export default function MesDemandesPage() {
     if (!user?.id) return;
     const load = async () => {
       try {
-        const res = await api.get<DemandeEchangeReadDto[]>(`/DemandeEchange?professeurId=${user.id}`);
-        setDemandes(res.data.filter(d => d.demandeurId === user.id));
+        const data = await api.get<DemandeEchangeReadDto[]>(`/DemandeEchange?professeurId=${user.id}`);
+        setDemandes(data.filter(d => d.demandeurId === user.id));
       } catch {} finally { setIsLoading(false); }
     };
     load();

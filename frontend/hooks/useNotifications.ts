@@ -11,7 +11,7 @@ export function useNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const { token, user } = useAuthStore();
-  const initialized = useRef(false);
+  const userIdRef = useRef<number | undefined>(undefined);
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
@@ -28,8 +28,9 @@ export function useNotifications() {
   }, [user]);
 
   useEffect(() => {
-    if (!user?.id || !token || initialized.current) return;
-    initialized.current = true;
+    if (!user?.id || !token) return;
+    if (user.id === userIdRef.current) return;
+    userIdRef.current = user.id;
 
     fetchNotifications();
 

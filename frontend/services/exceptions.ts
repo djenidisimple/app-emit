@@ -13,10 +13,10 @@ export interface ReponseException {
 }
 
 export const annulerCours = async (dto: CreerExceptionDto): Promise<ReponseException> =>
-  api.post('/Exception/annuler', dto);
+  api.post<ReponseException>('/Exception/annuler', dto);
 
 export const reporterCours = async (dto: CreerExceptionDto): Promise<ReponseException> =>
-  api.post('/Exception/reporter', dto);
+  api.post<ReponseException>('/Exception/reporter', dto);
 
 export const rendreIndisponible = async (dto: CreerExceptionDto): Promise<ReponseException> =>
-  api.post('/Exception/indisponible', dto);
+  api.post<ReponseException>('/Exception/indisponible', dto);

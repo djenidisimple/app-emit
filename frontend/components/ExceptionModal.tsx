@@ -143,6 +143,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
                 className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none text-sm"
                 value={formData.dateDebut}
                 onChange={(e) => setFormData({ ...formData, dateDebut: e.target.value })}
+                max={formData.dateFin || undefined}
                 required
               />
             </div>
@@ -153,6 +154,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
                 className="w-full p-2.5 rounded-xl border border-blue-200 focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] outline-none text-sm"
                 value={formData.dateFin}
                 onChange={(e) => setFormData({ ...formData, dateFin: e.target.value })}
+                min={formData.dateDebut || undefined}
               />
             </div>
           </div>

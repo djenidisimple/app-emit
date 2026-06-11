@@ -208,8 +208,8 @@ function PasswordStrength({ pwd }: { pwd: string }) {
   return (
     <div className="mt-1.5 space-y-1">
       <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((s) => (
-          <div key={s} className={`flex-1 h-1 rounded-full transition-all ${s <= score ? lvl.color : 'bg-emit-border'}`} />
+          {[1, 2, 3, 4, 5].map((s) => (
+          <div key={s} className={`flex-1 h-1 rounded-full transition-all ${s <= score ? lvl.color : 'bg-blue-200'}`} />
         ))}
       </div>
       <p className="text-[11px] text-blue-500">{lvl.label}</p>
@@ -279,9 +279,9 @@ function CreateModal({
                   </div>
                   <h2 className="text-base font-bold text-[#0052FF]">Ajouter un utilisateur</h2>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-emit-border/50 rounded-md transition-colors">
-                  <X size={18} />
-                </button>
+        <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-blue-100 rounded-md transition-colors">
+          <X size={18} />
+        </button>
               </div>
 
               {/* Body */}
@@ -393,7 +393,7 @@ function EditModal({
                     <p className="text-xs text-blue-500">{user.email}</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-emit-border/50 rounded-md transition-colors">
+                <button onClick={onClose} className="p-1.5 text-blue-300 hover:text-blue-900 hover:bg-blue-100 rounded-md transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -912,12 +912,12 @@ export default function AdminUtilisateursPage() {
       try {
         await api.post('/Utilisateur', {
           ...row,
-          motDePasse: 'ChangeMe@2024', // temporary pwd
+          motDePasse: 'ChangeMe@2024',
         });
         success++;
       } catch { fail++; }
     }
-    if (success > 0) addToast('success', `${success} utilisateur(s) importé(s). Mot de passe temporaire : ChangeMe@2024`);
+    if (success > 0) addToast('success', `${success} utilisateur(s) importé(s).`);
     if (fail > 0) addToast('error', `${fail} utilisateur(s) n'ont pas pu être importés.`);
     fetchUsers();
   };
@@ -1073,7 +1073,7 @@ export default function AdminUtilisateursPage() {
         {/* ── Table ── */}
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[#0052FF] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-blue-300">

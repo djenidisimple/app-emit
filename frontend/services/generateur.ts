@@ -3,6 +3,6 @@ import { api } from './api';
 import { GenerationSeancePayload, SeanceCours } from '@/types';
 
 export const generateurService = {
-  generer: (payload: GenerationSeancePayload) =>
+  generer: (payload: GenerationSeancePayload): Promise<SeanceCours[]> =>
     api.post<SeanceCours[]>('/seances/generer', payload),
 };

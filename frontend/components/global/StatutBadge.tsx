@@ -14,11 +14,14 @@ const labels: Record<string, string> = {
   Termine:    'Terminé',
 };
 
+const normalizedKeys: Record<string, string> = {};
+for (const k of Object.keys(labels)) {
+  normalizedKeys[k.toLowerCase().replace(/[éè_]/g, '')] = k;
+}
+
 export default function StatutBadge({ statut }: { statut: string }) {
-  const key =
-    Object.keys(labels).find((k) =>
-      statut.toLowerCase().replace(/[éè]/g, 'e').includes(k.toLowerCase().replace(/[_]/g, ''))
-    ) || statut;
+  const normalized = statut.toLowerCase().replace(/[éè_]/g, '');
+  const key = normalizedKeys[normalized] || statut;
 
   return (
     <span

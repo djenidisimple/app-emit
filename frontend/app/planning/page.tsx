@@ -80,11 +80,14 @@ export default function PlanningPage() {
   const getSeancesForSlot = (jour: string, rangeStart: string, rangeEnd: string) =>
     seances.filter((s) => s.jour === jour && s.heureDebut >= rangeStart && s.heureDebut < rangeEnd);
 
-  const legendColors = [
-    ...new Set(
-      seances.filter((s) => s.couleurAffichage).map((s) => ({ color: s.couleurAffichage, name: s.matiereNom }))
-    ),
-  ];
+  const legendColors = Object.values(
+    seances
+      .filter((s) => s.couleurAffichage)
+      .reduce((acc, s) => {
+        acc[s.couleurAffichage!] = { color: s.couleurAffichage!, name: s.matiereNom };
+        return acc;
+      }, {} as Record<string, { color: string; name: string }>)
+  );
 
   return (
     <ProtectedLayout pageTitle="Planning de la semaine">

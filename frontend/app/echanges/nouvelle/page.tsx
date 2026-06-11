@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Send, Repeat } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import { useRouter } from 'next/navigation';
-import api from '@/services/api';
+import { api } from '@/services/api';
 import useAuthStore from '@/store/authStore';
 import { UtilisateurDto, SeancePlanningDto, DemandeEchangeCreateDto } from '@/types';
 
@@ -23,11 +23,11 @@ export default function NouvelleEchangePage() {
     if (!user) return;
     const load = async () => {
       try {
-        const profsRes = await api.get<UtilisateurDto[]>('/Utilisateur');
-        setProfesseurs(profsRes.data.filter((p: UtilisateurDto) => p.role === 'Professeur' && p.id !== user.id));
+        const profsData = await api.get<UtilisateurDto[]>('/Utilisateur');
+        setProfesseurs(profsData.filter((p: UtilisateurDto) => p.role === 'Professeur' && p.id !== user.id));
         const today = new Date().toISOString().split('T')[0];
-        const planningRes = await api.get(`/Planning/hebdo?startDate=${today}&professeurId=${user.id}`);
-        setMesSeances(planningRes.data.seances || []);
+        const planningData = await api.get(`/Planning/hebdo?startDate=${today}&professeurId=${user.id}`);
+        setMesSeances(planningData.seances || []);
       } catch {
         setError('Erreur lors du chargement des données.');
       } finally {
@@ -42,8 +42,8 @@ export default function NouvelleEchangePage() {
     if (!cibleId) { setSeancesCible([]); return; }
     try {
       const today = new Date().toISOString().split('T')[0];
-      const res = await api.get(`/Planning/hebdo?startDate=${today}&professeurId=${cibleId}`);
-      setSeancesCible(res.data.seances || []);
+      const planningData = await api.get(`/Planning/hebdo?startDate=${today}&professeurId=${cibleId}`);
+      setSeancesCible(planningData.seances || []);
     } catch {
       setError('Erreur lors du chargement des séances du professeur.');
     }

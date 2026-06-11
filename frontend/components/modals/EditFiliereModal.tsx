@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Filiere } from '@/types';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 interface Props {
   isOpen: boolean;

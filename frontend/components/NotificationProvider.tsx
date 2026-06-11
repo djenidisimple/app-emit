@@ -10,11 +10,12 @@ import { Notification } from '@/types';
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { token, user } = useAuthStore();
   const { setNotifications, addNotification } = useNotificationStore();
-  const initialized = useRef(false);
+  const userIdRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!user?.id || !token || initialized.current) return;
-    initialized.current = true;
+    if (!user?.id || !token) return;
+    if (user.id === userIdRef.current) return;
+    userIdRef.current = user.id;
 
     getNotifications(user.id, 1, 50)
       .then((data: Notification[]) => setNotifications(data))

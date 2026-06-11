@@ -2,16 +2,16 @@ import { api } from './api';
 import { DemandeEchangeReadDto, DemandeEchangeCreateDto } from '@/types';
 
 export const creerDemande = async (dto: DemandeEchangeCreateDto): Promise<DemandeEchangeReadDto> =>
-  api.post('/DemandeEchange', dto);
+  api.post<DemandeEchangeReadDto>('/DemandeEchange', dto);
 
 export const getDemandes = async (professeurId?: number): Promise<DemandeEchangeReadDto[]> => {
   let url = '/DemandeEchange';
   if (professeurId) url += `?professeurId=${professeurId}`;
-  return api.get(url);
+  return api.get<DemandeEchangeReadDto[]>(url);
 };
 
 export const getDemandeById = async (id: number): Promise<DemandeEchangeReadDto> =>
-  api.get(`/DemandeEchange/${id}`);
+  api.get<DemandeEchangeReadDto>(`/DemandeEchange/${id}`);
 
 export const updateStatut = async (id: number, statut: string): Promise<DemandeEchangeReadDto> =>
-  api.patch(`/DemandeEchange/${id}/statut`, { statut });
+  api.patch<DemandeEchangeReadDto>(`/DemandeEchange/${id}/statut`, { statut });

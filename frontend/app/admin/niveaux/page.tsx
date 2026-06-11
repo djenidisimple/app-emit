@@ -6,7 +6,7 @@ import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { Niveau, Parcours } from '@/types';
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 export default function AdminNiveauxPage() {
   const [items, setItems] = useState<Niveau[]>([]);
@@ -25,8 +25,8 @@ export default function AdminNiveauxPage() {
     setIsLoading(true);
     setError('');
     try {
-      const [niveauxRes, parcoursRes] = await Promise.all([api.get<Niveau[]>('/Niveau'), api.get<Parcours[]>('/Parcours')]);
-      setItems(niveauxRes.data); setParcoursList(parcoursRes.data || []);
+      const [niveauxData, parcoursData] = await Promise.all([api.get<Niveau[]>('/Niveau'), api.get<Parcours[]>('/Parcours')]);
+      setItems(niveauxData); setParcoursList(parcoursData || []);
     } catch { setError('Impossible de charger les niveaux.'); }
     finally { setIsLoading(false); }
   };

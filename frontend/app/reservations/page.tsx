@@ -31,7 +31,7 @@ export default function ReservationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('Toutes');
-  const initialized = useRef(false);
+  const userIdRef = useRef<number | undefined>(undefined);
 
   const fetchReservations = useCallback(async () => {
     if (!user?.id) return;
@@ -49,11 +49,11 @@ export default function ReservationsPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      fetchReservations();
-    }
-  }, [fetchReservations]);
+    if (!user?.id) return;
+    if (user.id === userIdRef.current) return;
+    userIdRef.current = user.id;
+    fetchReservations();
+  }, [fetchReservations, user?.id]);
 
   const filtered = reservations.filter((r) => {
     if (activeTab === 'Toutes') return true;

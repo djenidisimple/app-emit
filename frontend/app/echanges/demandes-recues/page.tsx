@@ -13,6 +13,7 @@ import { DemandeEchangeReadDto } from '@/types';
 export default function DemandesRecuesPage() {
   const [demandes, setDemandes] = useState<DemandeEchangeReadDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   const [actionId, setActionId] = useState<number | null>(null);
   const { user } = useAuthStore();
 
@@ -22,7 +23,7 @@ export default function DemandesRecuesPage() {
       try {
         const data = await api.get<DemandeEchangeReadDto[]>(`/DemandeEchange?professeurId=${user.id}`);
         setDemandes(data.filter(d => d.cibleId === user.id && d.statut === 'EnAttente'));
-      } catch {} finally { setIsLoading(false); }
+      } catch { setError('Erreur lors du chargement des demandes.'); } finally { setIsLoading(false); }
     };
     load();
   }, [user]);
@@ -32,7 +33,7 @@ export default function DemandesRecuesPage() {
     try {
       await api.patch(`/DemandeEchange/${id}/statut`, { statut: action === 'accepter' ? 'Acceptee' : 'Refusee' });
       setDemandes(demandes.filter(d => d.id !== id));
-    } catch {} finally { setActionId(null); }
+      } catch { setError('Erreur lors du traitement.'); } finally { setActionId(null); }
   };
 
   return (
