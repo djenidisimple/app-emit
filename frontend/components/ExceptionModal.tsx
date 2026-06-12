@@ -24,6 +24,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (isOpen && seance) {
@@ -32,6 +33,7 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
         motif: '',
         dateDebut: new Date().toISOString().split('T')[0],
       });
+      setSubmitError('');
     }
   }, [isOpen, seance]);
 
@@ -42,8 +44,8 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
     try {
       await api.patch(`/SeanceCours/${seance.id}/terminer`);
       onClose();
-    } catch (err) {
-      console.error('Erreur lors de la terminaison:', err);
+    } catch {
+      setSubmitError('Erreur lors de la terminaison de la séance.');
     } finally {
       setIsFinishing(false);
     }
@@ -83,8 +85,8 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
       }
 
       onClose();
-    } catch (err) {
-      console.error("Erreur lors de la création de l'exception:", err);
+    } catch {
+      setSubmitError("Erreur lors de la création de l'exception.");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,6 +108,12 @@ const ExceptionModal: React.FC<ExceptionModalProps> = ({ seance, isOpen, onClose
             <X size={20} />
           </button>
         </div>
+
+        {submitError && (
+          <div className="px-6 pt-4">
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">{submitError}</div>
+          </div>
+        )}
 
         {user?.roles?.includes('Professeur') && (
           <div className="px-6 pt-4">

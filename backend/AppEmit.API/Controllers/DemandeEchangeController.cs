@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AppEmit.API.DTOs.DemandeEchange;
 using AppEmit.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -17,12 +18,21 @@ namespace AppEmit.API.Controllers
             _service = service;
         }
 
+        private int GetCurrentUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(claim, out var id) ? id : throw new UnauthorizedAccessException();
+        }
+
         // POST /api/DemandeEchange
         [HttpPost]
         public async Task<ActionResult<DemandeEchangeReadDto>> Creer(
             [FromBody] DemandeEchangeCreateDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+            var currentUserId = GetCurrentUserId();
+            if (dto.DemandeurId != currentUserId)
+                return Forbid();
             var result = await _service.CreerDemande(dto);
             return CreatedAtAction(nameof(GetById),
                 new { id = result.Id }, result);
@@ -33,6 +43,9 @@ namespace AppEmit.API.Controllers
         public async Task<ActionResult<List<DemandeEchangeReadDto>>> GetAll(
             [FromQuery] int professeurId)
         {
+            var currentUserId = GetCurrentUserId();
+            if (professeurId != currentUserId)
+                return Forbid();
             var result = await _service.ObtenirDemandes(professeurId);
             return Ok(result);
         }

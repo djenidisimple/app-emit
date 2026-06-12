@@ -1,1 +1,16 @@
-using AppEmit.API.Data;using AppEmit.API.Entities; using AppEmit.API.Interfaces; using Microsoft.EntityFrameworkCore;  namespace AppEmit.API.Repositories;  public class MatiereRepository : GenericRepository<Matiere>, IMatiereRepository {     public MatiereRepository(AppDbContext context) : base(context) { }      public async Task<bool> ExistsByCodeAsync(string code)     {         return await _dbSet.AnyAsync(m => m.Code == code);     } }
+using AppEmit.API.Data;
+using AppEmit.API.Entities;
+using AppEmit.API.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace AppEmit.API.Repositories;
+
+public class MatiereRepository : GenericRepository<Matiere>, IMatiereRepository
+{
+    public MatiereRepository(AppDbContext context) : base(context) { }
+
+    public async Task<bool> ExistsByCodeAsync(string code)
+    {
+        return await _dbSet.AnyAsync(m => m.Code == code);
+    }
+}

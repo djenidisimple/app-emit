@@ -21,12 +21,14 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen || !salle) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
 
     try {
       const dto: ReservationCreateDto = {
@@ -41,8 +43,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
         onClose();
         setSuccess(false);
       }, 2000);
-    } catch (err) {
-      console.error('Erreur lors de la réservation:', err);
+    } catch {
+      setError('Erreur lors de la réservation. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }
@@ -55,7 +57,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, sa
         animate={{ opacity: 1, scale: 1 }}
         className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-blue-100 overflow-hidden"
       >
-        <div className="bg-white p-5 border-b border-blue-100 flex justify-between items-center">
+        {error && (
+        <div className="mx-6 mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">{error}</div>
+      )}
+      <div className="bg-white p-5 border-b border-blue-100 flex justify-between items-center">
           <div>
             <h2 className="text-lg font-semibold text-blue-900">Réserver une salle</h2>
             <p className="text-xs text-blue-500">{salle.libelle} - {salle.capacite} places</p>

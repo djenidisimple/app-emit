@@ -912,7 +912,7 @@ export default function AdminUtilisateursPage() {
       try {
         await api.post('/Utilisateur', {
           ...row,
-          motDePasse: 'ChangeMe@2024',
+          motDePasse: 'Temp@' + Math.random().toString(36).slice(2, 8) + '1Aa',
         });
         success++;
       } catch { fail++; }

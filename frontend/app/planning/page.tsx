@@ -160,7 +160,7 @@ export default function PlanningPage() {
               </thead>
               <tbody>
                 {HOUR_RANGES.map((range, ri) => (
-                  <tr key={ri} className="border-t border-blue-100 hover:bg-blue-50/50 transition-colors duration-150">
+                  <tr key={`${range.start}-${range.end}`} className="border-t border-blue-100 hover:bg-blue-50/50 transition-colors duration-150">
                     <td className="px-3 py-3 text-xs font-semibold text-blue-400 align-top whitespace-nowrap">
                       {HOURS[ri]}
                     </td>
@@ -213,7 +213,7 @@ export default function PlanningPage() {
       {legendColors.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-3 text-xs font-medium text-blue-500">
           {legendColors.map((l, i) => (
-            <div key={i} className="flex items-center gap-2 rounded-xl border border-blue-200 px-3 py-1.5 bg-white shadow-sm">
+            <div key={`${l.color}-${i}`} className="flex items-center gap-2 rounded-xl border border-blue-200 px-3 py-1.5 bg-white shadow-sm">
               <span className="w-3 h-3 rounded shrink-0" style={{ backgroundColor: l.color! }} />
               <span className="text-blue-900">{l.name}</span>
             </div>

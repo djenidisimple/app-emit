@@ -32,10 +32,16 @@ namespace AppEmit.API.Services
         public async Task<DemandeEchangeReadDto> CreerDemande(
             DemandeEchangeCreateDto dto)
         {
-            // Vérifier que les séances existent
+            var currentUserId = GetCurrentUserId();
+            if (dto.DemandeurId != currentUserId)
+                throw new UnauthorizedException("Vous ne pouvez pas créer une demande au nom d'un autre utilisateur.");
+
             var seanceDemandeur = await _context.SeancesCours
                 .FindAsync(dto.SeanceDemandeurId)
                 ?? throw new NotFoundException("Séance du demandeur introuvable.");
+
+            if (seanceDemandeur.ProfesseurId != currentUserId)
+                throw new UnauthorizedException("Cette séance ne vous appartient pas.");
 
             var seanceCible = await _context.SeancesCours
                 .FindAsync(dto.SeanceCibleId)

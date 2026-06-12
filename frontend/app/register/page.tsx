@@ -20,7 +20,8 @@ export default function RegisterPage() {
   const { register, isLoading, error } = useAuthStore();
   const router = useRouter();
 
-  const update = (field: string, value: string) =>
+  type FormField = keyof typeof formData;
+  const update = (field: FormField, value: string) =>
     setFormData((p) => ({ ...p, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using AppEmit.API.Data;
-using AppEmit.API.Interfaces;
 using AppEmit.API.DTOs.Salle;
+using AppEmit.API.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppEmit.API.Controllers
 {
@@ -14,11 +15,13 @@ namespace AppEmit.API.Controllers
     {
         private readonly ISalleService _salleService;
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public SallesController(ISalleService salleService, AppDbContext context)
+        public SallesController(ISalleService salleService, AppDbContext context, IMapper mapper)
         {
             _salleService = salleService;
             _context = context;
+            _mapper = mapper;
         }
 
         [AllowAnonymous]
@@ -73,18 +76,9 @@ namespace AppEmit.API.Controllers
 
                 if (!occupeeParSeance && !occupeeParReservation)
                 {
-                    disponibles.Add(new SalleResponseDto
-                    {
-                        Id = salle.Id,
-                        CodeSalle = salle.CodeSalle ?? "",
-                        Libelle = salle.Libelle ?? salle.Nom,
-                        Nom = salle.Nom,
-                        Capacite = salle.Capacite,
-                        Equipements = salle.Equipements,
-                        EstActive = salle.EstActive,
-                        EstDisponible = true,
-                        Type = salle.Type
-                    });
+                    var dto = _mapper.Map<SalleResponseDto>(salle);
+                    dto.EstDisponible = true;
+                    disponibles.Add(dto);
                 }
             }
 

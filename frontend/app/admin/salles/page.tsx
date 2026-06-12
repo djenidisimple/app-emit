@@ -660,20 +660,7 @@ export default function AdminSallesPage() {
     }
   };
 
-  useEffect(() => {
-    const load = async () => {
-      setIsLoading(true);
-      try {
-        const res = await api.get<Salle[]>('/Salles');
-        setSalles(res);
-      } catch {
-        addToast('error', 'Impossible de charger les salles.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
-  }, [addToast]);
+  useEffect(() => { fetchSalles(); }, []);
 
   // ── Filter + Sort ──────────────────────────────────────────────────────────
   const filtered = salles
@@ -1006,7 +993,7 @@ export default function AdminSallesPage() {
         {/* ── Table ── */}
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="w-10 h-10 border-4 border-emit-blue border-t-emit-orange rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[#0052FF] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-blue-300">
