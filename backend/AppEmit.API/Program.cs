@@ -20,349 +20,430 @@ using AppEmit.API.Repositories;
 using AppEmit.API.Services;
 using AppEmit.API.Validators;
 
-// Load environment variables from .env file
-DotNetEnv.Env.Load();
-
-var builder = WebApplication.CreateBuilder(args);
-
-// ======================================================
-// DATABASE
-// ======================================================
-var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
-                       $"Port={Environment.GetEnvironmentVariable("DB_PORT")};" +
-                       $"Database={Environment.GetEnvironmentVariable("DATABASENAME")};" +
-                       $"Username={Environment.GetEnvironmentVariable("DB_USER")};" +
-                       $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")}";
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        connectionString,
-        npgsql => npgsql.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
-    )
-);
-
-// ======================================================
-// CONTROLLERS + SWAGGER
-// ======================================================
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+namespace AppEmit.API
+{
+    public class Program
     {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// ======================================================
-// CORS
-// ======================================================
-var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000";
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowNextJs", policy =>
-        policy.WithOrigins(frontendUrl)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials());
-});
-
-// ======================================================
-// SIGNALR
-// ======================================================
-builder.Services.AddSignalR();
-
-// ======================================================
-// AUTOMAPPER
-// ======================================================
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddMaps(typeof(NotificationMappingProfile).Assembly);
-});
-
-// ======================================================
-// FLUENT VALIDATION
-// ======================================================
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<NotificationCreateDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
-
-// ======================================================
-// AUTH JWT
-// ======================================================
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-
-if (string.IsNullOrEmpty(jwtKey))
-{
-    throw new InvalidOperationException("La clé secrète JWT (JWT_KEY) est absente du fichier .env ou des variables d'environnement.");
-}
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtKey)
-        )
-    };
-
-    // FIX: Allow SignalR to pass JWT via query string
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
+        public static void Main(string[] args)
         {
-            var accessToken = context.Request.Query["access_token"];
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            DotNetEnv.Env.Load();
+            var builder = WebApplication.CreateBuilder(args);
+
+            // ======================================================
+            // DATABASE
+            // ======================================================
+            var host = Environment.GetEnvironmentVariable("HOST") ?? "localhost";
+            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+            var databaseName = Environment.GetEnvironmentVariable("DATABASENAME") ?? "app_emit";
+            var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
+            var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "123";
+            
+            var connectionString = $"Host={host};" +
+                                   $"Port={dbPort};" +
+                                   $"Database={databaseName};" +
+                                   $"Username={dbUser};" +
+                                   $"Password={dbPassword};" +
+                                   $"Trust Server Certificate=True;" +
+                                   $"SSL Mode=Prefer;";
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(
+                    connectionString,
+                    npgsql => npgsql.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
+                )
+            );
+
+            // ======================================================
+            // CONTROLLERS + SWAGGER
+            // ======================================================
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            // ======================================================
+            // CORS
+            // ======================================================
+            var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000";
+
+            builder.Services.AddCors(options =>
             {
-                context.Token = accessToken;
+                options.AddPolicy("AllowNextJs", policy =>
+                    policy.WithOrigins(frontendUrl)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials());
+            });
+
+            // ======================================================
+            // SIGNALR
+            // ======================================================
+            builder.Services.AddSignalR();
+
+            // ======================================================
+            // AUTOMAPPER
+            // ======================================================
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddMaps(typeof(NotificationMappingProfile).Assembly);
+            });
+
+            // ======================================================
+            // FLUENT VALIDATION
+            // ======================================================
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<NotificationCreateDtoValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+
+            // ======================================================
+            // AUTH JWT
+            // ======================================================
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? "test-jwt-key-for-testing-only";
+            var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "https://localhost:5001";
+            var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "https://localhost:3000";
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey)
+                    )
+                };
+
+                // FIX: Allow SignalR to pass JWT via query string
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
+
+            // ======================================================
+            // RATE LIMITING
+            // ======================================================
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddFixedWindowLimiter("Auth", opt =>
+                {
+                    opt.PermitLimit = 10;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    opt.QueueLimit = 0;
+                });
+
+                options.AddFixedWindowLimiter("Strict", opt =>
+                {
+                    opt.PermitLimit = 100;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueLimit = 0;
+                });
+            });
+
+            // ======================================================
+            // REPOSITORIES & SERVICES
+            // ======================================================
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
+            builder.Services.AddScoped<ISalleRepository, SalleRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
+            builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
+            builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
+            builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
+            builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
+            builder.Services.AddScoped<ISeanceCoursService, SeanceCoursService>();
+            builder.Services.AddScoped<IUtilisateurService, UtilisateurService>();
+            builder.Services.AddScoped<INiveauService, NiveauService>();
+            builder.Services.AddScoped<IFiliereService, FiliereService>();
+            builder.Services.AddScoped<ISalleService, SalleService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IMatiereService, MatiereService>();
+            builder.Services.AddScoped<IParcoursService, ParcoursService>();
+            builder.Services.AddScoped<IExceptionService, ExceptionService>();
+            builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
+            builder.Services.AddScoped<IDocumentService, DocumentService>();
+            builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
+            builder.Services.AddHttpContextAccessor();
+
+            // (Les services Matière & Parcours sont déjà enregistrés ci-dessus)
+
+            // ======================================================
+            // BUILD APP
+            // ======================================================
+            var app = builder.Build();
+
+            // Appliquer les migrations automatiquement au démarrage
+            using (var scope = app.Services.CreateScope())
+            {
+                try
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    db.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogWarning(ex, "La migration automatique a échoué. L'application continuera sans migration.");
+                }
             }
-            return Task.CompletedTask;
+
+            // ======================================================
+            // MIDDLEWARE
+            // ======================================================
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseCors("AllowNextJs");
+
+            app.UseRateLimiter();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            // SignalR Hub
+            app.MapHub<NotificationHub>("/hubs/notifications");
+
+            // ======================================================
+            // SEEDING
+            // ======================================================
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<AppDbContext>();
+                
+                // Assurer que les données essentielles existent pour éviter les erreurs de séquençage
+                EnsureData(context);
+                SeedData.SeedAll(context);
+            }
+
+            app.Run();
         }
-    };
-});
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-
-// ======================================================
-// RATE LIMITING
-// ======================================================
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-    options.AddFixedWindowLimiter("Auth", opt =>
-    {
-        opt.PermitLimit = 10;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 0;
-    });
-
-    options.AddFixedWindowLimiter("Strict", opt =>
-    {
-        opt.PermitLimit = 100;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.QueueLimit = 0;
-    });
-});
-
-// ======================================================
-// REPOSITORIES & SERVICES
-// ======================================================
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
-builder.Services.AddScoped<ISalleRepository, SalleRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IMatiereRepository, MatiereRepository>();
-builder.Services.AddScoped<IParcoursRepository, ParcoursRepository>();
-builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
-builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
-builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<ISeanceCoursService, SeanceCoursService>();
-builder.Services.AddScoped<IUtilisateurService, UtilisateurService>();
-builder.Services.AddScoped<INiveauService, NiveauService>();
-builder.Services.AddScoped<IFiliereService, FiliereService>();
-builder.Services.AddScoped<ISalleService, SalleService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IMatiereService, MatiereService>();
-builder.Services.AddScoped<IParcoursService, ParcoursService>();
-builder.Services.AddScoped<IExceptionService, ExceptionService>();
-builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
-builder.Services.AddScoped<IDocumentService, DocumentService>();
-builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
-builder.Services.AddHttpContextAccessor();
-
-// (Les services Matière & Parcours sont déjà enregistrés ci-dessus)
-
-// ======================================================
-// BUILD APP
-// ======================================================
-var app = builder.Build();
-
-// Appliquer les migrations automatiquement au démarrage
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning(ex, "La migration automatique a échoué. L'application continuera sans migration.");
-    }
-}
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseMiddleware<ExceptionMiddleware>();
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowNextJs");
-
-app.UseRateLimiter();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-// SignalR Hub
-app.MapHub<NotificationHub>("/hubs/notifications");
-
-// ======================================================
-// SEEDING
-// ======================================================
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDbContext>();
-    
-    if (!context.Filieres.Any())
-    {
-        // ── Filières & Parcours & Niveaux ──
-        var filiere = new Filiere { Nom = "Informatique et Management" };
-        context.Filieres.Add(filiere);
-        context.SaveChanges();
-
-        var parcoursInfo = new Parcours { Nom = "Informatique", FiliereId = filiere.Id };
-        var parcoursManagement = new Parcours { Nom = "Management", FiliereId = filiere.Id };
-        context.Parcours.AddRange(parcoursInfo, parcoursManagement);
-        context.SaveChanges();
-
-        var niveaux = new List<Niveau>
+        private static void EnsureData(AppDbContext context)
         {
-            new Niveau { Code = "L1", ParcoursId = parcoursInfo.Id },
-            new Niveau { Code = "L2", ParcoursId = parcoursInfo.Id },
-            new Niveau { Code = "L3", ParcoursId = parcoursInfo.Id },
-            new Niveau { Code = "M1", ParcoursId = parcoursInfo.Id },
-            new Niveau { Code = "M2", ParcoursId = parcoursInfo.Id }
-        };
-        context.Niveaux.AddRange(niveaux);
-        context.SaveChanges();
-        Console.WriteLine("[SEED] Filières, Parcours et Niveaux créés !");
-    }
+            try
+            {
+                // ── S'assurer que les rôles existent ──
+                if (!context.Roles.Any())
+                {
+                    var roles = new List<Role>
+                    {
+                        new() { Nom = "Admin" },
+                        new() { Nom = "Professeur" },
+                        new() { Nom = "Etudiant" },
+                    };
+                    context.Roles.AddRange(roles);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Rôles créés !");
+                }
 
-    if (!context.Creneaux.Any())
-    {
-        var jours = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" };
-        var creneaux = new List<Creneau>();
-        foreach (var jour in jours)
-        {
-            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(8, 0, 0), HeureFin = new TimeSpan(10, 0, 0) });
-            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(10, 0, 0), HeureFin = new TimeSpan(12, 0, 0) });
-            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(14, 0, 0), HeureFin = new TimeSpan(16, 0, 0) });
-            creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(16, 0, 0), HeureFin = new TimeSpan(18, 0, 0) });
+                // ── S'assurer que les entités de base existent ──
+                // Cela permet d'éviter les erreurs de séquenctation lors de la tentative d'accès à des données
+                // même si certaines données de test supplémentaires ne sont pas créées
+
+                // ── Filières & Parcours & Niveaux ──
+                if (!context.Filieres.Any())
+                {
+                    var filiere = new Filiere { Nom = "Informatique et Management" };
+                    context.Filieres.Add(filiere);
+                    context.SaveChanges();
+
+                    var parcoursInfo = new Parcours { Nom = "Informatique", FiliereId = filiere.Id };
+                    var parcoursManagement = new Parcours { Nom = "Management", FiliereId = filiere.Id };
+                    context.Parcours.AddRange(parcoursInfo, parcoursManagement);
+                    context.SaveChanges();
+
+                    var niveaux = new List<Niveau>
+                    {
+                        new Niveau { Code = "L1", ParcoursId = parcoursInfo.Id },
+                        new Niveau { Code = "L2", ParcoursId = parcoursInfo.Id },
+                        new Niveau { Code = "L3", ParcoursId = parcoursInfo.Id },
+                        new Niveau { Code = "M1", ParcoursId = parcoursInfo.Id },
+                        new Niveau { Code = "M2", ParcoursId = parcoursInfo.Id }
+                    };
+                    context.Niveaux.AddRange(niveaux);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Filières, Parcours et Niveaux créés !");
+                }
+
+                // ── Creneaux ──
+                if (!context.Creneaux.Any())
+                {
+                    var jours = new[] { "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" };
+                    var creneaux = new List<Creneau>();
+                    foreach (var jour in jours)
+                    {
+                        creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(8, 0, 0), HeureFin = new TimeSpan(10, 0, 0) });
+                        creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(10, 0, 0), HeureFin = new TimeSpan(12, 0, 0) });
+                        creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(14, 0, 0), HeureFin = new TimeSpan(16, 0, 0) });
+                        creneaux.Add(new Creneau { Jour = jour, HeureDebut = new TimeSpan(16, 0, 0), HeureFin = new TimeSpan(18, 0, 0) });
+                    }
+                    context.Creneaux.AddRange(creneaux);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Créneaux créés !");
+                }
+
+                // ── Salles ──
+                if (!context.Salles.Any())
+                {
+                    var salles = new List<Salle>
+                    {
+                        new Salle { CodeSalle = "A101", Libelle = "Amphi 1", Nom = "Amphi 1", Capacite = 150, Type = "Amphi", EstActive = true, EstDisponible = true },
+                        new Salle { CodeSalle = "A102", Libelle = "Amphi 2", Nom = "Amphi 2", Capacite = 100, Type = "Amphi", EstActive = true, EstDisponible = true },
+                        new Salle { CodeSalle = "TP01", Libelle = "Labo Info 1", Nom = "Labo Info 1", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
+                        new Salle { CodeSalle = "TP02", Libelle = "Labo Info 2", Nom = "Labo Info 2", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
+                        new Salle { CodeSalle = "TD01", Libelle = "Salle TD 1", Nom = "Salle TD 1", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
+                        new Salle { CodeSalle = "TD02", Libelle = "Salle TD 2", Nom = "Salle TD 2", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
+                    };
+                    context.Salles.AddRange(salles);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Salles créées !");
+                }
+
+                // ── Matières ──
+                if (!context.Matieres.Any())
+                {
+                    var matieres = new List<Matiere>
+                    {
+                        new Matiere { Code = "INF401", Nom = "Génie Logiciel", Type = "Cours" },
+                        new Matiere { Code = "INF402", Nom = "Base de Données", Type = "Cours" },
+                        new Matiere { Code = "INF403", Nom = "Réseaux", Type = "Cours" },
+                        new Matiere { Code = "INF404", Nom = "Programmation Web", Type = "Cours" },
+                        new Matiere { Code = "MGT401", Nom = "Management", Type = "Cours" },
+                    };
+                    context.Matieres.AddRange(matieres);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Matières créées !");
+                }
+
+                // ── Roles backfill pour l'alignement de conception ──
+                if (context.Utilisateurs.Any(u => u.Role == null))
+                {
+                    context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Admin' WHERE \"Matricule\" LIKE 'ADM%' AND \"Role\" IS NULL");
+                    context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Professeur' WHERE \"Matricule\" LIKE 'PROF%' AND \"Role\" IS NULL");
+                    context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Etudiant' WHERE \"Matricule\" LIKE 'ETU%' AND \"Role\" IS NULL");
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Role backfill effectué !");
+                }
+
+                // ── Assurer que les utilisateurs de base existent ──
+                if (!context.Utilisateurs.Any(u => u.Matricule == "ADM001"))
+                {
+                    var adminRole = context.Roles.First(r => r.Nom == "Admin");
+                    var profRole = context.Roles.First(r => r.Nom == "Professeur");
+                    var etudiantRole = context.Roles.First(r => r.Nom == "Etudiant");
+
+                    var admin = new Utilisateur
+                    {
+                        Nom = "Admin", Prenom = "System", Email = "admin@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234"),
+                        Role = "Admin", Matricule = "ADM001",
+                        Roles = new List<Role> { adminRole }
+                    };
+                    var prof1 = new Utilisateur
+                    {
+                        Nom = "Rakoto", Prenom = "Jean", Email = "prof1@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                        Role = "Professeur", Matricule = "PROF001",
+                        Roles = new List<Role> { profRole },
+                        DateNaissance = new DateTime(1990, 1, 15, 0, 0, 0, DateTimeKind.Utc),
+                        Adresse = "Antananarivo"
+                    };
+                    var prof2 = new Utilisateur
+                    {
+                        Nom = "Rabe", Prenom = "Marie", Email = "prof2@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                        Role = "Professeur", Matricule = "PROF002",
+                        Roles = new List<Role> { profRole },
+                        DateNaissance = new DateTime(1992, 3, 20, 0, 0, 0, DateTimeKind.Utc),
+                        Adresse = "Fianarantsoa"
+                    };
+                    var prof3 = new Utilisateur
+                    {
+                        Nom = "Andriamahazo", Prenom = "Tiana", Email = "prof3@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                        Role = "Professeur", Matricule = "PROF003",
+                        Roles = new List<Role> { profRole },
+                        DateNaissance = new DateTime(1985, 7, 10, 0, 0, 0, DateTimeKind.Utc),
+                        Adresse = "Antsinanana"
+                    };
+                    var prof4 = new Utilisateur
+                    {
+                        Nom = "Rajaonarison", Prenom = "Lala", Email = "prof4@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                        Role = "Professeur", Matricule = "PROF004",
+                        Roles = new List<Role> { profRole },
+                        DateNaissance = new DateTime(1978, 7, 22, 0, 0, 0, DateTimeKind.Utc),
+                        Adresse = "Antananarivo"
+                    };
+                    var prof5 = new Utilisateur
+                    {
+                        Nom = "Ratsimbazafy", Prenom = "Hery", Email = "prof5@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                        Role = "Professeur", Matricule = "PROF005",
+                        Roles = new List<Role> { profRole },
+                        DateNaissance = new DateTime(1982, 11, 8, 0, 0, 0, DateTimeKind.Utc),
+                        Adresse = "Mahajanga"
+                    };
+                    var etudiant = new Utilisateur
+                    {
+                        Nom = "Randria", Prenom = "Faly", Email = "etudiant@emit.mg",
+                        MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"),
+                        Role = "Etudiant", Matricule = "ETU001",
+                        NiveauId = context.Niveaux.FirstOrDefault()?.Id,
+                        Roles = new List<Role> { etudiantRole }
+                    };
+                    context.Utilisateurs.AddRange(admin, prof1, prof2, prof3, prof4, prof5, etudiant);
+                    context.SaveChanges();
+                    Console.WriteLine("[SEED] Utilisateurs de base créés !");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SEED] Exception lors du seeding : {ex.Message}");
+                // Continue même si le seeding échoue pour ne pas bloquer le démarrage
+            }
         }
-        context.Creneaux.AddRange(creneaux);
-        context.SaveChanges();
-        Console.WriteLine("[SEED] Créneaux créés !");
     }
-
-    if (!context.Salles.Any())
-    {
-        var salles = new List<Salle>
-        {
-            new Salle { CodeSalle = "A101", Libelle = "Amphi 1", Nom = "Amphi 1", Capacite = 150, Type = "Amphi", EstActive = true, EstDisponible = true },
-            new Salle { CodeSalle = "A102", Libelle = "Amphi 2", Nom = "Amphi 2", Capacite = 100, Type = "Amphi", EstActive = true, EstDisponible = true },
-            new Salle { CodeSalle = "TP01", Libelle = "Labo Info 1", Nom = "Labo Info 1", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
-            new Salle { CodeSalle = "TP02", Libelle = "Labo Info 2", Nom = "Labo Info 2", Capacite = 30, Type = "TP", EstActive = true, EstDisponible = true },
-            new Salle { CodeSalle = "TD01", Libelle = "Salle TD 1", Nom = "Salle TD 1", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
-            new Salle { CodeSalle = "TD02", Libelle = "Salle TD 2", Nom = "Salle TD 2", Capacite = 40, Type = "TD", EstActive = true, EstDisponible = true },
-        };
-        context.Salles.AddRange(salles);
-        context.SaveChanges();
-        Console.WriteLine("[SEED] Salles créées !");
-    }
-
-    if (!context.Matieres.Any())
-    {
-        var matieres = new List<Matiere>
-        {
-            new Matiere { Code = "INF401", Nom = "Génie Logiciel", Type = "Cours" },
-            new Matiere { Code = "INF402", Nom = "Base de Données", Type = "Cours" },
-            new Matiere { Code = "INF403", Nom = "Réseaux", Type = "Cours" },
-            new Matiere { Code = "INF404", Nom = "Programmation Web", Type = "Cours" },
-            new Matiere { Code = "MGT401", Nom = "Management", Type = "Cours" },
-        };
-        context.Matieres.AddRange(matieres);
-        context.SaveChanges();
-        Console.WriteLine("[SEED] Matières créées !");
-    }
-
-    if (!context.Utilisateurs.Any())
-    {
-        var adminRole = new Role { Nom = "Admin" };
-        var profRole = new Role { Nom = "Professeur" };
-        var etudiantRole = new Role { Nom = "Etudiant" };
-        context.Roles.AddRange(adminRole, profRole, etudiantRole);
-        context.SaveChanges();
-
-        var admin = new Utilisateur
-        {
-            Nom = "Admin", Prenom = "System", Email = "admin@emit.mg",
-            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234"),
-            Role = "Admin", Matricule = "ADM001",
-            Roles = new List<Role> { adminRole }
-        };
-        var prof1 = new Utilisateur
-        {
-            Nom = "Rakoto", Prenom = "Jean", Email = "prof1@emit.mg",
-            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
-            Role = "Professeur", Matricule = "PROF001",
-            Roles = new List<Role> { profRole }
-        };
-        var prof2 = new Utilisateur
-        {
-            Nom = "Rabe", Prenom = "Marie", Email = "prof2@emit.mg",
-            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
-            Role = "Professeur", Matricule = "PROF002",
-            Roles = new List<Role> { profRole }
-        };
-        var etudiant = new Utilisateur
-        {
-            Nom = "Randria", Prenom = "Faly", Email = "etudiant@emit.mg",
-            MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"),
-            Role = "Etudiant", Matricule = "ETU001",
-            NiveauId = context.Niveaux.FirstOrDefault()?.Id,
-            Roles = new List<Role> { etudiantRole }
-        };
-        context.Utilisateurs.AddRange(admin, prof1, prof2, etudiant);
-        context.SaveChanges();
-        Console.WriteLine("[SEED] Utilisateurs créés (admin@emit.mg / Admin@1234, prof1@emit.mg / prof123, etudiant@emit.mg / etud123) !");
-    }
-
-    // ── Données supplémentaires pour les tests ──
-    SeedData.SeedAll(context);
 }
-
-app.Run();
