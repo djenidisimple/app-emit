@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using AppEmit.API.Data;
 using AppEmit.API.DTOs.DemandeEchange;
+using AppEmit.API.DTOs.Notification;
 using AppEmit.API.Entities;
 using AppEmit.API.Exceptions;
 using AppEmit.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AppEmit.API.Services
 {
@@ -13,14 +15,17 @@ namespace AppEmit.API.Services
         private readonly AppDbContext _context;
         private readonly ILogger<DemandeEchangeService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationService _notificationService;
 
         public DemandeEchangeService(AppDbContext context,
             ILogger<DemandeEchangeService> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            INotificationService notificationService)
         {
             _context = context;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _notificationService = notificationService;
         }
 
         private int GetCurrentUserId()
@@ -36,15 +41,20 @@ namespace AppEmit.API.Services
             if (dto.DemandeurId != currentUserId)
                 throw new UnauthorizedException("Vous ne pouvez pas créer une demande au nom d'un autre utilisateur.");
 
+            var demandeur = await _context.Utilisateurs.FindAsync(currentUserId)
+                ?? throw new NotFoundException("Utilisateur introuvable.");
+
             var seanceDemandeur = await _context.SeancesCours
-                .FindAsync(dto.SeanceDemandeurId)
+                .Include(s => s.Matiere)
+                .FirstOrDefaultAsync(s => s.Id == dto.SeanceDemandeurId)
                 ?? throw new NotFoundException("Séance du demandeur introuvable.");
 
             if (seanceDemandeur.ProfesseurId != currentUserId)
                 throw new UnauthorizedException("Cette séance ne vous appartient pas.");
 
             var seanceCible = await _context.SeancesCours
-                .FindAsync(dto.SeanceCibleId)
+                .Include(s => s.Matiere)
+                .FirstOrDefaultAsync(s => s.Id == dto.SeanceCibleId)
                 ?? throw new NotFoundException("Séance cible introuvable.");
 
             // Vérifier qu'il n'y a pas déjà une demande en attente
@@ -74,7 +84,27 @@ namespace AppEmit.API.Services
             _logger.LogInformation(
                 "Demande d'échange créée. Id={Id}", demande.Id);
 
-            return MapToReadDtoSync(demande);
+            try
+            {
+                await _notificationService.CreateAsync(new NotificationCreateDto
+                {
+                    UtilisateurId = dto.CibleId,
+                    Message = $"Nouvelle demande d'échange de {demandeur.Prenom} {demandeur.Nom} pour la séance de {seanceDemandeur.Matiere?.Nom ?? $"#{dto.SeanceDemandeurId}"}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Échec de la notification pour la demande d'échange {Id}", demande.Id);
+            }
+
+            var created = await _context.DemandesEchange
+                .Include(d => d.Demandeur)
+                .Include(d => d.Cible)
+                .Include(d => d.SeanceDemandeur).ThenInclude(s => s.Matiere)
+                .Include(d => d.SeanceCible).ThenInclude(s => s.Matiere)
+                .FirstOrDefaultAsync(d => d.Id == demande.Id);
+
+            return MapToReadDtoSync(created!);
         }
 
         public async Task<List<DemandeEchangeReadDto>> ObtenirDemandes(
@@ -83,6 +113,8 @@ namespace AppEmit.API.Services
             var demandes = await _context.DemandesEchange
                 .Include(d => d.Demandeur)
                 .Include(d => d.Cible)
+                .Include(d => d.SeanceDemandeur).ThenInclude(s => s.Matiere)
+                .Include(d => d.SeanceCible).ThenInclude(s => s.Matiere)
                 .Where(d => d.DemandeurId == professeurId
                          || d.CibleId == professeurId)
                 .OrderByDescending(d => d.DateDemande)
@@ -96,6 +128,8 @@ namespace AppEmit.API.Services
             var demande = await _context.DemandesEchange
                 .Include(d => d.Demandeur)
                 .Include(d => d.Cible)
+                .Include(d => d.SeanceDemandeur).ThenInclude(s => s.Matiere)
+                .Include(d => d.SeanceCible).ThenInclude(s => s.Matiere)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (demande == null) return null;
@@ -108,6 +142,8 @@ namespace AppEmit.API.Services
             var demande = await _context.DemandesEchange
                 .Include(d => d.Demandeur)
                 .Include(d => d.Cible)
+                .Include(d => d.SeanceDemandeur).ThenInclude(s => s.Matiere)
+                .Include(d => d.SeanceCible).ThenInclude(s => s.Matiere)
                 .FirstOrDefaultAsync(d => d.Id == id)
                 ?? throw new NotFoundException("Demande introuvable.");
 
@@ -138,6 +174,19 @@ namespace AppEmit.API.Services
             await transaction.CommitAsync();
             _logger.LogInformation("Demande {Id} acceptée, échange effectué.", id);
 
+            try
+            {
+                await _notificationService.CreateAsync(new NotificationCreateDto
+                {
+                    UtilisateurId = demande.DemandeurId,
+                    Message = $"Votre demande d'échange pour {demande.SeanceDemandeur?.Matiere?.Nom ?? $"séance #{demande.SeanceDemandeurId}"} a été acceptée par {demande.Cible?.Prenom} {demande.Cible?.Nom}."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Échec de la notification d'acceptation pour la demande {Id}", id);
+            }
+
             return MapToReadDtoSync(demande);
         }
 
@@ -146,6 +195,8 @@ namespace AppEmit.API.Services
             var demande = await _context.DemandesEchange
                 .Include(d => d.Demandeur)
                 .Include(d => d.Cible)
+                .Include(d => d.SeanceDemandeur).ThenInclude(s => s.Matiere)
+                .Include(d => d.SeanceCible).ThenInclude(s => s.Matiere)
                 .FirstOrDefaultAsync(d => d.Id == id)
                 ?? throw new NotFoundException("Demande introuvable.");
 
@@ -161,6 +212,19 @@ namespace AppEmit.API.Services
 
             await _context.SaveChangesAsync();
             _logger.LogInformation("Demande {Id} refusée.", id);
+
+            try
+            {
+                await _notificationService.CreateAsync(new NotificationCreateDto
+                {
+                    UtilisateurId = demande.DemandeurId,
+                    Message = $"Votre demande d'échange pour {demande.SeanceDemandeur?.Matiere?.Nom ?? $"séance #{demande.SeanceDemandeurId}"} a été refusée par {demande.Cible?.Prenom} {demande.Cible?.Nom}."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Échec de la notification de refus pour la demande {Id}", id);
+            }
 
             return MapToReadDtoSync(demande);
         }
@@ -182,7 +246,9 @@ namespace AppEmit.API.Services
             NomCible = cible != null
                 ? $"{cible.Prenom} {cible.Nom}" : "",
             SeanceDemandeurId = d.SeanceDemandeurId,
+            SeanceDemandeurMatiere = d.SeanceDemandeur?.Matiere?.Nom ?? $"Séance #{d.SeanceDemandeurId}",
             SeanceCibleId = d.SeanceCibleId,
+            SeanceCibleMatiere = d.SeanceCible?.Matiere?.Nom ?? $"Séance #{d.SeanceCibleId}",
             Statut = d.Statut,
             Motif = d.Motif,
             DateDemande = d.DateDemande,
