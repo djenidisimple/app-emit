@@ -24,6 +24,8 @@ public class PlanningMappingProfile : Profile
 
         CreateMap<SeanceCours, SeanceCoursReadDto>()
             .ForMember(dest => dest.ProfesseurId, opt => opt.MapFrom(src => src.ProfesseurId))
+            .ForMember(dest => dest.ParcoursId, opt => opt.MapFrom(src => src.ParcoursId))
+            .ForMember(dest => dest.NiveauId, opt => opt.MapFrom(src => src.NiveauId))
             .ForMember(dest => dest.EstTerminee, opt => opt.MapFrom(src => src.EstTerminee));
     }
 }
