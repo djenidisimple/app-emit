@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { css } from 'styled-system/css';
 import {
   X, ChevronLeft, ChevronRight, MapPin, Users,
   Check, AlertTriangle, DoorOpen,
@@ -36,7 +37,7 @@ const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8);
 
 const ROOMS = [
-  { id: 1, name: 'Amphi A', capacity: 120, floor: 'RDC', type: 'Amphithéâtre', amenities: ['Vidéoprojecteur', 'Climatisation', 'Sono'], color: '#0052FF' },
+  { id: 1, name: 'Amphi A', capacity: 120, floor: 'RDC', type: 'Amphithéâtre', amenities: ['Vidéoprojecteur', 'Climatisation', 'Sono'], color: '#3B82F6' },
   { id: 2, name: 'Salle 101', capacity: 30, floor: '1er', type: 'Salle de cours', amenities: ['Tableau blanc', 'Vidéoprojecteur'], color: '#3B82F6' },
   { id: 3, name: 'Labo Info', capacity: 20, floor: '2ème', type: 'Laboratoire', amenities: ['20 postes', 'Vidéoprojecteur', 'WiFi'], color: '#2563EB' },
   { id: 4, name: 'Salle 202', capacity: 50, floor: '2ème', type: 'Salle de cours', amenities: ['Vidéoprojecteur', 'Tableau', 'Clim'], color: '#60A5FA' },
@@ -102,15 +103,16 @@ function Sidebar({
 
   function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
     return (
-      <label onClick={onChange} className="flex items-center gap-2.5 px-1 py-1.5 cursor-pointer group">
-        <div
-          className={`w-4 h-4 rounded flex items-center justify-center transition-all duration-150 ring-1 ring-inset ${
-            checked ? 'bg-[#0052FF] ring-[#0052FF]' : 'bg-white ring-blue-300 group-hover:ring-blue-400'
-          }`}
-        >
-          {checked && <Check size={10} className="text-white" strokeWidth={4} />}
+      <label onClick={onChange} className={css({ display: 'flex', alignItems: 'center', gap: '2.5', px: '1', py: '1.5', cursor: 'pointer' })}>
+        <div className={css({
+          w: '4', h: '4', rounded: 'sm', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.15s', ring: '1px inset',
+          bg: checked ? 'accent.default' : 'white',
+          ringColor: checked ? 'accent.default' : 'border.default',
+        })}>
+          {checked && <Check size={10} className={css({ color: 'white' })} strokeWidth={4} />}
         </div>
-        <span className="text-sm text-blue-700 group-hover:text-[#0052FF] transition-colors">{label}</span>
+        <span className={css({ fontSize: 'sm', color: 'fg.muted' })}>{label}</span>
       </label>
     );
   }
@@ -120,31 +122,32 @@ function Sidebar({
   const capacities = ['1-20', '20-50', '50-100', '100+'];
 
   return (
-    <aside className="w-64 bg-white border-r border-blue-100 flex flex-col shrink-0 h-screen sticky top-0">
-      <div className="px-5 pt-5 pb-4 border-b border-blue-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#0052FF] rounded-xl flex items-center justify-center shadow-sm">
-            <span className="text-white text-sm font-bold">GS</span>
+    <aside className={css({ w: '64', bg: 'white', borderRight: '1px solid', borderColor: 'border.default', display: 'flex', flexDirection: 'column', flexShrink: '0', h: '100vh', position: 'sticky', top: '0' })}>
+      <div className={css({ px: '5', pt: '5', pb: '4', borderBottom: '1px solid', borderColor: 'border.default' })}>
+        <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
+          <div className={css({ w: '10', h: '10', bg: 'accent.default', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'sm' })}>
+            <span className={css({ color: 'white', fontSize: 'sm', fontWeight: 'bold' })}>GS</span>
           </div>
           <div>
-            <span className="text-base font-bold text-blue-900 leading-none block">G-Salles</span>
-            <span className="text-[10px] text-blue-400 font-medium uppercase tracking-wider">EMIT</span>
+            <span className={css({ fontSize: 'base', fontWeight: 'bold', color: 'fg.default', lineHeight: 'none', display: 'block' })}>G-Salles</span>
+            <span className={css({ fontSize: '10px', color: 'fg.subtle', fontWeight: 'medium', textTransform: 'uppercase', letterSpacing: 'wider' })}>EMIT</span>
           </div>
         </div>
       </div>
 
-      <nav className="px-3 pt-4 pb-2 border-b border-blue-50">
-        <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider px-2 mb-2">Navigation</p>
-        <div className="space-y-0.5">
+      <nav className={css({ px: '3', pt: '4', pb: '2', borderBottom: '1px solid', borderColor: 'border.default' })}>
+        <p className={css({ fontSize: '10px', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider', px: '2', mb: '2' })}>Navigation</p>
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
           {navItems.map(({ label, icon: Icon }) => (
             <button
               key={label}
               onClick={() => setActiveNav(label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-150 ${
-                activeNav === label
-                  ? 'bg-[#0052FF] text-white shadow-sm'
-                  : 'text-blue-600 hover:bg-blue-50 hover:text-[#0052FF]'
-              }`}
+              className={css({
+                w: 'full', display: 'flex', alignItems: 'center', gap: '3', px: '3', py: '2.5',
+                fontSize: 'sm', fontWeight: 'medium', rounded: 'lg', transition: 'all 0.15s',
+                bg: activeNav === label ? 'accent.default' : 'transparent',
+                color: activeNav === label ? 'white' : 'fg.muted',
+              })}
             >
               <Icon size={16} />
               {label}
@@ -153,13 +156,13 @@ function Sidebar({
         </div>
       </nav>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className={css({ flex: '1', overflowY: 'auto', p: '4', display: 'flex', flexDirection: 'column', gap: '4' })}>
         <div>
-          <h4 className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 className={css({ fontSize: '10px', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider', mb: '2', display: 'flex', alignItems: 'center', gap: '1.5' })}>
             <SlidersHorizontal size={12} />
             Type de salle
           </h4>
-          <div className="space-y-0.5">
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
             {types.map(t => (
               <Toggle key={t} label={t} checked={selectedTypes.includes(t)} onChange={() => onToggleType(t)} />
             ))}
@@ -167,8 +170,8 @@ function Sidebar({
         </div>
 
         <div>
-          <h4 className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Étage</h4>
-          <div className="space-y-0.5">
+          <h4 className={css({ fontSize: '10px', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider', mb: '2' })}>Étage</h4>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
             {floors.map(f => (
               <Toggle key={f} label={f} checked={selectedFloors.includes(f)} onChange={() => onToggleFloor(f)} />
             ))}
@@ -176,8 +179,8 @@ function Sidebar({
         </div>
 
         <div>
-          <h4 className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-2">Capacité</h4>
-          <div className="space-y-0.5">
+          <h4 className={css({ fontSize: '10px', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider', mb: '2' })}>Capacité</h4>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
             {capacities.map(c => (
               <Toggle key={c} label={c} checked={selectedCapacities.includes(c)} onChange={() => onToggleCapacity(c)} />
             ))}
@@ -186,27 +189,27 @@ function Sidebar({
 
         <button
           onClick={onReset}
-          className="w-full py-2 text-xs font-medium text-blue-500 hover:text-[#0052FF] transition-colors"
+          className={css({ w: 'full', py: '2', fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}
         >
           Réinitialiser les filtres
         </button>
       </div>
 
-      <div className="px-4 py-3 border-t border-blue-50">
-        <button className="w-full py-2.5 bg-[#0052FF] text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+      <div className={css({ px: '4', py: '3', borderTop: '1px solid', borderColor: 'border.default' })}>
+        <button className={css({ w: 'full', py: '2.5', bg: 'accent.default', color: 'white', fontSize: 'sm', fontWeight: 'semibold', rounded: 'lg', boxShadow: 'sm' })}>
           Appliquer
         </button>
       </div>
 
-      <div className="px-4 py-3 border-t border-blue-50 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-[#0052FF] flex items-center justify-center shrink-0">
-          <span className="text-white text-xs font-bold">DR</span>
+      <div className={css({ px: '4', py: '3', borderTop: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', gap: '3' })}>
+        <div className={css({ w: '9', h: '9', rounded: 'lg', bg: 'accent.default', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' })}>
+          <span className={css({ color: 'white', fontSize: 'xs', fontWeight: 'bold' })}>DR</span>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-blue-900 leading-tight truncate">Dr. Rakoto</p>
-          <p className="text-[11px] text-blue-400">Professeur</p>
+        <div className={css({ flex: '1', minWidth: '0' })}>
+          <p className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', lineHeight: 'tight', truncate: true })}>Dr. Rakoto</p>
+          <p className={css({ fontSize: '11px', color: 'fg.subtle' })}>Professeur</p>
         </div>
-        <button className="w-8 h-8 rounded-xl flex items-center justify-center text-blue-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+        <button className={css({ w: '8', h: '8', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'fg.subtle' })}>
           <LogOut size={15} />
         </button>
       </div>
@@ -225,54 +228,51 @@ function CalendarGrid({ onSlotClick }: { onSlotClick: (day: string, hour: number
       : `Semaine +${Math.abs(currentWeekOffset)}`;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-white">
-      <div className="px-5 py-3 border-b border-blue-100 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <CalendarDays size={18} className="text-[#0052FF]" />
-          <h2 className="text-sm font-semibold text-blue-900">Planning hebdomadaire</h2>
-          <span className="text-xs text-blue-500 bg-blue-50 px-2.5 py-1 rounded-md font-medium">{weekLabel}</span>
+    <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', minWidth: '0', bg: 'white' })}>
+      <div className={css({ px: '5', py: '3', borderBottom: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
+        <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
+          <CalendarDays size={18} className={css({ color: 'accent.default' })} />
+          <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default' })}>Planning hebdomadaire</h2>
+          <span className={css({ fontSize: 'xs', color: 'fg.muted', bg: 'bg.muted', px: '2.5', py: '1', rounded: 'md', fontWeight: 'medium' })}>{weekLabel}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
           <button
             onClick={() => setCurrentWeekOffset(p => p - 1)}
-            className="w-8 h-8 rounded-xl border border-blue-200 flex items-center justify-center text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            className={css({ w: '8', h: '8', rounded: 'lg', border: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'fg.subtle' })}
           >
             <ChevronLeft size={15} />
           </button>
           <button
             onClick={() => setCurrentWeekOffset(0)}
-            className="px-3 py-1.5 text-xs font-semibold text-[#0052FF] bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+            className={css({ px: '3', py: '1.5', fontSize: 'xs', fontWeight: 'semibold', color: 'accent.default', bg: 'bg.muted', rounded: 'lg' })}
           >
             Aujourd&apos;hui
           </button>
           <button
             onClick={() => setCurrentWeekOffset(p => p + 1)}
-            className="w-8 h-8 rounded-xl border border-blue-200 flex items-center justify-center text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            className={css({ w: '8', h: '8', rounded: 'lg', border: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'fg.subtle' })}
           >
             <ChevronRight size={15} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <div className="min-w-[900px]">
-          <div className="grid" style={{ gridTemplateColumns: '70px repeat(6, 1fr)' }}>
-            <div className="h-10 bg-blue-50/50 border-b border-blue-100 flex items-center justify-center">
-              <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider">Horaire</span>
+      <div className={css({ flex: '1', overflow: 'auto' })}>
+        <div className={css({ minWidth: '900px' })}>
+          <div className={css({ display: 'grid' })} style={{ gridTemplateColumns: '70px repeat(6, 1fr)' }}>
+            <div className={css({ h: '10', bg: 'bg.muted', borderBottom: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
+              <span className={css({ fontSize: '10px', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider' })}>Horaire</span>
             </div>
             {DAYS.map((day, i) => (
-              <div
-                key={day}
-                className={`h-10 border-b border-l border-blue-100 flex items-center justify-center ${i === 3 ? 'bg-blue-50' : 'bg-blue-50/50'}`}
-              >
-                <span className={`text-xs font-semibold ${i === 3 ? 'text-[#0052FF]' : 'text-blue-700'}`}>{day}</span>
+              <div key={day} className={css({ h: '10', borderBottom: '1px solid', borderLeft: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'center', bg: i === 3 ? 'bg.muted' : 'bg.muted' })}>
+                <span className={css({ fontSize: 'xs', fontWeight: 'semibold', color: i === 3 ? 'accent.default' : 'fg.default' })}>{day}</span>
               </div>
             ))}
 
             {HOURS.map((hour) => (
               <React.Fragment key={hour}>
-                <div className="h-14 border-b border-r border-blue-100 flex items-start justify-center pt-2">
-                  <span className="text-[11px] text-blue-400 font-medium">{hour.toString().padStart(2, '0')}:00</span>
+                <div className={css({ h: '14', borderBottom: '1px solid', borderRight: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', pt: '2' })}>
+                  <span className={css({ fontSize: '11px', color: 'fg.subtle', fontWeight: 'medium' })}>{hour.toString().padStart(2, '0')}:00</span>
                 </div>
                 {DAYS.map((day) => {
                   const cellBookings = getBookingsForCell(day, hour);
@@ -282,16 +282,18 @@ function CalendarGrid({ onSlotClick }: { onSlotClick: (day: string, hour: number
                   const isLunch = hour >= 12 && hour < 13;
 
                   return (
-                    <div
-                      key={`${day}-${hour}`}
+                    <div key={`${day}-${hour}`}
                       onClick={() => !isBooked && !hasConflict && onSlotClick(day, hour)}
-                      className={`h-14 border-b border-l border-blue-100 relative transition-colors duration-150 ${
-                        isAvailable && !isLunch ? 'cursor-pointer hover:bg-blue-50 hover:border-[#0052FF]/30' : ''
-                      } ${isLunch && !isBooked && !hasConflict ? 'bg-blue-50/30' : ''}`}
+                      className={css({
+                        h: '14', borderBottom: '1px solid', borderLeft: '1px solid', borderColor: 'border.default',
+                        position: 'relative', transition: 'colors 0.15s',
+                        cursor: isAvailable && !isLunch ? 'pointer' : undefined,
+                        bg: isLunch && !isBooked && !hasConflict ? 'bg.muted' : undefined,
+                      })}
                     >
                       {isLunch && !isBooked && !hasConflict && (
-                        <div className="flex items-center justify-center h-full">
-                          <span className="text-[10px] text-blue-300 font-medium">Pause</span>
+                        <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', h: 'full' })}>
+                          <span className={css({ fontSize: '10px', color: 'fg.subtle', fontWeight: 'medium' })}>Pause</span>
                         </div>
                       )}
 
@@ -303,9 +305,15 @@ function CalendarGrid({ onSlotClick }: { onSlotClick: (day: string, hour: number
                         const isConflict = booking.status === 'conflict';
 
                         return (
-                          <div
-                            key={booking.id}
-                            className={`absolute top-0.5 left-0.5 right-0.5 rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isConflict ? 'ring-2 ring-red-400 ring-offset-2' : ''}`}
+                          <div key={booking.id}
+                            className={css({
+                              position: 'absolute', top: '0.5', left: '0.5', right: '0.5', rounded: 'lg',
+                              overflow: 'hidden', cursor: 'pointer', transition: 'all 0.15s',
+                              ring: isConflict ? '2px' : undefined,
+                              ringColor: isConflict ? '#ef4444' : undefined,
+                              ringOffset: isConflict ? '2px' : undefined,
+                              zIndex: '10',
+                            })}
                             style={{
                               height: `${duration * 56 - 4}px`,
                               background: isConflict ? 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%)' : room.color,
@@ -313,17 +321,17 @@ function CalendarGrid({ onSlotClick }: { onSlotClick: (day: string, hour: number
                             }}
                           >
                             {isConflict ? (
-                              <div className="flex items-center gap-1.5 px-2 py-1 h-full">
-                                <AlertTriangle size={11} className="text-red-500 shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-[10px] font-semibold text-red-700 leading-tight">Conflit de réservation</p>
-                                  <p className="text-[9px] text-red-500 leading-tight">2 cours simultanés</p>
+                              <div className={css({ display: 'flex', alignItems: 'center', gap: '1.5', px: '2', py: '1', h: 'full' })}>
+                                <AlertTriangle size={11} className={css({ color: '#ef4444', flexShrink: '0' })} />
+                                <div className={css({ minWidth: '0' })}>
+                                  <p className={css({ fontSize: '10px', fontWeight: 'semibold', color: '#b91c1c', lineHeight: 'tight' })}>Conflit de réservation</p>
+                                  <p className={css({ fontSize: '9px', color: '#ef4444', lineHeight: 'tight' })}>2 cours simultanés</p>
                                 </div>
                               </div>
                             ) : (
-                              <div className="px-2 py-1 h-full flex flex-col justify-center">
-                                <p className="text-[11px] font-semibold text-white leading-tight truncate">{booking.title}</p>
-                                <p className="text-[9px] text-white/80 leading-tight truncate">{room.name} · {booking.instructor}</p>
+                              <div className={css({ px: '2', py: '1', h: 'full', display: 'flex', flexDirection: 'column', justifyContent: 'center' })}>
+                                <p className={css({ fontSize: '11px', fontWeight: 'semibold', color: 'white', lineHeight: 'tight', truncate: true })}>{booking.title}</p>
+                                <p className={css({ fontSize: '9px', color: 'rgba(255,255,255,0.8)', lineHeight: 'tight', truncate: true })}>{room.name} · {booking.instructor}</p>
                               </div>
                             )}
                           </div>
@@ -345,52 +353,57 @@ function CalendarGrid({ onSlotClick }: { onSlotClick: (day: string, hour: number
 function RoomCard({ room }: { room: RoomCardData }) {
   const amenityIcons: Record<string, React.ReactNode> = {
     'Vidéoprojecteur': <Monitor size={11} />,
-    'Climatisation': <span className="text-[10px]">❄</span>,
-    'Sono': <span className="text-[10px]">🔊</span>,
+    'Climatisation': <span className={css({ fontSize: '10px' })}>❄</span>,
+    'Sono': <span className={css({ fontSize: '10px' })}>🔊</span>,
     'WiFi': <Wifi size={11} />,
-    'Tableau blanc': <span className="text-[10px]">📋</span>,
+    'Tableau blanc': <span className={css({ fontSize: '10px' })}>📋</span>,
     '20 postes': <Monitor size={11} />,
-    'Tableau': <span className="text-[10px]">📋</span>,
-    'Clim': <span className="text-[10px]">❄</span>,
+    'Tableau': <span className={css({ fontSize: '10px' })}>📋</span>,
+    'Clim': <span className={css({ fontSize: '10px' })}>❄</span>,
     'Écran': <Monitor size={11} />,
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden hover:shadow-lg hover:border-blue-200 transition-all duration-200 flex flex-col group">
-      <div className="p-5 flex-1">
-        <div className="flex items-center justify-between mb-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-            <Building2 size={18} className="text-[#0052FF]" />
+    <div className={css({ bg: 'white', rounded: 'lg', border: '1px solid', borderColor: 'border.default', overflow: 'hidden', display: 'flex', flexDirection: 'column' })}>
+      <div className={css({ p: '5', flex: '1' })}>
+        <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '3' })}>
+          <div className={css({ w: '10', h: '10', rounded: 'lg', bg: 'bg.muted', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
+            <Building2 size={18} className={css({ color: 'accent.default' })} />
           </div>
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${room.available ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+          <span className={css({
+            fontSize: 'xs', fontWeight: 'semibold', px: '2.5', py: '1', rounded: 'full',
+            bg: room.available ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+            color: room.available ? '#10b981' : '#ef4444',
+          })}>
             {room.available ? 'Disponible' : 'Occupée'}
           </span>
         </div>
-        <h3 className="text-base font-bold text-blue-900 mb-1">{room.name}</h3>
-        <p className="text-xs text-blue-500 mb-3">{room.type}</p>
-        <div className="space-y-1.5 mb-3">
-          <div className="flex items-center gap-2 text-sm text-blue-600">
-            <Users size={14} className="text-blue-400" /><span>{room.capacity} places</span>
+        <h3 className={css({ fontSize: 'base', fontWeight: 'bold', color: 'fg.default', mb: '1' })}>{room.name}</h3>
+        <p className={css({ fontSize: 'xs', color: 'fg.muted', mb: '3' })}>{room.type}</p>
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5', mb: '3' })}>
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' })}>
+            <Users size={14} className={css({ color: 'fg.subtle' })} /><span>{room.capacity} places</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-blue-600">
-            <MapPin size={14} className="text-blue-400" /><span>{room.floor}</span>
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' })}>
+            <MapPin size={14} className={css({ color: 'fg.subtle' })} /><span>{room.floor}</span>
           </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '1.5' })}>
           {room.amenities.map((a) => (
-            <span key={a} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-medium rounded-lg">
+            <span key={a} className={css({ display: 'inline-flex', alignItems: 'center', gap: '1', px: '2', py: '0.5', bg: 'bg.muted', color: 'fg.muted', fontSize: '10px', fontWeight: 'medium', rounded: 'lg' })}>
               {amenityIcons[a] || null}{a}
             </span>
           ))}
         </div>
       </div>
-      <div className="px-5 pb-5">
+      <div className={css({ px: '5', pb: '5' })}>
         <button
-          className={`w-full py-2.5 text-sm font-semibold rounded-xl transition-all duration-150 ${
-            room.available
-              ? 'bg-[#0052FF] text-white hover:bg-blue-700 hover:shadow-md active:scale-[0.98]'
-              : 'bg-blue-50 text-blue-400 cursor-not-allowed'
-          }`}
+          className={css({
+            w: 'full', py: '2.5', fontSize: 'sm', fontWeight: 'semibold', rounded: 'lg', transition: 'all 0.15s',
+            bg: room.available ? 'accent.default' : 'bg.muted',
+            color: room.available ? 'white' : 'fg.subtle',
+            cursor: room.available ? 'pointer' : 'not-allowed',
+          })}
         >
           {room.available ? 'Réserver cette salle' : 'Indisponible'}
         </button>
@@ -419,67 +432,67 @@ function BookingModal({
   const slotLabel = selectedSlot ? `${selectedSlot.day} ${selectedSlot.hour.toString().padStart(2, '0')}:00` : '';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div onClick={onClose} className="absolute inset-0 bg-blue-900/20 backdrop-blur-sm" />
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-blue-100 z-10 overflow-hidden">
-        <div className="px-6 py-5 border-b border-blue-50 flex items-center justify-between">
+    <div className={css({ position: 'fixed', inset: 0, zIndex: '50', display: 'flex', alignItems: 'center', justifyContent: 'center', p: '4' })}>
+      <div onClick={onClose} className={css({ position: 'absolute', inset: 0, bg: 'rgba(0,0,0,0.2)' })} />
+      <div className={css({ position: 'relative', w: 'full', maxWidth: 'lg', bg: 'white', rounded: 'lg', boxShadow: '2xl', border: '1px solid', borderColor: 'border.default', zIndex: '10', overflow: 'hidden' })}>
+        <div className={css({ px: '6', py: '5', borderBottom: '1px solid', borderColor: 'border.default', display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
           <div>
-            <h2 className="text-base font-bold text-blue-900">{step === 'success' ? 'Réservation confirmée' : 'Nouvelle réservation'}</h2>
-            {step === 'form' && selectedSlot && <p className="text-xs text-blue-500 mt-0.5"><Clock size={12} className="inline mr-1" />{slotLabel}</p>}
+            <h2 className={css({ fontSize: 'base', fontWeight: 'bold', color: 'fg.default' })}>{step === 'success' ? 'Réservation confirmée' : 'Nouvelle réservation'}</h2>
+            {step === 'form' && selectedSlot && <p className={css({ fontSize: 'xs', color: 'fg.muted', mt: '0.5' })}><Clock size={12} className={css({ display: 'inline', mr: '1' })} />{slotLabel}</p>}
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><X size={18} /></button>
+          <button onClick={onClose} className={css({ w: '8', h: '8', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'fg.subtle' })}><X size={18} /></button>
         </div>
 
         {step === 'success' ? (
-          <div className="p-10 text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto"><Check size={28} className="text-emerald-600" strokeWidth={3} /></div>
-            <div><p className="text-lg font-bold text-blue-900">Réservation envoyée !</p><p className="text-sm text-blue-500 mt-1">En attente de validation par l&apos;administration.</p></div>
+          <div className={css({ p: '10', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4' })}>
+            <div className={css({ w: '16', h: '16', rounded: 'lg', bg: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto' })}><Check size={28} className={css({ color: '#10b981' })} strokeWidth={3} /></div>
+            <div><p className={css({ fontSize: 'lg', fontWeight: 'bold', color: 'fg.default' })}>Réservation envoyée !</p><p className={css({ fontSize: 'sm', color: 'fg.muted', mt: '1' })}>En attente de validation par l&apos;administration.</p></div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-              <div className="w-9 h-9 rounded-xl bg-[#0052FF] flex items-center justify-center"><DoorOpen size={15} className="text-white" /></div>
-              <div><p className="text-sm font-semibold text-blue-900">Créneau sélectionné</p><p className="text-xs text-blue-500">{slotLabel}</p></div>
+          <form onSubmit={handleSubmit} className={css({ p: '6', display: 'flex', flexDirection: 'column', gap: '4' })}>
+            <div className={css({ display: 'flex', alignItems: 'center', gap: '3', p: '3', bg: 'bg.muted', rounded: 'lg' })}>
+              <div className={css({ w: '9', h: '9', rounded: 'lg', bg: 'accent.default', display: 'flex', alignItems: 'center', justifyContent: 'center' })}><DoorOpen size={15} className={css({ color: 'white' })} /></div>
+              <div><p className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default' })}>Créneau sélectionné</p><p className={css({ fontSize: 'xs', color: 'fg.muted' })}>{slotLabel}</p></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-blue-600">Date</label>
-                <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20" required />
+            <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3' })}>
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+                <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Date</label>
+                <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none' })} required />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-blue-600">Type</label>
-                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20 bg-white">
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+                <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Type</label>
+                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none', bg: 'white' })}>
                   {['Cours', 'TD', 'TP', 'Examen', 'Réunion', 'Autre'].map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-blue-600">Début</label>
-                <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20" required />
+            <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3' })}>
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+                <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Début</label>
+                <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none' })} required />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-blue-600">Fin</label>
-                <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20" required />
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+                <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Fin</label>
+                <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none' })} required />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-blue-600">Salle</label>
-              <select value={form.roomId} onChange={e => setForm({ ...form, roomId: Number(e.target.value) })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20 bg-white">
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+              <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Salle</label>
+              <select value={form.roomId} onChange={e => setForm({ ...form, roomId: Number(e.target.value) })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none', bg: 'white' })}>
                 {ROOMS.map(r => <option key={r.id} value={r.id}>{r.name} — {r.capacity} places</option>)}
               </select>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-blue-600">Titre</label>
-              <input type="text" placeholder="Ex: Séance de TD Maths" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20 placeholder:text-blue-300" required />
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+              <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Titre</label>
+              <input type="text" placeholder="Ex: Séance de TD Maths" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none' })} required />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-blue-600">Notes (optionnel)</label>
-              <textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20 resize-none placeholder:text-blue-300" />
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+              <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Notes (optionnel)</label>
+              <textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none', resize: 'none' })} />
             </div>
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors">Annuler</button>
-              <button type="submit" className="flex-1 py-2.5 text-sm font-semibold text-white bg-[#0052FF] rounded-xl hover:bg-blue-700 hover:shadow-md active:scale-[0.98] transition-all">Confirmer la réservation</button>
+            <div className={css({ display: 'flex', gap: '3', pt: '2' })}>
+              <button type="button" onClick={onClose} className={css({ flex: '1', py: '2.5', fontSize: 'sm', fontWeight: 'semibold', color: 'fg.muted', border: '1px solid', borderColor: 'border.default', rounded: 'lg' })}>Annuler</button>
+              <button type="submit" className={css({ flex: '1', py: '2.5', fontSize: 'sm', fontWeight: 'semibold', color: 'white', bg: 'accent.default', rounded: 'lg', boxShadow: 'sm' })}>Confirmer la réservation</button>
             </div>
           </form>
         )}
@@ -494,12 +507,12 @@ function ComponentLibrary() {
     {
       name: 'Boutons',
       items: [
-        { label: 'Primary', className: 'bg-[#0052FF] text-white hover:bg-blue-700 shadow-sm' },
-        { label: 'Secondary', className: 'bg-blue-50 text-blue-700 hover:bg-blue-100' },
-        { label: 'Outline', className: 'border border-blue-200 text-blue-700 hover:bg-blue-50' },
-        { label: 'Danger', className: 'bg-red-500 text-white hover:bg-red-600 shadow-sm' },
-        { label: 'Ghost', className: 'text-blue-600 hover:bg-blue-50' },
-        { label: 'Disabled', className: 'bg-blue-50 text-blue-300 cursor-not-allowed' },
+        { label: 'Primary', className: 'bg-accent text-white' },
+        { label: 'Secondary', className: 'bg-bg-secondary text-text' },
+        { label: 'Outline', className: 'border border-border text-text' },
+        { label: 'Danger', className: 'bg-red-500 text-white' },
+        { label: 'Ghost', className: 'text-text-secondary' },
+        { label: 'Disabled', className: 'bg-bg-secondary text-text-tertiary cursor-not-allowed' },
       ],
     },
     {
@@ -508,8 +521,8 @@ function ComponentLibrary() {
         { label: 'Disponible', className: 'bg-emerald-50 text-emerald-700' },
         { label: 'Occupée', className: 'bg-red-50 text-red-700' },
         { label: 'En attente', className: 'bg-amber-50 text-amber-700' },
-        { label: 'Confirmé', className: 'bg-blue-50 text-blue-700' },
-        { label: 'Annulé', className: 'bg-blue-50 text-blue-400' },
+        { label: 'Confirmé', className: 'bg-bg-secondary text-text' },
+        { label: 'Annulé', className: 'bg-bg-secondary text-text-tertiary' },
       ],
     },
     {
@@ -533,41 +546,46 @@ function ComponentLibrary() {
   ];
 
   return (
-    <section className="py-10 px-6 bg-blue-50/30">
-      <div className="max-w-5xl">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#0052FF] flex items-center justify-center shadow-sm">
-            <span className="text-white text-sm font-bold">⚙</span>
+    <section className={css({ py: '10', px: '6', bg: 'bg.muted' })}>
+      <div className={css({ maxWidth: '5xl' })}>
+        <div className={css({ display: 'flex', alignItems: 'center', gap: '3', mb: '8' })}>
+          <div className={css({ w: '10', h: '10', rounded: 'lg', bg: 'accent.default', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'sm' })}>
+            <span className={css({ color: 'white', fontSize: 'sm', fontWeight: 'bold' })}>⚙</span>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-blue-900">Bibliothèque de composants</h2>
-            <p className="text-xs text-blue-500">Design System — G-Salles EMIT</p>
+            <h2 className={css({ fontSize: 'lg', fontWeight: 'bold', color: 'fg.default' })}>Bibliothèque de composants</h2>
+            <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>Design System — G-Salles EMIT</p>
           </div>
         </div>
-        <div className="space-y-8">
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '8' })}>
           {sections.map((section) => (
             <div key={section.name}>
-              <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-3">{section.name}</h3>
-              <div className="flex flex-wrap gap-3">
+              <h3 className={css({ fontSize: 'xs', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wider', mb: '3' })}>{section.name}</h3>
+              <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '3' })}>
                 {section.items.map((item: {
                   label: string; className?: string; placeholder?: string; type?: string; isSelect?: boolean; options?: string[]; checked?: boolean;
                 }, i: number) => {
                   if (item.checked !== undefined) {
                     const checked = item.checked;
                     return (
-                      <label key={i} className="flex items-center gap-2.5 px-3 py-2 bg-white rounded-xl border border-blue-100 cursor-pointer hover:border-blue-200 transition-colors">
-                        <div className={`w-4 h-4 rounded flex items-center justify-center transition-all ring-1 ring-inset ${checked ? 'bg-[#0052FF] ring-[#0052FF]' : 'bg-white ring-blue-300'}`}>
-                          {checked && <Check size={10} className="text-white" strokeWidth={4} />}
+                      <label key={i} className={css({ display: 'flex', alignItems: 'center', gap: '2.5', px: '3', py: '2', bg: 'white', rounded: 'lg', border: '1px solid', borderColor: 'border.default', cursor: 'pointer' })}>
+                        <div className={css({
+                          w: '4', h: '4', rounded: 'sm', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.15s', ring: '1px inset',
+                          bg: checked ? 'accent.default' : 'white',
+                          ringColor: checked ? 'accent.default' : 'border.default',
+                        })}>
+                          {checked && <Check size={10} className={css({ color: 'white' })} strokeWidth={4} />}
                         </div>
-                        <span className="text-sm text-blue-700">{item.label}</span>
+                        <span className={css({ fontSize: 'sm', color: 'fg.default' })}>{item.label}</span>
                       </label>
                     );
                   }
                   if (item.isSelect) {
                     return (
-                      <div key={i} className="w-48 space-y-1">
-                        <p className="text-xs text-blue-500 font-medium">{item.label}</p>
-                        <select className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20 bg-white">
+                      <div key={i} className={css({ w: '48', display: 'flex', flexDirection: 'column', gap: '1' })}>
+                        <p className={css({ fontSize: 'xs', color: 'fg.muted', fontWeight: 'medium' })}>{item.label}</p>
+                        <select className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none', bg: 'white' })}>
                           {item.options?.map((o: string) => <option key={o}>{o}</option>)}
                         </select>
                       </div>
@@ -575,13 +593,46 @@ function ComponentLibrary() {
                   }
                   if (item.type || item.placeholder) {
                     return (
-                      <div key={i} className="w-48 space-y-1">
-                        <p className="text-xs text-blue-500 font-medium">{item.label}</p>
-                        <input type={item.type || 'text'} placeholder={item.placeholder} className="w-full px-3 py-2 text-sm border border-blue-200 rounded-xl focus:outline-none focus:border-[#0052FF] focus:ring-2 focus:ring-[#0052FF]/20" />
+                      <div key={i} className={css({ w: '48', display: 'flex', flexDirection: 'column', gap: '1' })}>
+                        <p className={css({ fontSize: 'xs', color: 'fg.muted', fontWeight: 'medium' })}>{item.label}</p>
+                        <input type={item.type || 'text'} placeholder={item.placeholder} className={css({ w: 'full', px: '3', py: '2', fontSize: 'sm', border: '1px solid', borderColor: 'border.default', rounded: 'lg', outline: 'none' })} />
                       </div>
                     );
                   }
-                  return <button key={i} className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors ${item.className || ''}`}>{item.label}</button>;
+                  const clsMap: Record<string, string> = {
+                    'bg-accent': 'accent.default',
+                    'text-white': 'white',
+                    'bg-bg-secondary': 'bg.muted',
+                    'text-text': 'fg.default',
+                    'border': '1px solid',
+                    'border-border': 'border.default',
+                    'bg-red-500': '#ef4444',
+                    'text-text-secondary': 'fg.muted',
+                    'text-text-tertiary': 'fg.subtle',
+                    'cursor-not-allowed': 'not-allowed',
+                    'bg-emerald-50': 'rgba(16,185,129,0.1)',
+                    'text-emerald-700': '#10b981',
+                    'bg-red-50': 'rgba(239,68,68,0.1)',
+                    'text-red-700': '#ef4444',
+                    'bg-amber-50': 'rgba(245,158,11,0.1)',
+                    'text-amber-700': '#f59e0b',
+                  };
+                  const classNames = (item.className || '').split(' ');
+                  const bgCls = classNames.find(c => c.startsWith('bg-'));
+                  const textCls = classNames.find(c => c.startsWith('text-'));
+                  const hasBorder = classNames.includes('border');
+                  const extraCls = classNames.find(c => c.startsWith('cursor-'));
+                  
+                  return (
+                    <button key={i} className={css({
+                      px: '4', py: '2', fontSize: 'sm', fontWeight: 'semibold', rounded: 'lg',
+                      bg: bgCls ? (clsMap[bgCls] || 'bg.muted') : undefined,
+                      color: textCls ? (clsMap[textCls] || 'fg.default') : undefined,
+                      border: hasBorder ? '1px solid' : undefined,
+                      borderColor: hasBorder ? 'border.default' : undefined,
+                      cursor: extraCls ? 'not-allowed' : undefined,
+                    })}>{item.label}</button>
+                  );
                 })}
               </div>
             </div>
@@ -610,7 +661,7 @@ export default function BlueDesignPage() {
     arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
 
   return (
-    <div className="min-h-screen bg-blue-50/50 flex">
+    <div className={css({ minH: '100vh', bg: 'bg.canvas', display: 'flex' })}>
       <BookingModal isOpen={modalOpen} onClose={() => setModalOpen(false)} selectedSlot={selectedSlot} />
 
       <Sidebar
@@ -625,20 +676,24 @@ export default function BlueDesignPage() {
         onReset={() => { setSelectedTypes([]); setSelectedFloors([]); setSelectedCapacities([]); }}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', minWidth: '0' })}>
         <CalendarGrid onSlotClick={handleSlotClick} />
 
-        <div className="border-t border-blue-100 py-8 px-6 bg-white">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Building2 size={18} className="text-[#0052FF]" />
+        <div className={css({ borderTop: '1px solid', borderColor: 'border.default', py: '8', px: '6', bg: 'white' })}>
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '3', mb: '6' })}>
+            <div className={css({ w: '10', h: '10', rounded: 'lg', bg: 'bg.muted', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
+              <Building2 size={18} className={css({ color: 'accent.default' })} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-blue-900">Nos salles</h2>
-              <p className="text-xs text-blue-500">{ROOM_CARDS.filter(r => r.available).length} salles disponibles</p>
+              <h2 className={css({ fontSize: 'lg', fontWeight: 'bold', color: 'fg.default' })}>Nos salles</h2>
+              <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>{ROOM_CARDS.filter(r => r.available).length} salles disponibles</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className={css({
+            display: 'grid',
+            gridTemplateColumns: { base: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr', xl: '1fr 1fr 1fr 1fr 1fr' },
+            gap: '4',
+          })}>
             {ROOM_CARDS.map(room => <RoomCard key={room.id} room={room} />)}
           </div>
         </div>

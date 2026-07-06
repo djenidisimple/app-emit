@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Filter } from 'lucide-react';
+import { Filter, ChevronDown } from 'lucide-react';
+import { css } from 'styled-system/css';
 
 interface FilterBarProps {
   itemCount: number;
@@ -21,7 +22,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
   showFilters,
   onToggleFilters,
   activeFiltersCount = 0,
-  sortLabel = 'Date',
   sortValue,
   onSortChange,
   sortOptions = [
@@ -29,43 +29,85 @@ const FilterBar: React.FC<FilterBarProps> = ({
     { value: 'oldest', label: 'Date - les plus anciennes' },
   ],
 }) => {
+  const isActive = showFilters || activeFiltersCount > 0;
+
+  const bar = css({
+    bg: 'bg.surface',
+    border: '1px solid',
+    borderColor: 'border.default',
+    rounded: 'xl',
+    shadow: 'sm',
+    px: '4',
+    py: '2.5',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  });
+
+  const filterBtn = css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2',
+    px: '3',
+    py: '1.5',
+    fontSize: 'xs',
+    fontWeight: 'medium',
+    rounded: 'lg',
+    transition: 'colors',
+    bg: isActive ? 'accent.default' : 'bg.muted',
+    color: isActive ? 'white' : 'fg.muted',
+    _hover: isActive ? {} : { bg: 'bg.elevated' },
+    ...(isActive ? { shadow: 'sm' } : {}),
+  });
+
+  const selectCls = css({
+    fontSize: 'xs',
+    fontWeight: 'medium',
+    color: 'fg.muted',
+    bg: 'bg.surface',
+    border: '1px solid',
+    borderColor: 'border.default',
+    rounded: 'lg',
+    py: '1.5',
+    pl: '2.5',
+    pr: '7',
+    outline: 'none',
+    appearance: 'none',
+    cursor: 'pointer',
+    _hover: { borderColor: 'fg.subtle' },
+    _focus: { borderColor: 'accent.default', boxShadow: '0 0 0 2px rgba(79,94,255,0.15)' },
+  });
+
   return (
-    <div className="bg-white border border-blue-100 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
-      {/* Filtrage à gauche */}
-      <button
-        onClick={onToggleFilters}
-        className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-          showFilters || activeFiltersCount > 0
-            ? 'bg-[#0052FF] text-white'
-            : 'bg-blue-50 text-blue-500 hover:bg-blue-100'
-        }`}
-      >
-        <Filter size={14} />
+    <div className={bar}>
+      <button onClick={onToggleFilters} className={filterBtn}>
+        <Filter size={13} />
         Filtres
         {activeFiltersCount > 0 && (
-          <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+          <span className={css({ w: '1.5', h: '1.5', bg: '#f59e0b', rounded: 'full' })} />
         )}
       </button>
 
-      {/* Compteur au centre */}
-      <div className="text-xs text-blue-500 font-medium">
+      <div className={css({ fontSize: 'xs', color: 'fg.muted', fontWeight: 'medium' })}>
         {itemCount} élément{itemCount !== 1 ? 's' : ''}
         {totalCount !== undefined && totalCount !== itemCount && ` / ${totalCount}`}
       </div>
 
-      {/* Tri à droite */}
       {onSortChange && (
-        <select
-          value={sortValue}
-          onChange={(e) => onSortChange(e.target.value)}
-          className="text-xs font-medium text-blue-500 bg-transparent border-none outline-none cursor-pointer hover:text-blue-700 pr-2"
-        >
-          {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className={css({ position: 'relative' })}>
+          <select
+            value={sortValue}
+            onChange={(e) => onSortChange(e.target.value)}
+            className={selectCls}
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={13} className={css({ position: 'absolute', right: '2', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', pointerEvents: 'none' })} />
+        </div>
       )}
     </div>
   );

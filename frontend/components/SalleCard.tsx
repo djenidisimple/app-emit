@@ -3,7 +3,8 @@
 import React from 'react';
 import { MapPin, Users, Monitor, ShieldCheck } from 'lucide-react';
 import { Salle } from '@/types';
-import Button from './ui/Button';
+import { Button } from '@/components/ui/button';
+import { css } from 'styled-system/css';
 
 interface SalleCardProps {
   salle: Salle;
@@ -14,42 +15,42 @@ const SalleCard: React.FC<SalleCardProps> = ({ salle, onReserve }) => {
   const estDisponible = salle.estDisponible;
 
   return (
-    <div className="bg-white border border-blue-100 rounded-2xl p-5 flex flex-col h-full group hover:shadow-lg transition-shadow">
-      <div className="flex-1">
-        <div className="flex justify-between items-start mb-3">
-          <div className={`p-2 rounded-xl ${estDisponible ? 'bg-blue-100 text-[#0052FF]' : 'bg-red-50 text-red-500'}`}>
-            <MapPin size={18} />
+    <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '5', display: 'flex', flexDirection: 'column', h: '100%', _hover: { borderColor: 'fg.subtle' }, transition: 'colors' })}>
+      <div style={{ flex: 1 }}>
+        <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: '3' })}>
+          <div className={css({ p: '2', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', bg: estDisponible ? 'rgba(79,94,255,0.1)' : 'rgba(239,68,68,0.1)', color: estDisponible ? 'accent.default' : '#ef4444' })}>
+            <MapPin size={16} />
           </div>
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${estDisponible ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+          <span className={css({ fontSize: 'xs', fontWeight: 'medium', px: '2', py: '0.5', rounded: 'md', bg: estDisponible ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: estDisponible ? '#10b981' : '#ef4444' })}>
             {estDisponible ? 'Disponible' : 'Occupée'}
           </span>
         </div>
 
-        <h3 className="text-lg font-bold text-blue-900 mb-2 group-hover:text-[#0052FF] transition-colors">
+        <h3 className={css({ fontSize: 'base', fontWeight: 'semibold', color: 'fg.default', mb: '2', _hover: { color: 'accent.default' }, transition: 'colors' })}>
           {salle.libelle}
         </h3>
 
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-sm text-blue-500">
-            <Users size={14} className="text-blue-400" />
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5', mb: '4' })}>
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' })}>
+            <Users size={14} className={css({ color: 'fg.subtle' })} />
             <span>{salle.capacite} places</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-blue-500">
-            <Monitor size={14} className="text-blue-400" />
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' })}>
+            <Monitor size={14} className={css({ color: 'fg.subtle' })} />
             <span>Type : {salle.type}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-blue-500">
-            <ShieldCheck size={14} className="text-blue-400" />
+          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'fg.muted' })}>
+            <ShieldCheck size={14} className={css({ color: 'fg.subtle' })} />
             <span>Code : {salle.codeSalle}</span>
           </div>
         </div>
       </div>
 
       <Button
-        variant={estDisponible ? 'primary' : 'secondary'}
+        variant={estDisponible ? 'solid' : 'outline'}
         disabled={!estDisponible}
         onClick={() => onReserve?.(salle.id)}
-        className="w-full"
+        className={css({ w: '100%' })}
       >
         {estDisponible ? 'Réserver la salle' : 'Bientôt disponible'}
       </Button>

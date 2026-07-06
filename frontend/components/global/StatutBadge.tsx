@@ -1,9 +1,11 @@
-const styles: Record<string, string> = {
-  En_Attente: 'bg-amber-100 text-amber-700',
-  Valide:     'bg-emerald-100 text-emerald-700',
-  Rejete:     'bg-red-100 text-red-700',
-  Annule:     'bg-zinc-100 text-zinc-600',
-  Termine:    'bg-violet-100 text-violet-700',
+import { css } from 'styled-system/css';
+
+const styles: Record<string, { bg: string; color: string }> = {
+  En_Attente: { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
+  Valide:     { bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
+  Rejete:     { bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+  Annule:     { bg: 'rgba(107,114,128,0.15)', color: '#6b7280' },
+  Termine:    { bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6' },
 };
 
 const labels: Record<string, string> = {
@@ -22,12 +24,21 @@ for (const k of Object.keys(labels)) {
 export default function StatutBadge({ statut }: { statut: string }) {
   const normalized = statut.toLowerCase().replace(/[éè_]/g, '');
   const key = normalizedKeys[normalized] || statut;
+  const style = styles[key] || { bg: 'rgba(107,114,128,0.15)', color: '#6b7280' };
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 text-[10px] font-medium rounded-md ${
-        styles[key] ?? 'bg-zinc-50 text-zinc-600'
-      }`}
+      className={css({
+        display: 'inline-flex',
+        alignItems: 'center',
+        px: '2',
+        py: '0.5',
+        fontSize: '11px',
+        fontWeight: 'medium',
+        rounded: 'md',
+        bg: style.bg,
+        color: style.color,
+      })}
     >
       {labels[key] ?? statut}
     </span>

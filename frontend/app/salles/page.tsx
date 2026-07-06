@@ -1,34 +1,39 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Building2, Users, AlertCircle, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { css } from 'styled-system/css';
+import { Search, Building2, Users, X } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
-import EmptyState from '@/components/global/EmptyState';
-import { CardSkeleton } from '@/components/global/LoadingSkeleton';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Salle } from '@/types';
 import { api } from '@/services/api';
 import useAuthStore from '@/store/authStore';
+
+const TYPE_STYLES: Record<string, { bg: string; color: string; border: string }> = {
+  'Amphithéâtre': { bg: '#8b5cf620', color: '#8b5cf6', border: '#8b5cf640' },
+  'Laboratoire': { bg: '#3b82f620', color: '#3b82f6', border: '#3b82f640' },
+  'Salle de cours': { bg: '#10b98120', color: '#10b981', border: '#10b98140' },
+  'Salle TP': { bg: '#f59e0b20', color: '#f59e0b', border: '#f59e0b40' },
+};
+
+function getTypeStyle(type: string) {
+  const key = Object.keys(TYPE_STYLES).find((k) => type.toLowerCase().includes(k.toLowerCase()));
+  return key ? TYPE_STYLES[key] : { bg: 'rgba(59,130,246,0.12)', color: 'var(--colors-accent-default)', border: 'rgba(59,130,246,0.25)' };
+}
 
 export default function SallesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [salles, setSalles] = useState<Salle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const { user } = useAuthStore();
   const isAdmin = user?.role === 'Admin';
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
-      setError('');
-      try {
-        const data = await api.get<Salle[]>('/Salles');
-        setSalles(data);
-      } catch {
-        setError('Impossible de charger les salles.');
-      } finally {
-        setIsLoading(false);
-      }
+      try { const data = await api.get<Salle[]>('/Salles'); setSalles(data); }
+      catch { /* ignore */ } finally { setIsLoading(false); }
     };
     load();
   }, []);
@@ -39,125 +44,89 @@ export default function SallesPage() {
 
   return (
     <ProtectedLayout pageTitle="Salles">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-        <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 pointer-events-none" />
-          <input
+      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4', mb: '5', flexWrap: 'wrap' })}>
+        <div className={css({ position: 'relative', w: '72' })}>
+          <Search size={14} className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', pointerEvents: 'none' })} />
+          <Input
             type="text"
             placeholder="Rechercher une salle..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-8 py-2.5 bg-white border border-blue-200 rounded-xl text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+            className={css({ pl: '9', pr: '8', bg: 'bg.surface', borderColor: 'border.default', color: 'fg.default', _placeholder: { color: 'fg.subtle' }, _focus: { borderColor: 'accent.default' } })}
           />
           {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-700"
-            >
+            <button onClick={() => setSearchTerm('')} className={css({ position: 'absolute', right: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', _hover: { color: 'fg.muted' } })}>
               <X size={13} />
             </button>
           )}
         </div>
-        {isAdmin && (
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0052FF] text-white shadow-sm text-sm font-semibold hover:bg-blue-700 transition-colors">
-            <Plus size={15} /> Nouvelle salle
-          </button>
-        )}
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm font-medium text-red-600 flex items-center gap-2">
-          <AlertCircle size={15} /> {error}
-        </div>
-      )}
-
-      {/* Stats */}
       {!isLoading && salles.length > 0 && (
-        <div className="flex gap-3 mb-5 flex-wrap">
-          <div className="bg-white rounded-2xl border border-blue-100 shadow-sm px-4 py-3 flex items-center gap-2">
-            <span className="text-xl font-bold text-[#0052FF]">{salles.length}</span>
-            <span className="text-xs font-semibold text-blue-500">Salles totales</span>
+        <div className={css({ display: 'flex', gap: '3', mb: '5', flexWrap: 'wrap' })}>
+          <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', px: '4', py: '3', display: 'flex', alignItems: 'center', gap: '2' })}>
+            <span className={css({ fontSize: 'xl', fontWeight: 'bold', color: 'accent.default' })}>{salles.length}</span>
+            <span className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Salles totales</span>
           </div>
-          <div className="bg-white rounded-2xl border border-blue-100 shadow-sm px-4 py-3 flex items-center gap-2">
-            <span className="text-xl font-bold text-emerald-600">
-              {salles.filter((s) => s.estDisponible).length}
-            </span>
-            <span className="text-xs font-semibold text-blue-500">Disponibles</span>
+          <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', px: '4', py: '3', display: 'flex', alignItems: 'center', gap: '2' })}>
+            <span className={css({ fontSize: 'xl', fontWeight: 'bold', color: '#10b981' })}>{salles.filter((s) => s.estDisponible).length}</span>
+            <span className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>Disponibles</span>
           </div>
         </div>
       )}
 
-      {/* Content */}
       {isLoading ? (
-        <CardSkeleton count={6} />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={Building2}
-          title="Aucune salle"
-          description={searchTerm ? "Aucune salle ne correspond à votre recherche." : "Aucune salle enregistrée."}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((salle) => (
-            <div
-              key={salle.id}
-              className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5 hover:shadow-lg transition-all duration-200 group"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                    <Building2 size={18} className="text-[#0052FF]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-bold text-blue-900 leading-tight truncate">
-                      {salle.libelle || salle.nom}
-                    </h3>
-                    {salle.codeSalle && (
-                      <p className="text-xs text-blue-400">{salle.codeSalle}</p>
-                    )}
-                  </div>
-                </div>
-                <span
-                  className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 ${
-                    salle.estDisponible ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                  }`}
-                >
-                  {salle.estDisponible ? 'Dispo' : 'Indispo'}
-                </span>
-              </div>
-
-              {/* Info */}
-              <div className="flex items-center gap-4 text-xs font-medium text-blue-500 mb-4">
-                <span className="flex items-center gap-1.5 bg-blue-50 rounded-lg border border-blue-100 px-2.5 py-1">
-                  <Users size={12} />
-                  {salle.capacite} places
-                </span>
-                <span className="flex items-center gap-1.5 bg-blue-50 rounded-lg border border-blue-100 px-2.5 py-1 capitalize">
-                  {salle.type}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center pt-3 border-t border-blue-100 gap-2">
-                <button className="flex-1 text-left text-xs font-semibold text-[#0052FF] hover:underline">
-                  Voir planning →
-                </button>
-                {isAdmin && (
-                  <div className="flex gap-1">
-                    <button className="w-7 h-7 rounded-lg border border-blue-200 flex items-center justify-center text-blue-400 hover:text-[#0052FF] hover:bg-blue-50 transition-colors">
-                      <Pencil size={12} />
-                    </button>
-                    <button className="w-7 h-7 rounded-lg border border-blue-200 flex items-center justify-center text-blue-400 hover:text-red-600 hover:bg-red-50 transition-colors">
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                )}
-              </div>
+        <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: '4' })}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '5' })}>
+              <div className={css({ h: '5', w: '32', bg: 'bg.elevated', rounded: 'md', mb: '4' })} />
+              <div className={css({ h: '3', w: '20', bg: 'bg.elevated', rounded: 'md', mb: '2' })} />
+              <div className={css({ h: '3', w: '24', bg: 'bg.elevated', rounded: 'md' })} />
             </div>
           ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center' })}>
+          <Building2 size={32} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
+          <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune salle</p>
+          <p className={css({ color: 'fg.muted', fontSize: 'sm' })}>{searchTerm ? 'Aucune salle ne correspond à votre recherche.' : 'Aucune salle enregistrée.'}</p>
+        </div>
+      ) : (
+        <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: '4' })}>
+          {filtered.map((salle) => {
+            const typeStyle = getTypeStyle(salle.type);
+            return (
+              <div key={salle.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '5', _hover: { borderColor: 'border.subtle' }, transition: 'all 0.15s' })}>
+                <div className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: '4' })}>
+                  <div className={css({ display: 'flex', alignItems: 'center', gap: '3', minW: '0' })}>
+                    <div className={css({ w: '9', h: '9', bg: 'bg.elevated', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' })}>
+                      <Building2 size={16} className={css({ color: 'fg.muted' })} />
+                    </div>
+                    <div className={css({ minWidth: '0' })}>
+                      <h3 className={css({ color: 'fg.default', fontWeight: 'semibold', fontSize: 'base', lineHeight: 'tight', truncate: 'true' })}>{salle.libelle || salle.nom}</h3>
+                      {salle.codeSalle && <p className={css({ fontSize: 'xs', color: 'fg.subtle' })}>{salle.codeSalle}</p>}
+                    </div>
+                  </div>
+                  <span className={css({ display: 'inline-flex', alignItems: 'center', px: '2', py: '0.5', fontSize: 'xs', fontWeight: 'medium', rounded: 'md', flexShrink: '0', bg: salle.estDisponible ? '#10b98120' : '#ef444420', color: salle.estDisponible ? '#10b981' : '#ef4444', border: '1px solid', borderColor: salle.estDisponible ? '#10b98140' : '#ef444440' })}>
+                    {salle.estDisponible ? 'Dispo' : 'Indispo'}
+                  </span>
+                </div>
+
+                <div className={css({ display: 'flex', alignItems: 'center', gap: '3', fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted', mb: '4' })}>
+                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1.5', bg: 'bg.elevated', rounded: 'md', border: '1px solid', borderColor: 'border.subtle', px: '2', py: '1' })}>
+                    <Users size={11} />{salle.capacite} places
+                  </span>
+                  <span className={css({ display: 'inline-flex', alignItems: 'center', px: '2', py: '0.5', rounded: 'md', bg: typeStyle.bg, color: typeStyle.color, border: '1px solid', borderColor: typeStyle.border, fontWeight: 'medium' })}>
+                    {salle.type}
+                  </span>
+                </div>
+
+                <div className={css({ display: 'flex', alignItems: 'center', pt: '3', borderTop: '1px solid', borderColor: 'border.subtle' })}>
+                  <span className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'accent.default', _hover: { textDecoration: 'underline' }, transition: 'colors 0.15s', cursor: 'pointer' })}>Voir planning →</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </ProtectedLayout>

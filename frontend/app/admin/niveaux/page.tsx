@@ -7,6 +7,9 @@ import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { Niveau, Parcours } from '@/types';
 import { api } from '@/services/api';
+import { css } from 'styled-system/css';
+
+const inputCls = css({ w: 'full', px: '3', py: '2', border: '1px solid', borderColor: 'border.default', rounded: 'md', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', _focus: { borderColor: 'accent.default' } });
 
 export default function AdminNiveauxPage() {
   const [items, setItems] = useState<Niveau[]>([]);
@@ -14,7 +17,6 @@ export default function AdminNiveauxPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editCode, setEditCode] = useState('');
   const [editParcoursId, setEditParcoursId] = useState('');
@@ -22,8 +24,7 @@ export default function AdminNiveauxPage() {
   const [parcoursId, setParcoursId] = useState('');
 
   const fetchData = async () => {
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true); setError('');
     try {
       const [niveauxData, parcoursData] = await Promise.all([api.get<Niveau[]>('/Niveau'), api.get<Parcours[]>('/Parcours')]);
       setItems(niveauxData); setParcoursList(parcoursData || []);
@@ -41,19 +42,12 @@ export default function AdminNiveauxPage() {
     } catch { setError('Erreur lors de la création.'); }
   };
 
-  const handleEdit = (item: Niveau) => {
-    setEditId(item.id);
-    setEditCode(item.code);
-    setEditParcoursId(item.parcoursId.toString());
-    setShowEditForm(true);
-  };
-
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editId === null) return;
     try {
       await api.put(`/Niveau/${editId}`, { code: editCode, parcoursId: parseInt(editParcoursId) });
-      setShowEditForm(false); setEditId(null); fetchData();
+      setShowForm(false); setEditId(null); fetchData();
     } catch { setError('Erreur lors de la modification.'); }
   };
 
@@ -65,70 +59,71 @@ export default function AdminNiveauxPage() {
 
   return (
     <ProtectedLayout pageTitle="Niveaux">
-      <div className="flex items-center justify-between mb-6">
+      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '5' })}>
         <button onClick={() => setShowForm(true)}
-          className="bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150 flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Ajouter
+          className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', display: 'flex', alignItems: 'center', gap: '2', _hover: { opacity: 0.9 } })}>
+          <Plus className={css({ w: '4', h: '4' })} /> Ajouter
         </button>
       </div>
-      {error && <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700"><AlertCircle className="w-4 h-4 inline mr-1" />{error}</div>}
+      {error && <div className={css({ mb: '4', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', rounded: 'lg', px: '4', py: '2.5', fontSize: 'sm', color: '#ef4444' })}><AlertCircle className={css({ w: '4', h: '4', display: 'inline', mr: '1' })} />{error}</div>}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5 mb-6 flex gap-4 items-end">
-          <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Code</label>
-            <input type="text" placeholder="Ex: L3" value={code} onChange={e => setCode(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required />
+        <form onSubmit={handleSubmit} className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5', mb: '5', display: 'flex', gap: '4', alignItems: 'flex-end' })}>
+          <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', gap: '1' })}>
+            <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Code</label>
+            <input type="text" placeholder="Ex: L3" value={code} onChange={e => setCode(e.target.value)} className={inputCls} required />
           </div>
-          <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Parcours</label>
-            <select value={parcoursId} onChange={e => setParcoursId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required>
+          <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', gap: '1' })}>
+            <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Parcours</label>
+            <select value={parcoursId} onChange={e => setParcoursId(e.target.value)} className={inputCls} required>
               <option value="">Sélectionner...</option>
               {parcoursList.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
             </select>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">Créer</button>
-            <button type="button" onClick={() => setShowForm(false)} className="border border-blue-200 text-blue-500 hover:bg-blue-50 font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">Annuler</button>
+          <div className={css({ display: 'flex', gap: '2' })}>
+            <button type="submit" className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { opacity: 0.9 } })}>Créer</button>
+            <button type="button" onClick={() => setShowForm(false)} className={css({ border: '1px solid', borderColor: 'border.default', color: 'fg.muted', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { bg: 'bg.muted' } })}>Annuler</button>
           </div>
         </form>
       )}
-      {showEditForm && editId !== null && (
-        <form onSubmit={handleEditSubmit} className="bg-blue-50 rounded-2xl border border-blue-200 shadow-sm p-5 mb-6 flex gap-4 items-end">
-          <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Code</label>
-            <input type="text" placeholder="Ex: L3" value={editCode} onChange={e => setEditCode(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required />
+      {showForm && editId !== null && (
+        <form onSubmit={handleEditSubmit} className={css({ bg: 'bg.muted', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5', mb: '5', display: 'flex', gap: '4', alignItems: 'flex-end' })}>
+          <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', gap: '1' })}>
+            <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Code</label>
+            <input type="text" placeholder="Ex: L3" value={editCode} onChange={e => setEditCode(e.target.value)} className={inputCls} required />
           </div>
-          <div className="flex flex-col gap-1 flex-1">
-            <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Parcours</label>
-            <select value={editParcoursId} onChange={e => setEditParcoursId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-blue-200 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF] transition-all duration-150" required>
+          <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', gap: '1' })}>
+            <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Parcours</label>
+            <select value={editParcoursId} onChange={e => setEditParcoursId(e.target.value)} className={inputCls} required>
               <option value="">Sélectionner...</option>
               {parcoursList.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
             </select>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="bg-[#0052FF] hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">Enregistrer</button>
-            <button type="button" onClick={() => setShowEditForm(false)} className="border border-blue-200 text-blue-500 hover:bg-blue-50 font-semibold text-sm px-4 py-2 rounded-xl transition-colors duration-150">Annuler</button>
+          <div className={css({ display: 'flex', gap: '2' })}>
+            <button type="submit" className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { opacity: 0.9 } })}>Enregistrer</button>
+            <button type="button" onClick={() => { setShowForm(false); setEditId(null); }} className={css({ border: '1px solid', borderColor: 'border.default', color: 'fg.muted', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { bg: 'bg.muted' } })}>Annuler</button>
           </div>
         </form>
       )}
-      {isLoading ? <LoadingSkeleton lines={5} className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5" />
+      {isLoading ? <LoadingSkeleton lines={5} className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5' })} />
       : items.length === 0 ? <EmptyState icon={GraduationCap} title="Aucun niveau" description="Aucun niveau enregistré." />
-      : <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-blue-50 border-b border-blue-100">
-              <tr><th className="px-4 py-3 text-left text-xs font-semibold text-blue-500 uppercase tracking-wide">Code</th><th className="px-4 py-3 text-left text-xs font-semibold text-blue-500 uppercase tracking-wide">Parcours</th><th className="px-4 py-3 text-right text-xs font-semibold text-blue-500 uppercase tracking-wide">Actions</th></tr>
+      : <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', overflow: 'hidden' })}>
+          <table className={css({ w: 'full', fontSize: 'sm' })}>
+            <thead className={css({ bg: 'bg.muted', borderBottom: '1px solid', borderColor: 'border.default' })}>
+              <tr>
+                <th className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Code</th>
+                <th className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Parcours</th>
+                <th className={css({ px: '4', py: '2.5', textAlign: 'right', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Actions</th>
+              </tr>
             </thead>
-            <tbody className="divide-y divide-blue-100">
+            <tbody>
               {items.map(item => (
-                <tr key={item.id} className="hover:bg-blue-50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-blue-900">{item.code}</td>
-                  <td className="px-4 py-3 text-blue-500">{parcoursList.find(p => p.id === item.parcoursId)?.nom || `ID: ${item.parcoursId}`}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => handleEdit(item)} className="p-1.5 text-[#0052FF] hover:bg-blue-50 rounded-lg transition-colors duration-150"><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 ml-1"><Trash2 className="w-4 h-4" /></button>
+                <tr key={item.id} className={css({ borderBottom: '1px solid', borderColor: 'border.default', _hover: { bg: 'bg.muted' } })}>
+                  <td className={css({ px: '4', py: '3', fontWeight: 'medium', color: 'fg.default' })}>{item.code}</td>
+                  <td className={css({ px: '4', py: '3', color: 'fg.muted' })}>{parcoursList.find(p => p.id === item.parcoursId)?.nom || `ID: ${item.parcoursId}`}</td>
+                  <td className={css({ px: '4', py: '3', textAlign: 'right' })}>
+                    <button onClick={() => { setEditId(item.id); setEditCode(item.code); setEditParcoursId(item.parcoursId.toString()); setShowForm(true); }}
+                      className={css({ p: '1.5', color: 'accent.default', rounded: 'md', _hover: { bg: 'bg.muted' } })}><Pencil className={css({ w: '4', h: '4' })} /></button>
+                    <button onClick={() => handleDelete(item.id)} className={css({ p: '1.5', color: '#ef4444', rounded: 'md', ml: '1', _hover: { bg: 'rgba(239,68,68,0.1)' } })}><Trash2 className={css({ w: '4', h: '4' })} /></button>
                   </td>
                 </tr>
               ))}
