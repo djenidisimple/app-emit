@@ -83,7 +83,9 @@ export interface DemandeEchangeReadDto {
   cibleId: number;
   nomCible: string;
   seanceDemandeurId: number;
+  seanceDemandeurMatiere: string;
   seanceCibleId: number;
+  seanceCibleMatiere: string;
   statut: string; // EnAttente | Acceptee | Refusee
   motif?: string;
   dateDemande: string;
@@ -203,6 +205,47 @@ export interface ExceptionPlanning {
   motif?: string;
   nouvelleSalleId?: number;
   dateCreation?: string;
+}
+
+export interface ExamenReadDto {
+  id: number;
+  matiereId: number;
+  matiereNom: string;
+  matiereCode: string;
+  professeurId: number;
+  professeurNom: string;
+  salleId: number;
+  salleNom: string;
+  parcoursId?: number;
+  niveauId?: number;
+  dateExamen: string;
+  heureDebut: string;
+  heureFin: string;
+  description?: string;
+}
+
+export interface ExamenCreateDto {
+  matiereId: number;
+  professeurId: number;
+  salleId: number;
+  parcoursId?: number;
+  niveauId?: number;
+  dateExamen: string;
+  heureDebut: string;
+  heureFin: string;
+  description?: string;
+}
+
+export interface ExamenUpdateDto {
+  matiereId: number;
+  professeurId: number;
+  salleId: number;
+  parcoursId?: number;
+  niveauId?: number;
+  dateExamen: string;
+  heureDebut: string;
+  heureFin: string;
+  description?: string;
 }
 
 export interface GenerationSeancePayload {
