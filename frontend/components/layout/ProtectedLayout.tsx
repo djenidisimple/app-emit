@@ -3,10 +3,10 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { css } from 'styled-system/css';
-import TopNavbar from './TopNavbar';
-import Sidebar from './Sidebar';
 import useAuthStore from '@/store/authStore';
+import AdminLayout from './AdminLayout';
+import ProfesseurLayout from './ProfesseurLayout';
+import EtudiantLayout from './EtudiantLayout';
 
 export default function ProtectedLayout({
   children,
@@ -20,10 +20,7 @@ export default function ProtectedLayout({
 
   useEffect(() => {
     const token = Cookies.get('app-emit-token');
-    if (!token) {
-      router.replace('/login');
-      return;
-    }
+    if (!token) { router.replace('/login'); return; }
     loadUser();
   }, []);
 
@@ -35,37 +32,13 @@ export default function ProtectedLayout({
 
   if (isLoading || !user) return null;
 
-  return (
-    <div
-      className={css({
-        h: 'screen',
-        display: 'flex',
-        flexDirection: 'column',
-        bg: 'bg.canvas',
-        overflow: 'hidden',
-      })}
-    >
-      <TopNavbar pageTitle={pageTitle} />
-      <div
-        className={css({
-          display: 'flex',
-          flex: '1',
-          overflow: 'hidden',
-          pt: '14',
-        })}
-      >
-        <Sidebar />
-        <main
-          className={css({
-            flex: '1',
-            overflowY: 'auto',
-            p: '6',
-            bg: 'bg.canvas',
-          })}
-        >
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  const role = user.role || user.roles?.[0] || '';
+
+  if (role === 'Admin') {
+    return <AdminLayout pageTitle={pageTitle}>{children}</AdminLayout>;
+  }
+  if (role === 'Professeur') {
+    return <ProfesseurLayout pageTitle={pageTitle}>{children}</ProfesseurLayout>;
+  }
+  return <EtudiantLayout pageTitle={pageTitle}>{children}</EtudiantLayout>;
 }
