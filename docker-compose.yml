@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: appemit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: AppEmitDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: appemit-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      DB_USER: postgres
+      DATABASENAME: AppEmitDB
+      DB_PASSWORD: 123
+      DB_PORT: "5432"
+      JWT_KEY: bto+K7YIAXPQKSQNv9a523+8EpGN0bAQniOsrzYiU0Y=
+      JWT_ISSUER: AppEmit.API
+      JWT_AUDIENCE: AppEmit.Frontend
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5011:5011"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: appemit-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5011/api
+      NEXT_PUBLIC_HUB_URL: http://localhost:5011/hubs/notifications
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
