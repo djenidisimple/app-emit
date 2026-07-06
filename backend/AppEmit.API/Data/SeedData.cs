@@ -21,6 +21,15 @@ public static class SeedData
             Console.WriteLine("[SEED] Rôles créés !");
         }
 
+        // ── Backfill Role for existing users (pre-AlignConceptionModel) ──
+        if (context.Utilisateurs.Any(u => u.Role == null))
+        {
+            context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Admin' WHERE \"Matricule\" LIKE 'ADM%' AND \"Role\" IS NULL");
+            context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Professeur' WHERE \"Matricule\" LIKE 'PROF%' AND \"Role\" IS NULL");
+            context.Database.ExecuteSqlRaw("UPDATE \"Utilisateurs\" SET \"Role\" = 'Etudiant' WHERE \"Matricule\" LIKE 'ETU%' AND \"Role\" IS NULL");
+            Console.WriteLine("[SEED] Role backfill effectué !");
+        }
+
         // ── Niveaux pour le parcours Management ──
         var parcoursMgmt = context.Parcours.FirstOrDefault(p => p.Nom == "Management");
         if (parcoursMgmt != null && !context.Niveaux.Any(n => n.ParcoursId == parcoursMgmt.Id))
@@ -65,7 +74,7 @@ public static class SeedData
         }
 
         // ── Utilisateurs supplémentaires ──
-        if (!context.Utilisateurs.Any(u => u.Matricule == "PROF003"))
+        if (!context.Utilisateurs.Any(u => u.Matricule == "ETU002"))
         {
             var profRole = context.Roles.FirstOrDefault(r => r.Nom == "Professeur");
             var etudiantRole = context.Roles.FirstOrDefault(r => r.Nom == "Etudiant");
@@ -76,53 +85,77 @@ public static class SeedData
             }
 
             var niveaux = context.Niveaux.Include(n => n.Parcours).ToList();
-            var l3Info = niveaux.First(n => n.Code == "L3" && n.Parcours.Nom == "Informatique");
-            var m1Info = niveaux.First(n => n.Code == "M1" && n.Parcours.Nom == "Informatique");
-            var m2Info = niveaux.First(n => n.Code == "M2" && n.Parcours.Nom == "Informatique");
-            var m1Mgmt = niveaux.First(n => n.Code == "M1" && n.Parcours.Nom == "Management");
-            var m2Mgmt = niveaux.First(n => n.Code == "M2" && n.Parcours.Nom == "Management");
-            var l1Info = niveaux.First(n => n.Code == "L1" && n.Parcours.Nom == "Informatique");
+            var l3Info = niveaux.FirstOrDefault(n => n.Code == "L3" && n.Parcours.Nom == "Informatique");
+            var m1Info = niveaux.FirstOrDefault(n => n.Code == "M1" && n.Parcours.Nom == "Informatique");
+            var m2Info = niveaux.FirstOrDefault(n => n.Code == "M2" && n.Parcours.Nom == "Informatique");
+            var m1Mgmt = niveaux.FirstOrDefault(n => n.Code == "M1" && n.Parcours.Nom == "Management");
+            var m2Mgmt = niveaux.FirstOrDefault(n => n.Code == "M2" && n.Parcours.Nom == "Management");
+            var l1Info = niveaux.FirstOrDefault(n => n.Code == "L1" && n.Parcours.Nom == "Informatique");
 
-            var prof3 = new Utilisateur
+            if (l3Info == null || m1Info == null || m2Info == null || m1Mgmt == null || m2Mgmt == null || l1Info == null)
             {
-                Nom = "Andriamahazo", Prenom = "Tiana", Email = "prof3@emit.mg",
-                MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
-                Role = "Professeur", Matricule = "PROF003",
-                DateNaissance = new DateTime(1985, 3, 15),
-                Adresse = "Antananarivo",
-                Roles = new List<Role> { profRole }
-            };
-            var prof4 = new Utilisateur
+                Console.WriteLine("[SEED] ERREUR: Niveaux requis introuvables !");
+                return;
+            }
+
+            if (!context.Utilisateurs.Any(u => u.Matricule == "PROF003"))
             {
-                Nom = "Rajaonarison", Prenom = "Lala", Email = "prof4@emit.mg",
-                MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
-                Role = "Professeur", Matricule = "PROF004",
-                DateNaissance = new DateTime(1978, 7, 22),
-                Adresse = "Antananarivo",
-                Roles = new List<Role> { profRole }
-            };
-            var prof5 = new Utilisateur
+                var prof3 = new Utilisateur
+                {
+                    Nom = "Andriamahazo", Prenom = "Tiana", Email = "prof3@emit.mg",
+                    MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                    Role = "Professeur", Matricule = "PROF003",
+                    DateNaissance = new DateTime(1985, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+                    Adresse = "Antananarivo",
+                    Roles = new List<Role> { profRole }
+                };
+                context.Utilisateurs.Add(prof3);
+            }
+
+            if (!context.Utilisateurs.Any(u => u.Matricule == "PROF004"))
             {
-                Nom = "Ratsimbazafy", Prenom = "Hery", Email = "prof5@emit.mg",
-                MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
-                Role = "Professeur", Matricule = "PROF005",
-                DateNaissance = new DateTime(1982, 11, 8),
-                Adresse = "Antananarivo",
-                Roles = new List<Role> { profRole }
-            };
+                var prof4 = new Utilisateur
+                {
+                    Nom = "Rajaonarison", Prenom = "Lala", Email = "prof4@emit.mg",
+                    MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                    Role = "Professeur", Matricule = "PROF004",
+                    DateNaissance = new DateTime(1978, 7, 22, 0, 0, 0, DateTimeKind.Utc),
+                    Adresse = "Antananarivo",
+                    Roles = new List<Role> { profRole }
+                };
+                context.Utilisateurs.Add(prof4);
+            }
+
+            if (!context.Utilisateurs.Any(u => u.Matricule == "PROF005"))
+            {
+                var prof5 = new Utilisateur
+                {
+                    Nom = "Ratsimbazafy", Prenom = "Hery", Email = "prof5@emit.mg",
+                    MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("prof123"),
+                    Role = "Professeur", Matricule = "PROF005",
+                    DateNaissance = new DateTime(1982, 11, 8, 0, 0, 0, DateTimeKind.Utc),
+                    Adresse = "Antananarivo",
+                    Roles = new List<Role> { profRole }
+                };
+                context.Utilisateurs.Add(prof5);
+            }
 
             var etudiants = new List<Utilisateur>
             {
-                new() { Nom = "Rakotomalala", Prenom = "Mialy", Email = "etu002@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU002", NiveauId = l3Info.Id, DateNaissance = new DateTime(2002, 5, 10), Adresse = "Antananarivo", Roles = new List<Role> { etudiantRole } },
-                new() { Nom = "Razafindrabe", Prenom = "Tahina", Email = "etu003@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU003", NiveauId = m1Info.Id, DateNaissance = new DateTime(2001, 8, 22), Adresse = "Fianarantsoa", Roles = new List<Role> { etudiantRole } },
-                new() { Nom = "Andrianantenaina", Prenom = "Mamisoa", Email = "etu004@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU004", NiveauId = m2Info.Id, DateNaissance = new DateTime(2000, 2, 14), Adresse = "Toamasina", Roles = new List<Role> { etudiantRole } },
-                new() { Nom = "Rakotoson", Prenom = "Feno", Email = "etu005@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU005", NiveauId = m1Mgmt.Id, DateNaissance = new DateTime(2001, 11, 30), Adresse = "Antsirabe", Roles = new List<Role> { etudiantRole } },
-                new() { Nom = "Rasolof", Prenom = "Miora", Email = "etu006@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU006", NiveauId = m2Mgmt.Id, DateNaissance = new DateTime(2000, 9, 5), Adresse = "Antananarivo", Roles = new List<Role> { etudiantRole } },
-                new() { Nom = "Ravelo", Prenom = "Njaka", Email = "etu007@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU007", NiveauId = l1Info.Id, DateNaissance = new DateTime(2004, 4, 18), Adresse = "Mahajanga", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Rakotomalala", Prenom = "Mialy", Email = "etu002@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU002", NiveauId = l3Info.Id, DateNaissance = new DateTime(2002, 5, 10, 0, 0, 0, DateTimeKind.Utc), Adresse = "Antananarivo", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Razafindrabe", Prenom = "Tahina", Email = "etu003@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU003", NiveauId = m1Info.Id, DateNaissance = new DateTime(2001, 8, 22, 0, 0, 0, DateTimeKind.Utc), Adresse = "Fianarantsoa", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Andrianantenaina", Prenom = "Mamisoa", Email = "etu004@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU004", NiveauId = m2Info.Id, DateNaissance = new DateTime(2000, 2, 14, 0, 0, 0, DateTimeKind.Utc), Adresse = "Toamasina", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Rakotoson", Prenom = "Feno", Email = "etu005@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU005", NiveauId = m1Mgmt.Id, DateNaissance = new DateTime(2001, 11, 30, 0, 0, 0, DateTimeKind.Utc), Adresse = "Antsirabe", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Rasolof", Prenom = "Miora", Email = "etu006@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU006", NiveauId = m2Mgmt.Id, DateNaissance = new DateTime(2000, 9, 5, 0, 0, 0, DateTimeKind.Utc), Adresse = "Antananarivo", Roles = new List<Role> { etudiantRole } },
+                new() { Nom = "Ravelo", Prenom = "Njaka", Email = "etu007@emit.mg", MotDePasseHash = BCrypt.Net.BCrypt.HashPassword("etud123"), Role = "Etudiant", Matricule = "ETU007", NiveauId = l1Info.Id, DateNaissance = new DateTime(2004, 4, 18, 0, 0, 0, DateTimeKind.Utc), Adresse = "Mahajanga", Roles = new List<Role> { etudiantRole } },
             };
 
-            context.Utilisateurs.AddRange(prof3, prof4, prof5);
-            context.Utilisateurs.AddRange(etudiants);
+            foreach (var etu in etudiants)
+            {
+                if (!context.Utilisateurs.Any(u => u.Matricule == etu.Matricule))
+                    context.Utilisateurs.Add(etu);
+            }
+
             context.SaveChanges();
             Console.WriteLine("[SEED] Utilisateurs supplémentaires créés !");
         }
@@ -134,47 +167,56 @@ public static class SeedData
             var salles = context.Salles.ToList();
             var creneaux = context.Creneaux.OrderBy(c => c.Id).ToList();
             var niveaux = context.Niveaux.Include(n => n.Parcours).ToList();
-            var profs = context.Utilisateurs.Where(u => u.Role == "Professeur").ToList();
+            var profs = context.Utilisateurs.Include(u => u.Roles).Where(u => u.Roles.Any(r => r.Nom == "Professeur")).ToList();
 
-            var mGL = matieres.First(m => m.Code == "INF401");
-            var mBD = matieres.First(m => m.Code == "INF402");
-            var mRES = matieres.First(m => m.Code == "INF403");
-            var mPW = matieres.First(m => m.Code == "INF404");
-            var mMGMT = matieres.First(m => m.Code == "MGT401");
-            var mGLTD = matieres.First(m => m.Code == "INF411");
-            var mGLTP = matieres.First(m => m.Code == "INF412");
-            var mBDTD = matieres.First(m => m.Code == "INF421");
-            var mBDTP = matieres.First(m => m.Code == "INF422");
-            var mRESTD = matieres.First(m => m.Code == "INF431");
-            var mRESTP = matieres.First(m => m.Code == "INF432");
-            var mPWTD = matieres.First(m => m.Code == "INF441");
-            var mPWTP = matieres.First(m => m.Code == "INF442");
-            var mMGMTTD = matieres.First(m => m.Code == "MGT411");
-            var mIA = matieres.First(m => m.Code == "INF405");
-            var mCYBER = matieres.First(m => m.Code == "INF406");
-            var mCLOUD = matieres.First(m => m.Code == "INF407");
-            var mENTR = matieres.First(m => m.Code == "MGT402");
-            var mIATD = matieres.First(m => m.Code == "INF455");
-            var mCLOUDTP = matieres.First(m => m.Code == "INF456");
+            var mGL = matieres.FirstOrDefault(m => m.Code == "INF401");
+            var mBD = matieres.FirstOrDefault(m => m.Code == "INF402");
+            var mRES = matieres.FirstOrDefault(m => m.Code == "INF403");
+            var mPW = matieres.FirstOrDefault(m => m.Code == "INF404");
+            var mMGMT = matieres.FirstOrDefault(m => m.Code == "MGT401");
+            var mGLTD = matieres.FirstOrDefault(m => m.Code == "INF411");
+            var mGLTP = matieres.FirstOrDefault(m => m.Code == "INF412");
+            var mBDTD = matieres.FirstOrDefault(m => m.Code == "INF421");
+            var mBDTP = matieres.FirstOrDefault(m => m.Code == "INF422");
+            var mRESTD = matieres.FirstOrDefault(m => m.Code == "INF431");
+            var mRESTP = matieres.FirstOrDefault(m => m.Code == "INF432");
+            var mPWTD = matieres.FirstOrDefault(m => m.Code == "INF441");
+            var mPWTP = matieres.FirstOrDefault(m => m.Code == "INF442");
+            var mMGMTTD = matieres.FirstOrDefault(m => m.Code == "MGT411");
+            var mIA = matieres.FirstOrDefault(m => m.Code == "INF405");
+            var mCYBER = matieres.FirstOrDefault(m => m.Code == "INF406");
+            var mCLOUD = matieres.FirstOrDefault(m => m.Code == "INF407");
+            var mENTR = matieres.FirstOrDefault(m => m.Code == "MGT402");
+            var mIATD = matieres.FirstOrDefault(m => m.Code == "INF455");
+            var mCLOUDTP = matieres.FirstOrDefault(m => m.Code == "INF456");
 
-            var amphi1 = salles.First(s => s.CodeSalle == "A101");
-            var amphi2 = salles.First(s => s.CodeSalle == "A102");
-            var tp01 = salles.First(s => s.CodeSalle == "TP01");
-            var tp02 = salles.First(s => s.CodeSalle == "TP02");
-            var td01 = salles.First(s => s.CodeSalle == "TD01");
-            var td02 = salles.First(s => s.CodeSalle == "TD02");
+            var amphi1 = salles.FirstOrDefault(s => s.CodeSalle == "A101");
+            var amphi2 = salles.FirstOrDefault(s => s.CodeSalle == "A102");
+            var tp01 = salles.FirstOrDefault(s => s.CodeSalle == "TP01");
+            var tp02 = salles.FirstOrDefault(s => s.CodeSalle == "TP02");
+            var td01 = salles.FirstOrDefault(s => s.CodeSalle == "TD01");
+            var td02 = salles.FirstOrDefault(s => s.CodeSalle == "TD02");
 
-            var p1 = profs.First(p => p.Matricule == "PROF001");
-            var p2 = profs.First(p => p.Matricule == "PROF002");
-            var p3 = profs.First(p => p.Matricule == "PROF003");
-            var p4 = profs.First(p => p.Matricule == "PROF004");
-            var p5 = profs.First(p => p.Matricule == "PROF005");
+            var p1 = profs.FirstOrDefault(p => p.Matricule == "PROF001");
+            var p2 = profs.FirstOrDefault(p => p.Matricule == "PROF002");
+            var p3 = profs.FirstOrDefault(p => p.Matricule == "PROF003");
+            var p4 = profs.FirstOrDefault(p => p.Matricule == "PROF004");
+            var p5 = profs.FirstOrDefault(p => p.Matricule == "PROF005");
 
-            var l3Info = niveaux.First(n => n.Code == "L3" && n.Parcours.Nom == "Informatique");
-            var m1Info = niveaux.First(n => n.Code == "M1" && n.Parcours.Nom == "Informatique");
-            var m2Info = niveaux.First(n => n.Code == "M2" && n.Parcours.Nom == "Informatique");
-            var m1Mgmt = niveaux.First(n => n.Code == "M1" && n.Parcours.Nom == "Management");
-            var m2Mgmt = niveaux.First(n => n.Code == "M2" && n.Parcours.Nom == "Management");
+            var l3Info = niveaux.FirstOrDefault(n => n.Code == "L3" && n.Parcours.Nom == "Informatique");
+            var m1Info = niveaux.FirstOrDefault(n => n.Code == "M1" && n.Parcours.Nom == "Informatique");
+            var m2Info = niveaux.FirstOrDefault(n => n.Code == "M2" && n.Parcours.Nom == "Informatique");
+            var m1Mgmt = niveaux.FirstOrDefault(n => n.Code == "M1" && n.Parcours.Nom == "Management");
+            var m2Mgmt = niveaux.FirstOrDefault(n => n.Code == "M2" && n.Parcours.Nom == "Management");
+
+            if (mGL == null || mBD == null || mRES == null || mPW == null || mMGMT == null
+                || amphi1 == null || amphi2 == null || tp01 == null || tp02 == null || td01 == null || td02 == null
+                || p1 == null || p2 == null || p3 == null || p4 == null || p5 == null
+                || l3Info == null || m1Info == null || m2Info == null || m1Mgmt == null || m2Mgmt == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Données de base insuffisantes pour créer les séances !");
+                return;
+            }
 
             var dateDebut = new DateTime(2025, 10, 1, 0, 0, 0, DateTimeKind.Utc);
             var dateFin = new DateTime(2026, 9, 30, 0, 0, 0, DateTimeKind.Utc);
@@ -222,8 +264,13 @@ public static class SeedData
         // ── Événements ──
         if (!context.Evenements.Any())
         {
-            var admin = context.Utilisateurs.First(u => u.Role == "Admin");
-            var prof1 = context.Utilisateurs.First(u => u.Matricule == "PROF001");
+            var admin = context.Utilisateurs.FirstOrDefault(u => u.Role == "Admin");
+            var prof1 = context.Utilisateurs.FirstOrDefault(u => u.Matricule == "PROF001");
+            if (admin == null || prof1 == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Admin ou PROF001 introuvable pour les événements !");
+                return;
+            }
 
             var evenements = new List<Evenement>
             {
@@ -240,16 +287,23 @@ public static class SeedData
         // ── Réservations ──
         if (!context.Reservations.Any())
         {
-            var admin = context.Utilisateurs.First(u => u.Role == "Admin");
-            var prof1 = context.Utilisateurs.First(u => u.Matricule == "PROF001");
-            var amphi1 = context.Salles.First(s => s.CodeSalle == "A101");
-            var amphi2 = context.Salles.First(s => s.CodeSalle == "A102");
-            var td01 = context.Salles.First(s => s.CodeSalle == "TD01");
-            var tp01 = context.Salles.First(s => s.CodeSalle == "TP01");
-            var confIA = context.Evenements.First(e => e.Nom.StartsWith("Conférence"));
-            var soutenance = context.Evenements.First(e => e.Nom.StartsWith("Soutenance"));
-            var reunion = context.Evenements.First(e => e.Nom.StartsWith("Réunion"));
-            var atelier = context.Evenements.First(e => e.Nom.StartsWith("Atelier"));
+            var admin = context.Utilisateurs.FirstOrDefault(u => u.Role == "Admin");
+            var prof1 = context.Utilisateurs.FirstOrDefault(u => u.Matricule == "PROF001");
+            var amphi1 = context.Salles.FirstOrDefault(s => s.CodeSalle == "A101");
+            var amphi2 = context.Salles.FirstOrDefault(s => s.CodeSalle == "A102");
+            var td01 = context.Salles.FirstOrDefault(s => s.CodeSalle == "TD01");
+            var tp01 = context.Salles.FirstOrDefault(s => s.CodeSalle == "TP01");
+            var confIA = context.Evenements.FirstOrDefault(e => e.Nom.StartsWith("Conférence"));
+            var soutenance = context.Evenements.FirstOrDefault(e => e.Nom.StartsWith("Soutenance"));
+            var reunion = context.Evenements.FirstOrDefault(e => e.Nom.StartsWith("Réunion"));
+            var atelier = context.Evenements.FirstOrDefault(e => e.Nom.StartsWith("Atelier"));
+
+            if (admin == null || prof1 == null || amphi1 == null || amphi2 == null || td01 == null || tp01 == null
+                || confIA == null || soutenance == null || reunion == null || atelier == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Données insuffisantes pour les réservations !");
+                return;
+            }
 
             var reservations = new List<Reservation>
             {
@@ -267,8 +321,14 @@ public static class SeedData
         if (!context.Paiements.Any())
         {
             var reservations = context.Reservations.Include(r => r.Evenement).ToList();
-            var confReservation = reservations.First(r => r.Evenement.Nom.StartsWith("Conférence"));
-            var soutenanceReservation = reservations.First(r => r.Evenement.Nom.StartsWith("Soutenance"));
+            var confReservation = reservations.FirstOrDefault(r => r.Evenement.Nom.StartsWith("Conférence"));
+            var soutenanceReservation = reservations.FirstOrDefault(r => r.Evenement.Nom.StartsWith("Soutenance"));
+
+            if (confReservation == null || soutenanceReservation == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Réservations insuffisantes pour les paiements !");
+                return;
+            }
 
             var paiements = new List<Paiement>
             {
@@ -284,12 +344,18 @@ public static class SeedData
         if (!context.Notifications.Any())
         {
             var users = context.Utilisateurs.ToList();
-            var admin = users.First(u => u.Role == "Admin");
-            var prof1 = users.First(u => u.Matricule == "PROF001");
-            var prof2 = users.First(u => u.Matricule == "PROF002");
-            var prof3 = users.First(u => u.Matricule == "PROF003");
-            var etu1 = users.First(u => u.Matricule == "ETU001");
-            var etu2 = users.First(u => u.Matricule == "ETU002");
+            var admin = users.FirstOrDefault(u => u.Role == "Admin");
+            var prof1 = users.FirstOrDefault(u => u.Matricule == "PROF001");
+            var prof2 = users.FirstOrDefault(u => u.Matricule == "PROF002");
+            var prof3 = users.FirstOrDefault(u => u.Matricule == "PROF003");
+            var etu1 = users.FirstOrDefault(u => u.Matricule == "ETU001");
+            var etu2 = users.FirstOrDefault(u => u.Matricule == "ETU002");
+
+            if (admin == null || prof1 == null || prof2 == null || prof3 == null || etu1 == null || etu2 == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Utilisateurs insuffisants pour les notifications !");
+                return;
+            }
 
             var notifications = new List<Notification>
             {
@@ -314,9 +380,15 @@ public static class SeedData
         if (!context.ExceptionsPlanning.Any())
         {
             var seances = context.SeancesCours.Include(s => s.Matiere).Include(s => s.Creneau).ToList();
-            var seanceGL = seances.First(s => s.Matiere.Code == "INF401");
-            var seanceBDCours = seances.First(s => s.Matiere.Code == "INF402" && s.Creneau.Jour == "Lundi");
-            var td02 = context.Salles.First(s => s.CodeSalle == "TD02");
+            var seanceGL = seances.FirstOrDefault(s => s.Matiere.Code == "INF401");
+            var seanceBDCours = seances.FirstOrDefault(s => s.Matiere.Code == "INF402" && s.Creneau.Jour == "Lundi");
+            var td02 = context.Salles.FirstOrDefault(s => s.CodeSalle == "TD02");
+
+            if (seanceGL == null || seanceBDCours == null || td02 == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Données insuffisantes pour les exceptions planning !");
+                return;
+            }
 
             var exceptions = new List<ExceptionPlanning>
             {
@@ -345,11 +417,17 @@ public static class SeedData
         // ── Demandes d'échange entre professeurs ──
         if (!context.DemandesEchange.Any())
         {
-            var prof1 = context.Utilisateurs.First(u => u.Matricule == "PROF001");
-            var prof2 = context.Utilisateurs.First(u => u.Matricule == "PROF002");
+            var prof1 = context.Utilisateurs.FirstOrDefault(u => u.Matricule == "PROF001");
+            var prof2 = context.Utilisateurs.FirstOrDefault(u => u.Matricule == "PROF002");
             var seances = context.SeancesCours.Include(s => s.Matiere).Include(s => s.Creneau).ToList();
-            var seanceGL = seances.First(s => s.Matiere.Code == "INF401");
-            var seanceBDCours = seances.First(s => s.Matiere.Code == "INF402" && s.Creneau.Jour == "Lundi");
+            var seanceGL = seances.FirstOrDefault(s => s.Matiere.Code == "INF401");
+            var seanceBDCours = seances.FirstOrDefault(s => s.Matiere.Code == "INF402" && s.Creneau.Jour == "Lundi");
+
+            if (prof1 == null || prof2 == null || seanceGL == null || seanceBDCours == null)
+            {
+                Console.WriteLine("[SEED] ERREUR: Données insuffisantes pour les demandes d'échange !");
+                return;
+            }
 
             var demandes = new List<DemandeEchange>
             {

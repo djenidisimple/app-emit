@@ -49,9 +49,10 @@ namespace AppEmit.API.Repositories
 
         public async Task<bool> HasConflictAsync(int salleId, DateTime date, string session)
         {
+            var dateUtc = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             return await _dbSet.AnyAsync(r =>
                 r.SalleId == salleId &&
-                r.DateReservation.Date == date.Date &&
+                r.Evenement.DateEvenement.Date == dateUtc &&
                 r.Session == session &&
                 r.Statut != "Annulée");
         }

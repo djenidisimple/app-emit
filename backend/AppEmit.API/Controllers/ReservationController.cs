@@ -62,6 +62,32 @@ namespace AppEmit.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}/valider")]
+        public async Task<ActionResult<ReservationReadDto>> ValiderDemande(int id)
+        {
+            var validated = await _reservationService.ValiderDemandeAsync(id);
+            if (validated == null) return NotFound();
+            return Ok(validated);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}/refuser")]
+        public async Task<ActionResult<ReservationReadDto>> RefuserDemande(int id)
+        {
+            var refused = await _reservationService.RefuserDemandeAsync(id);
+            if (refused == null) return NotFound();
+            return Ok(refused);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("en-attente")]
+        public async Task<ActionResult<IEnumerable<ReservationReadDto>>> ObtenirDemandesEnAttente()
+        {
+            var pending = await _reservationService.ObtenirDemandesEnAttenteAsync();
+            return Ok(pending);
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id}/statut")]
         public async Task<ActionResult<ReservationReadDto>> UpdateStatut(int id, [FromBody] ReservationUpdateStatusDto dto)
         {

@@ -11,7 +11,7 @@ namespace AppEmit.API.Services
     {
         private readonly IReservationRepository _reservationRepository;
         private readonly IGenericRepository<Evenement> _evenementRepository;
-        private readonly IGenericRepository<Salle> _salleRepository;
+        private readonly ISalleRepository _salleRepository;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private readonly ILogger<ReservationService> _logger;
@@ -19,7 +19,7 @@ namespace AppEmit.API.Services
         public ReservationService(
             IReservationRepository reservationRepository,
             IGenericRepository<Evenement> evenementRepository,
-            IGenericRepository<Salle> salleRepository,
+            ISalleRepository salleRepository,
             INotificationService notificationService,
             IMapper mapper,
             ILogger<ReservationService> logger)
@@ -70,7 +70,7 @@ namespace AppEmit.API.Services
             {
                 Nom = dto.Titre,
                 Description = dto.Type,
-                DateEvenement = dto.DatePrecise,
+                DateEvenement = DateTime.SpecifyKind(dto.DatePrecise, DateTimeKind.Utc),
                 OrganisateurId = demandeurId
             };
             var createdEvenement = await _evenementRepository.AddAsync(evenement);
@@ -115,6 +115,64 @@ namespace AppEmit.API.Services
                 });
 
             _logger.LogInformation("Réservation {Id} {Statut}", id, statut);
+
+            return _mapper.Map<ReservationReadDto>(reservation);
+        }
+
+        public async Task<IEnumerable<ReservationReadDto>> ObtenirDemandesEnAttenteAsync()
+        {
+            var reservations = await _reservationRepository.GetReservationsByStatutAsync("En attente");
+            return _mapper.Map<IEnumerable<ReservationReadDto>>(reservations);
+        }
+
+        public async Task<ReservationReadDto?> ValiderDemandeAsync(int id)
+        {
+            var reservation = await _reservationRepository.GetByIdWithIncludesAsync(id);
+            if (reservation == null)
+                throw new NotFoundException("Réservation non trouvée.");
+
+            if (reservation.Statut != "En attente")
+                throw new BadRequestException("Seules les demandes en attente peuvent être validées.");
+
+            reservation.Statut = "Confirmée";
+            await _reservationRepository.UpdateAsync(reservation);
+
+            var message = $"Votre réservation pour '{reservation.Evenement.Nom}' a été confirmée. La date est : {reservation.Evenement.DateEvenement:dd/MM/yyyy HH:mm}";
+
+            await _notificationService.CreateAsync(
+                new DTOs.Notification.NotificationCreateDto
+                {
+                    UtilisateurId = reservation.UtilisateurId,
+                    Message = message
+                });
+
+            _logger.LogInformation("Réservation {Id} validée", id);
+
+            return _mapper.Map<ReservationReadDto>(reservation);
+        }
+
+        public async Task<ReservationReadDto?> RefuserDemandeAsync(int id)
+        {
+            var reservation = await _reservationRepository.GetByIdWithIncludesAsync(id);
+            if (reservation == null)
+                throw new NotFoundException("Réservation non trouvée.");
+
+            if (reservation.Statut != "En attente")
+                throw new BadRequestException("Seules les demandes en attente peuvent être refusées.");
+
+            reservation.Statut = "Annulée";
+            await _reservationRepository.UpdateAsync(reservation);
+
+            var message = $"Votre réservation pour '{reservation.Evenement.Nom}' a été refusée. Motif : Non disponible."; 
+
+            await _notificationService.CreateAsync(
+                new DTOs.Notification.NotificationCreateDto
+                {
+                    UtilisateurId = reservation.UtilisateurId,
+                    Message = message
+                });
+
+            _logger.LogInformation("Réservation {Id} refusée", id);
 
             return _mapper.Map<ReservationReadDto>(reservation);
         }

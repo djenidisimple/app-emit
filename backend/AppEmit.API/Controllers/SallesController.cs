@@ -1,10 +1,7 @@
-using AutoMapper;
-using AppEmit.API.Data;
 using AppEmit.API.DTOs.Salle;
-using AppEmit.API.Entities;
+using AppEmit.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppEmit.API.Controllers
 {
@@ -14,14 +11,10 @@ namespace AppEmit.API.Controllers
     public class SallesController : ControllerBase
     {
         private readonly ISalleService _salleService;
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public SallesController(ISalleService salleService, AppDbContext context, IMapper mapper)
+        public SallesController(ISalleService salleService)
         {
             _salleService = salleService;
-            _context = context;
-            _mapper = mapper;
         }
 
         [AllowAnonymous]
@@ -47,41 +40,7 @@ namespace AppEmit.API.Controllers
             [FromQuery] DateTime date,
             [FromQuery] int creneauId)
         {
-            var creneau = await _context.Creneaux.FindAsync(creneauId);
-            if (creneau == null) return BadRequest(new { message = "Créneau non trouvé" });
-
-            var dateOnly = date.Date;
-            var salles = await _context.Salles
-                .Where(s => s.EstActive)
-                .ToListAsync();
-
-            var disponibles = new List<SalleResponseDto>();
-
-            foreach (var salle in salles)
-            {
-                var occupeeParSeance = await _context.SeancesCours
-                    .AnyAsync(s =>
-                        s.SalleId == salle.Id &&
-                        s.DateDebutAnnee <= dateOnly &&
-                        s.DateFinAnnee >= dateOnly &&
-                        s.CreneauId == creneauId &&
-                        !s.EstTerminee);
-
-                // FIX: Use the same statut values as ReservationService
-                var occupeeParReservation = await _context.Set<Entities.Reservation>()
-                    .AnyAsync(r =>
-                        r.SalleId == salle.Id &&
-                        r.DateReservation.Date == dateOnly &&
-                        r.Statut == "Confirmée");
-
-                if (!occupeeParSeance && !occupeeParReservation)
-                {
-                    var dto = _mapper.Map<SalleResponseDto>(salle);
-                    dto.EstDisponible = true;
-                    disponibles.Add(dto);
-                }
-            }
-
+            var disponibles = await _salleService.GetDisponiblesAsync(date, creneauId);
             return Ok(disponibles);
         }
 

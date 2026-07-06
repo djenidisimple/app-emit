@@ -197,6 +197,7 @@ namespace AppEmit.API
             builder.Services.AddScoped<IPlanningHebdoService, PlanningHebdoService>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
+            builder.Services.AddScoped<IExamenService, ExamenService>();
             builder.Services.AddHttpContextAccessor();
 
             // (Les services Matière & Parcours sont déjà enregistrés ci-dessus)

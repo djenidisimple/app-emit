@@ -10,5 +10,8 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<ReservationReadDto>> GetByStatutAsync(string statut);
         Task<ReservationReadDto> CreateAsync(int demandeurId, ReservationCreateDto dto);
         Task<ReservationReadDto?> UpdateStatutAsync(int id, string statut);
+        Task<IEnumerable<ReservationReadDto>> ObtenirDemandesEnAttenteAsync();
+        Task<ReservationReadDto?> ValiderDemandeAsync(int id);
+        Task<ReservationReadDto?> RefuserDemandeAsync(int id);
     }
 }

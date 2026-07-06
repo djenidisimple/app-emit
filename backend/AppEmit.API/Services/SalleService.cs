@@ -4,6 +4,8 @@ using AppEmit.API.Interfaces;
 using AppEmit.API.Repositories;
 using AppEmit.API.Entities;
 using AppEmit.API.Exceptions;
+using AppEmit.API.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AppEmit.API.Services;
@@ -13,12 +15,14 @@ public class SalleService : ISalleService
     private readonly ISalleRepository _salleRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<SalleService> _logger;
+    private readonly AppDbContext _context;
 
-    public SalleService(ISalleRepository salleRepository, IMapper mapper, ILogger<SalleService> logger)
+    public SalleService(ISalleRepository salleRepository, IMapper mapper, ILogger<SalleService> logger, AppDbContext context)
     {
         _salleRepository = salleRepository;
         _mapper = mapper;
         _logger = logger;
+        _context = context;
     }
 
     public async Task<IEnumerable<SalleResponseDto>> GetAllAsync()
@@ -79,5 +83,43 @@ public class SalleService : ISalleService
     {
         var sallesDispo = await _salleRepository.GetSallesDisponiblesAsync(date, debut, fin);
         return sallesDispo.Any(s => s.Id == salleId);
+    }
+
+    public async Task<IEnumerable<SalleResponseDto>> GetDisponiblesAsync(DateTime date, int creneauId)
+    {
+        var creneau = await _context.Set<Entities.Creneau>().FindAsync(creneauId);
+        if (creneau == null)
+            return Enumerable.Empty<SalleResponseDto>();
+
+        var dateOnly = date.Date;
+        var salles = await _context.Salles.Where(s => s.EstActive).ToListAsync();
+        var disponibles = new List<SalleResponseDto>();
+
+        foreach (var salle in salles)
+        {
+            var occupeeParSeance = await _context.SeancesCours
+                .AnyAsync(s =>
+                    s.SalleId == salle.Id &&
+                    s.DateDebutAnnee <= dateOnly &&
+                    s.DateFinAnnee >= dateOnly &&
+                    s.CreneauId == creneauId &&
+                    !s.EstTerminee);
+
+            var occupeeParReservation = await _context.Set<Entities.Reservation>()
+                .Include(r => r.Evenement)
+                .AnyAsync(r =>
+                    r.SalleId == salle.Id &&
+                    r.Evenement.DateEvenement.Date == dateOnly &&
+                    r.Statut == "Confirmée");
+
+            if (!occupeeParSeance && !occupeeParReservation)
+            {
+                var dto = _mapper.Map<SalleResponseDto>(salle);
+                dto.EstDisponible = true;
+                disponibles.Add(dto);
+            }
+        }
+
+        return disponibles;
     }
 }

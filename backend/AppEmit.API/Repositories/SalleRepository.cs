@@ -37,12 +37,6 @@ namespace AppEmit.API.Repositories
         // =========================
         // BASIC
         // =========================
-        public async Task<Salle?> GetByIdAsync(int id)
-        {
-            return await _context.Salles.FindAsync(id);
-        }
-
-        // =========================
         // DISPONIBILITE
         // =========================
         public async Task<IEnumerable<Salle>> GetSallesDisponiblesAsync(

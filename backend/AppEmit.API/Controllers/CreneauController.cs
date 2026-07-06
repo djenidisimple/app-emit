@@ -1,5 +1,5 @@
-using AppEmit.API.Data;
 using AppEmit.API.Entities;
+using AppEmit.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +12,19 @@ namespace AppEmit.API.Controllers
     [Route("api/creneaux")]
     public class CreneauController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IGenericRepository<Creneau> _creneauRepository;
 
-        public CreneauController(AppDbContext context)
+        public CreneauController(IGenericRepository<Creneau> creneauRepository)
         {
-            _context = context;
+            _creneauRepository = creneauRepository;
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Creneau>>> GetAll()
         {
-            var creneaux = await _context.Creneaux.OrderBy(c => c.Jour).ThenBy(c => c.HeureDebut).ToListAsync();
-            return Ok(creneaux);
+            var creneaux = await _creneauRepository.GetAllAsync();
+            return Ok(creneaux.OrderBy(c => c.Jour).ThenBy(c => c.HeureDebut));
         }
     }
 }

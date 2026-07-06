@@ -25,4 +25,6 @@ public class ExceptionPlanning
     public string? Motif { get; set; }
 
     public int? NouvelleSalleId { get; set; }
+    [ForeignKey("NouvelleSalleId")]
+    public Salle? NouvelleSalle { get; set; }
 }

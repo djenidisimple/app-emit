@@ -34,11 +34,23 @@ namespace AppEmit.API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Utilisateur>> GetByRoleAsync(string role)
-        {
-            return await _context.Utilisateurs
-                .Where(u => u.Role == role)
-                .ToListAsync();
-        }
+    public async Task<IEnumerable<Utilisateur>> GetByRoleAsync(string role)
+    {
+        return await _context.Utilisateurs
+            .Where(u => u.Role == role)
+            .ToListAsync();
     }
+
+        public async Task<Utilisateur?> GetUserWithRolesAndPermissionsAsync(string email)
+        {
+            var emailNormalise = email.ToLower().Trim();
+            return await _context.Utilisateurs
+                .Include(u => u.Roles)
+                    .ThenInclude(r => r.Permissions)
+                .Include(u => u.Niveau)
+                .FirstOrDefaultAsync(u => u.Email == emailNormalise);
+        }
+
+
+}
 }

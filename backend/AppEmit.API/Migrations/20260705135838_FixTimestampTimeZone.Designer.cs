@@ -3,6 +3,7 @@ using System;
 using AppEmit.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AppEmit.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260705135838_FixTimestampTimeZone")]
+    partial class FixTimestampTimeZone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,10 +60,10 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DateDemande")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateReponse")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("DemandeurId")
                         .HasColumnType("integer");
@@ -119,56 +122,6 @@ namespace AppEmit.API.Migrations
                     b.HasIndex("OrganisateurId");
 
                     b.ToTable("Evenements");
-                });
-
-            modelBuilder.Entity("AppEmit.API.Entities.Examen", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateExamen")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<TimeSpan>("HeureDebut")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("HeureFin")
-                        .HasColumnType("interval");
-
-                    b.Property<int>("MatiereId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("NiveauId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ParcoursId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProfesseurId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SalleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MatiereId");
-
-                    b.HasIndex("NiveauId");
-
-                    b.HasIndex("ParcoursId");
-
-                    b.HasIndex("ProfesseurId");
-
-                    b.HasIndex("SalleId");
-
-                    b.ToTable("Examens");
                 });
 
             modelBuilder.Entity("AppEmit.API.Entities.ExceptionPlanning", b =>
@@ -555,7 +508,7 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DateNaissance")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -671,47 +624,6 @@ namespace AppEmit.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Organisateur");
-                });
-
-            modelBuilder.Entity("AppEmit.API.Entities.Examen", b =>
-                {
-                    b.HasOne("AppEmit.API.Entities.Matiere", "Matiere")
-                        .WithMany()
-                        .HasForeignKey("MatiereId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
-                        .WithMany()
-                        .HasForeignKey("NiveauId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("AppEmit.API.Entities.Parcours", "Parcours")
-                        .WithMany()
-                        .HasForeignKey("ParcoursId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("AppEmit.API.Entities.Utilisateur", "Professeur")
-                        .WithMany()
-                        .HasForeignKey("ProfesseurId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AppEmit.API.Entities.Salle", "Salle")
-                        .WithMany()
-                        .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Matiere");
-
-                    b.Navigation("Niveau");
-
-                    b.Navigation("Parcours");
-
-                    b.Navigation("Professeur");
-
-                    b.Navigation("Salle");
                 });
 
             modelBuilder.Entity("AppEmit.API.Entities.ExceptionPlanning", b =>

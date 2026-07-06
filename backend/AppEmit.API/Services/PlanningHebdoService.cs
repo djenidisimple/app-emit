@@ -102,8 +102,6 @@ namespace AppEmit.API.Services
             return result;
         }
 
-        private static readonly Dictionary<int, Salle> SalleCache = new();
-
         private async Task<(string statut, string? motif, Salle? salleOverride)> ApplyExceptionsAsync(
             SeanceCours seance,
             DateTime occurrenceDate,
@@ -119,12 +117,7 @@ namespace AppEmit.API.Services
             Salle? salle = null;
             if (exc.NouvelleSalleId.HasValue)
             {
-                if (!SalleCache.TryGetValue(exc.NouvelleSalleId.Value, out salle))
-                {
-                    salle = await _salleRepo.GetByIdAsync(exc.NouvelleSalleId.Value);
-                    if (salle != null)
-                        SalleCache[exc.NouvelleSalleId.Value] = salle;
-                }
+                salle = await _salleRepo.GetByIdAsync(exc.NouvelleSalleId.Value);
             }
 
             return exc.TypeException switch

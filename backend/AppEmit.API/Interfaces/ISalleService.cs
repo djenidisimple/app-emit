@@ -10,5 +10,6 @@ namespace AppEmit.API.Interfaces
         Task<SalleResponseDto?> UpdateAsync(int id, SalleUpdateDto dto);
         Task<bool> DeleteAsync(int id);
         Task<bool> IsSalleDisponibleAsync(int salleId, DateTime date, TimeSpan debut, TimeSpan fin);
+        Task<IEnumerable<SalleResponseDto>> GetDisponiblesAsync(DateTime date, int creneauId);
     }
 }

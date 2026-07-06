@@ -35,5 +35,23 @@ namespace AppEmit.API.Controllers
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"planning_{dto.DateDebut:yyyyMMdd}_{dto.DateFin:yyyyMMdd}.xlsx");
         }
+
+        /// <summary>Exporter l'emploi du temps en PDF (grille colorée)</summary>
+        [HttpPost("export/emploi-du-temps")]
+        public async Task<IActionResult> ExporterEmploiDuTemps([FromBody] EmploiDuTempsExportDto dto)
+        {
+            var bytes = await _documentService.ExporterEmploiDuTempsPdfAsync(dto);
+            return File(bytes, "application/pdf",
+                $"emploi_du_temps_{dto.SalleCode ?? "global"}_{DateTime.Now:yyyyMMdd}.pdf");
+        }
+
+        /// <summary>Exporter l'avis aux étudiants (examens)</summary>
+        [HttpPost("export/avis-etudiants")]
+        public async Task<IActionResult> ExporterAvisEtudiants([FromBody] AvisEtudiantExportDto dto)
+        {
+            var bytes = await _documentService.ExporterAvisEtudiantsPdfAsync(dto);
+            return File(bytes, "application/pdf",
+                $"avis_etudiants_{DateTime.Now:yyyyMMdd}.pdf");
+        }
     }
 }
