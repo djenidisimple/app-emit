@@ -1,196 +1,319 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { css } from 'styled-system/css';
-import { Search, CheckCheck, CalendarDays, X, MapPin } from 'lucide-react';
+import { ArrowLeftRight, Download, CalendarDays, CheckCheck, X, AlertCircle, BookOpen, Clock, MapPin, Calendar } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { SeancePlanningDto, PlanningHebdoResponse } from '@/types';
+import SeanceCard from '@/components/global/SeanceCard';
+import StatusBadge from '@/components/global/StatusBadge';
+import StatCard from '@/components/global/StatCard';
+import { SeancePlanningDto, PlanningHebdoResponse, DemandeEchangeReadDto, ExamenReadDto, ReservationReadDto } from '@/types';
 import useAuthStore from '@/store/authStore';
 import { api } from '@/services/api';
-
-const JOURS_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-
-function formatHeure(h: string) { return h?.slice(0, 5) || '—'; }
-
-function getStatutBadge(statut: string, estTerminee?: boolean) {
-  if (estTerminee || statut === 'Terminé' || statut === 'Terminee')
-    return { label: 'Terminée', bg: '#8b5cf620', color: '#8b5cf6', border: '#8b5cf640' };
-  switch (statut) {
-    case 'Annule': case 'Annulé':
-      return { label: 'Annulée', bg: '#ef444420', color: '#ef4444', border: '#ef444440' };
-    case 'Reporte': case 'Reporté':
-      return { label: 'Reportée', bg: '#f59e0b20', color: '#f59e0b', border: '#f59e0b40' };
-    default:
-      return { label: 'Confirmée', bg: '#10b98120', color: '#10b981', border: '#10b98140' };
-  }
-}
+import { examenService } from '@/services/examens';
+import Link from 'next/link';
 
 export default function DashboardPage() {
-  const [seances, setSeances] = useState<(SeancePlanningDto & { estTerminee?: boolean })[]>([]);
+  const [seances, setSeances] = useState<SeancePlanningDto[]>([]);
+  const [demandesRecues, setDemandesRecues] = useState<DemandeEchangeReadDto[]>([]);
+  const [examens, setExamens] = useState<ExamenReadDto[]>([]);
+  const [reservations, setReservations] = useState<ReservationReadDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filterJour, setFilterJour] = useState('');
+  const [error, setError] = useState('');
   const { user } = useAuthStore();
-  const isProf = user?.role === 'Professeur' || user?.roles?.[0] === 'Professeur';
+  const role = user?.role || user?.roles?.[0] || '';
+  const isProf = role === 'Professeur';
+  const isEtudiant = role === 'Etudiant';
 
   const fetchData = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
+    setError('');
     try {
       const today = new Date().toISOString().split('T')[0];
       let url = `/Planning/hebdo?startDate=${today}`;
-      const role = user.role || user.roles?.[0];
-      if (role === 'Etudiant' && user.niveauId) url += `&niveauId=${user.niveauId}`;
-      else if (role === 'Professeur' && user.id) url += `&professeurId=${user.id}`;
+      if (isEtudiant && user.niveauId) url += `&niveauId=${user.niveauId}`;
+      else if (isProf && user.id) url += `&professeurId=${user.id}`;
       const res = await api.get<PlanningHebdoResponse>(url);
       if (res?.seances) setSeances(res.seances);
-    } catch { /* ignore */ } finally { setIsLoading(false); }
-  }, [user]);
+    } catch {
+      setError('Impossible de charger le planning.');
+    } finally { setIsLoading(false); }
+  }, [user, isEtudiant, isProf]);
+
+  const fetchDemandes = useCallback(async () => {
+    if (!user || !isProf) return;
+    try {
+      const data = await api.get<DemandeEchangeReadDto[]>(`/DemandeEchange?professeurId=${user.id}`);
+      setDemandesRecues(data.filter((d) => d.cibleId === user.id && d.statut === 'EnAttente'));
+    } catch { /* ignore */ }
+  }, [user, isProf]);
 
   const fetchStarted = useRef(false);
-  useEffect(() => { if (!fetchStarted.current) { fetchStarted.current = true; fetchData(); } }, [fetchData]);
+  useEffect(() => {
+    if (!fetchStarted.current) {
+      fetchStarted.current = true;
+      fetchData();
+      if (isProf) fetchDemandes();
+      if (isEtudiant && user?.niveauId) {
+        examenService.getByNiveau(user.niveauId).then(setExamens).catch(() => {});
+        api.get<ReservationReadDto[]>(`/Reservation/utilisateur/${user.id}`).then(setReservations).catch(() => {});
+      }
+    }
+  }, [fetchData, fetchDemandes, isProf, isEtudiant, user]);
 
   const handleTerminer = async (seance: SeancePlanningDto) => {
     try {
       await api.patch(`/SeanceCours/${seance.id}/terminer`);
-      setSeances((prev) => prev.map((s) => s.id === seance.id ? { ...s, estTerminee: true, statut: 'Terminee' } : s));
+      setSeances((prev) => prev.map((s) => s.id === seance.id ? { ...s, statut: 'Terminee' } : s));
     } catch { /* ignore */ }
   };
 
-  const filtered = seances
-    .filter((s) => {
-      const q = search.toLowerCase();
-      const matchSearch = !q || s.matiereNom.toLowerCase().includes(q) || s.professeurNomComplet.toLowerCase().includes(q) || s.salleNom.toLowerCase().includes(q);
-      const matchJour = !filterJour || s.jour === filterJour;
-      return matchSearch && matchJour;
-    })
-    .sort((a, b) => {
-      const ia = JOURS_ORDER.indexOf(a.jour), ib = JOURS_ORDER.indexOf(b.jour);
-      if (ia !== ib) return ia - ib;
-      return a.heureDebut.localeCompare(b.heureDebut);
-    });
+  const handleEchangeAction = async (id: number, statut: string) => {
+    try {
+      await api.patch(`/DemandeEchange/${id}/statut`, { statut });
+      setDemandesRecues((prev) => prev.filter((d) => d.id !== id));
+    } catch { /* ignore */ }
+  };
 
-  const totalSeances = seances.length;
-  const enCours = seances.filter((s) => !s.estTerminee && s.statut !== 'Terminee' && s.statut !== 'Terminé' && s.statut !== 'Annule' && s.statut !== 'Annulé').length;
-  const terminees = seances.filter((s) => s.estTerminee || s.statut === 'Terminee' || s.statut === 'Terminé').length;
-  const annulees = seances.filter((s) => s.statut === 'Annule' || s.statut === 'Annulé').length;
+  const triees = [...seances].sort((a, b) => {
+    const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const ia = jours.indexOf(a.jour), ib = jours.indexOf(b.jour);
+    if (ia !== ib) return ia - ib;
+    return a.heureDebut.localeCompare(b.heureDebut);
+  });
 
-  const statCard = (label: string, value: number | string, accent: string) => (
-    <div className={css({ bg: 'white', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '4', borderLeft: '3px solid', borderLeftColor: accent, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' })}>
-      <div className={css({ color: accent, fontSize: '2xl', fontWeight: 'bold', lineHeight: 'none' })}>{value}</div>
-      <div className={css({ color: 'fg.muted', fontSize: 'xs', fontWeight: 'medium', mt: '1' })}>{label}</div>
-    </div>
-  );
+  const enCours = seances.filter((s) => s.statut !== 'Terminee' && s.statut !== 'Terminé' && s.statut !== 'Annule' && s.statut !== 'Annulé').length;
+  const terminees = seances.filter((s) => s.statut === 'Terminee' || s.statut === 'Terminé').length;
 
-  return (
-    <ProtectedLayout pageTitle="Tableau de bord">
-      <div className={css({ display: 'grid', gridTemplateColumns: { base: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: '3', mb: '6' })}>
-        {statCard('Total séances', totalSeances, 'accent.default')}
-        {statCard('En cours', enCours, '#10b981')}
-        {statCard('Terminées', terminees, '#8b5cf6')}
-        {statCard('Annulées', annulees, '#ef4444')}
-      </div>
+  if (isProf) {
+    return (
+      <ProtectedLayout pageTitle="Mes séances">
+        <div className={css({ spaceY: '6', maxW: '3xl', mx: 'auto' })}>
+          <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3', flexWrap: 'wrap' })}>
+            <div className={css({ display: 'flex', gap: '3', flexWrap: 'wrap' })}>
+              <StatCard label="En cours" value={enCours} variant="success" />
+              <StatCard label="Terminées" value={terminees} variant="warning" />
+              <StatCard label="Total" value={seances.length} />
+            </div>
+            <div className={css({ display: 'flex', gap: '2' })}>
+              <Link href="/echanges/nouvelle"
+                className={css({
+                  display: 'inline-flex', alignItems: 'center', gap: '1.5',
+                  px: '3', py: '2', rounded: 'lg', fontSize: 'xs', fontWeight: 'medium',
+                  border: '1px solid', borderColor: 'accent.default', color: 'accent.default',
+                  _hover: { bg: 'accent.light' }, transition: 'all 0.15s',
+                })}>
+                <ArrowLeftRight size={14} /> Échanger
+              </Link>
+              <button
+                className={css({
+                  display: 'inline-flex', alignItems: 'center', gap: '1.5',
+                  px: '3', py: '2', rounded: 'lg', fontSize: 'xs', fontWeight: 'medium',
+                  border: '1px solid', borderColor: 'border.default', color: 'fg.muted',
+                  _hover: { bg: 'bg.muted' }, transition: 'all 0.15s',
+                })}
+                onClick={() => api.postBlob('/Document/export/pdf', {}).then((blob) => {
+                  const url = URL.createObjectURL(blob);
+                  window.open(url, '_blank');
+                })}
+              >
+                <Download size={14} /> Exporter
+              </button>
+            </div>
+          </div>
 
-      <div className={css({ display: 'flex', alignItems: 'center', gap: '3', mb: '5', flexWrap: 'wrap' })}>
-        <div className={css({ position: 'relative', flex: '1', minWidth: '200px', maxWidth: '360px' })}>
-          <Search size={14} className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', pointerEvents: 'none' })} />
-          <Input
-            type="text"
-            value={search}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-            placeholder="Rechercher matière, prof, salle..."
-            className={css({ pl: '9', pr: '8', bg: 'bg.surface', borderColor: 'border.default', color: 'fg.default', _placeholder: { color: 'fg.subtle' }, _focus: { borderColor: 'accent.default' } })}
-          />
-          {search && (
-            <button onClick={() => setSearch('')} className={css({ position: 'absolute', right: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', _hover: { color: 'fg.muted' } })}>
-              <X size={13} />
-            </button>
+          {error && (
+            <div className={css({ px: '4', py: '3', rounded: 'lg', fontSize: 'sm', bg: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}>
+              <AlertCircle size={14} /> {error}
+            </div>
+          )}
+
+          <div>
+            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
+              Mes séances de la semaine
+            </h2>
+            {isLoading ? (
+              <div className={css({ p: '12', display: 'flex', justifyContent: 'center' })}>
+                <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'border.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
+              </div>
+            ) : triees.length === 0 ? (
+              <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center' })}>
+                <CalendarDays size={28} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
+                <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance cette semaine</p>
+              </div>
+            ) : (
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+                {triees.map((seance) => (
+                  <SeanceCard key={seance.id} seance={seance} mode="professeur" onTerminer={handleTerminer} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {demandesRecues.length > 0 && (
+            <div>
+              <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
+                Demandes d&apos;échange reçues ({demandesRecues.length})
+              </h2>
+              <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+                {demandesRecues.map((d) => (
+                  <div key={d.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '4' })}>
+                    <div className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '3' })}>
+                      <div className={css({ spaceY: '1', fontSize: 'sm' })}>
+                        <p className={css({ fontWeight: 'medium', color: 'fg.default' })}>
+                          {d.nomDemandeur}
+                        </p>
+                        <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>
+                          {d.seanceDemandeurMatiere} ↔ {d.seanceCibleMatiere}
+                        </p>
+                        {d.motif && <p className={css({ fontSize: 'xs', color: 'fg.subtle', fontStyle: 'italic' })}>Motif : {d.motif}</p>}
+                      </div>
+                      <div className={css({ display: 'flex', gap: '2', flexShrink: '0' })}>
+                        <button onClick={() => handleEchangeAction(d.id, 'Acceptee')}
+                          className={css({ px: '3', py: '1.5', rounded: 'md', fontSize: 'xs', fontWeight: 'medium', bg: '#10b981', color: 'white', _hover: { bg: '#059669' }, transition: 'colors 0.15s' })}>
+                          <CheckCheck size={14} />
+                        </button>
+                        <button onClick={() => handleEchangeAction(d.id, 'Refusee')}
+                          className={css({ px: '3', py: '1.5', rounded: 'md', fontSize: 'xs', fontWeight: 'medium', bg: '#ef4444', color: 'white', _hover: { bg: '#dc2626' }, transition: 'colors 0.15s' })}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-        <div className={css({ display: 'flex', gap: '1.5', flexWrap: 'wrap' })}>
-          {JOURS_ORDER.map((j) => (
-            <button
-              key={j}
-              onClick={() => setFilterJour(filterJour === j ? '' : j)}
-              className={css({
-                px: '2.5', py: '1', rounded: 'md', fontSize: 'xs', fontWeight: 'medium',
-                bg: filterJour === j ? 'accent.default' : 'bg.surface',
-                color: filterJour === j ? 'white' : 'fg.muted',
-                border: '1px solid',
-                borderColor: filterJour === j ? 'accent.default' : 'border.default',
-                _hover: { bg: filterJour === j ? 'accent.emphasized' : 'bg.elevated' },
-                transition: 'all 0.15s',
-              })}
-            >
-              {j.slice(0, 3)}
-            </button>
-          ))}
-        </div>
-      </div>
+      </ProtectedLayout>
+    );
+  }
 
-      {isLoading ? (
-        <div className={css({ bg: 'white', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', display: 'flex', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' })}>
-          <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'colorPalette.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className={css({ bg: 'white', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' })}>
-          <CalendarDays size={32} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
-          <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance</p>
-          <p className={css({ color: 'fg.muted', fontSize: 'sm' })}>{seances.length === 0 ? 'Aucune séance planifiée cette semaine.' : 'Aucune séance ne correspond.'}</p>
-        </div>
-      ) : (
-        <div className={css({ bg: 'white', border: '1px solid', borderColor: 'border.default', rounded: 'lg', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' })}>
-          <div className={css({ overflowX: 'auto' })}>
-            <table className={css({ w: 'full', fontSize: 'sm' })}>
-              <thead>
-                <tr className={css({ bg: 'bg.muted' })}>
-                  {['Matière', 'Professeur', 'Salle', 'Jour', 'Horaire', 'Statut', 'Actions'].map((h) => (
-                    <th key={h} className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted', textTransform: 'uppercase', letterSpacing: 'wider' })}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((seance) => {
-                  const badge = getStatutBadge(seance.statut, seance.estTerminee);
-                  const done = seance.estTerminee || seance.statut === 'Terminee' || seance.statut === 'Terminé';
-                  return (
-                    <tr key={seance.id} className={css({ borderTop: '1px solid', borderColor: 'border.subtle', _hover: { bg: 'bg.muted' }, transition: 'colors 0.15s', opacity: done ? 0.5 : 1 })}>
-                      <td className={css({ px: '4', py: '3' })}>
-                        <p className={css({ fontWeight: 'medium', color: 'fg.default' })}>{seance.matiereNom}</p>
-                        <p className={css({ fontSize: '11px', color: 'fg.subtle', mt: '0.5' })}>{seance.matiereCode}</p>
-                      </td>
-                      <td className={css({ px: '4', py: '3', color: 'fg.muted', fontSize: 'xs' })}>{seance.professeurNomComplet}</td>
-                      <td className={css({ px: '4', py: '3' })}>
-                        <span className={css({ display: 'flex', alignItems: 'center', gap: '1', color: 'accent.default', fontSize: 'xs', fontWeight: 'medium' })}>
-                          <MapPin size={11} />{seance.salleNom}
-                        </span>
-                      </td>
-                      <td className={css({ px: '4', py: '3', color: 'fg.default', fontSize: 'xs', fontWeight: 'medium' })}>{seance.jour}</td>
-                      <td className={css({ px: '4', py: '3', color: 'fg.muted', fontSize: 'xs' })}>{formatHeure(seance.heureDebut)} – {formatHeure(seance.heureFin)}</td>
-                      <td className={css({ px: '4', py: '3' })}>
-                        <span className={css({ display: 'inline-flex', alignItems: 'center', fontSize: 'xs', fontWeight: 'medium', px: '2', py: '0.5', rounded: 'md', bg: badge.bg, color: badge.color, border: '1px solid', borderColor: badge.border })}>
-                          {badge.label}
-                        </span>
-                      </td>
-                      <td className={css({ px: '4', py: '3', textAlign: 'right' })}>
-                        {isProf && !done && seance.statut !== 'Annule' && seance.statut !== 'Annulé' && (
-                          <button onClick={() => handleTerminer(seance)}
-                            className={css({ display: 'inline-flex', alignItems: 'center', gap: '1', px: '2.5', py: '1.5', bg: '#10b981', color: 'white', rounded: 'md', fontSize: 'xs', fontWeight: 'medium', _hover: { bg: '#059669' }, transition: 'colors 0.15s' })}>
-                            <CheckCheck size={12} /> Terminée
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+  const now = new Date();
+  const prochaineSeance = triees.find((s) => {
+    const joursMap: Record<string, number> = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5 };
+    const todayIdx = now.getDay() === 0 ? -1 : now.getDay() - 1;
+    const seanceIdx = joursMap[s.jour] ?? -1;
+    return seanceIdx >= todayIdx && s.statut !== 'Terminee' && s.statut !== 'Terminé' && s.statut !== 'Annule' && s.statut !== 'Annulé';
+  });
+  const prochainExamen = examens
+    .filter((e) => new Date(e.dateExamen) >= now)
+    .sort((a, b) => new Date(a.dateExamen).getTime() - new Date(b.dateExamen).getTime())[0];
+  const recentReservations = reservations.slice(-3).reverse();
+
+  return (
+    <ProtectedLayout pageTitle={isEtudiant ? 'Mon espace' : 'Mon planning'}>
+      <div className={css({ spaceY: '6', maxW: '3xl', mx: 'auto' })}>
+        {isEtudiant && (
+          <div className={css({ spaceY: '4' })}>
+            {prochaineSeance && (
+              <div className={css({
+                bg: 'accent.default', rounded: 'lg', p: '5', color: 'white',
+              })}>
+                <p className={css({ fontSize: 'xs', fontWeight: 'medium', opacity: '0.8', mb: '1' })}>
+                  Prochaine séance
+                </p>
+                <p className={css({ fontSize: 'lg', fontWeight: 'bold', mb: '1' })}>
+                  {prochaineSeance.matiereNom}
+                </p>
+                <div className={css({ display: 'flex', alignItems: 'center', gap: '3', fontSize: 'sm', opacity: '0.9' })}>
+                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                    <Calendar size={13} /> {prochaineSeance.jour}
+                  </span>
+                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                    <Clock size={13} /> {prochaineSeance.heureDebut?.slice(0, 5)}
+                  </span>
+                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                    <MapPin size={13} /> {prochaineSeance.salleNom}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {prochainExamen && (
+              <div className={css({
+                bg: 'rgba(245,158,11,0.12)', border: '1px solid', borderColor: 'rgba(245,158,11,0.3)',
+                rounded: 'lg', p: '4', display: 'flex', alignItems: 'flex-start', gap: '3',
+              })}>
+                <BookOpen size={18} className={css({ color: '#f59e0b', mt: '0.5', flexShrink: '0' })} />
+                <div className={css({ spaceY: '0.5', fontSize: 'sm' })}>
+                  <p className={css({ fontWeight: 'semibold', color: '#f59e0b' })}>
+                    Examen à venir : {prochainExamen.matiereNom}
+                  </p>
+                  <p className={css({ color: '#f59e0b', fontSize: 'xs' })}>
+                    {new Date(prochainExamen.dateExamen).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} — {prochainExamen.heureDebut?.slice(0, 5)}
+                  </p>
+                  <p className={css({ color: '#f59e0b', fontSize: 'xs' })}>
+                    {prochainExamen.salleNom} · {prochainExamen.professeurNom}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className={css({ display: 'flex', justifyContent: 'center' })}>
+              <Link href="/student/reservations/nouvelle"
+                className={css({
+                  display: 'inline-flex', alignItems: 'center', gap: '2',
+                  px: '6', py: '3', rounded: 'lg', fontSize: 'sm', fontWeight: 'semibold',
+                  bg: 'accent.default', color: 'white',
+                  _hover: { opacity: 0.9 },
+                })}>
+                Réserver une salle
+              </Link>
+            </div>
           </div>
+        )}
+
+        {error && (
+          <div className={css({ px: '4', py: '3', rounded: 'lg', fontSize: 'sm', bg: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}>
+            <AlertCircle size={14} /> {error}
+          </div>
+        )}
+
+        <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: '1fr 1fr' }, gap: '3' })}>
+          <StatCard label="Séances cette semaine" value={seances.length} />
+          <StatCard label="Terminées" value={terminees} variant="success" />
         </div>
-      )}
+
+        {isLoading ? (
+          <div className={css({ p: '12', display: 'flex', justifyContent: 'center' })}>
+            <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'border.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
+          </div>
+        ) : triees.length === 0 ? (
+          <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center' })}>
+            <CalendarDays size={28} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
+            <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance cette semaine</p>
+          </div>
+        ) : (
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+            {triees.map((seance) => (
+              <SeanceCard key={seance.id} seance={seance} mode={isEtudiant ? 'etudiant' : 'professeur'} />
+            ))}
+          </div>
+        )}
+
+        {isEtudiant && recentReservations.length > 0 && (
+          <div>
+            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
+              Dernières réservations
+            </h2>
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+              {recentReservations.map((r) => (
+                <div key={r.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
+                  <div className={css({ fontSize: 'sm' })}>
+                    <p className={css({ fontWeight: 'medium', color: 'fg.default' })}>{r.titre}</p>
+                    <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>
+                      {new Date(r.datePrecise).toLocaleDateString('fr-FR')} — {r.salleLibelle}
+                    </p>
+                  </div>
+                  <StatusBadge status={r.statut === 'Confirmée' ? 'confirmee' : r.statut === 'En attente' ? 'en-attente' : 'annulee'} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </ProtectedLayout>
   );
 }
