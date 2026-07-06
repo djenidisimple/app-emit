@@ -27,6 +27,7 @@ namespace AppEmit.API.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<DemandeEchange> DemandesEchange { get; set; }
+        public DbSet<Examen> Examens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -211,6 +212,47 @@ namespace AppEmit.API.Data
             modelBuilder.Entity<DemandeEchange>()
                 .Property(d => d.DateReponse)
                 .HasColumnType("timestamp without time zone");
+
+            // =========================
+            // EXAMEN
+            // =========================
+            modelBuilder.Entity<Examen>()
+                .HasOne(e => e.Matiere)
+                .WithMany()
+                .HasForeignKey(e => e.MatiereId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Examen>()
+                .HasOne(e => e.Professeur)
+                .WithMany()
+                .HasForeignKey(e => e.ProfesseurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Examen>()
+                .HasOne(e => e.Salle)
+                .WithMany()
+                .HasForeignKey(e => e.SalleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Examen>()
+                .HasOne(e => e.Parcours)
+                .WithMany()
+                .HasForeignKey(e => e.ParcoursId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Examen>()
+                .HasOne(e => e.Niveau)
+                .WithMany()
+                .HasForeignKey(e => e.NiveauId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Examen>(entity =>
+            {
+                entity.Property(e => e.DateExamen)
+                    .HasColumnType("timestamp without time zone");
+            });
 
         }
     }
