@@ -1,8 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import { css } from 'styled-system/css';
+import TopNavbar from './TopNavbar';
 import Sidebar from './Sidebar';
-import Topbar from './Topbar';
+import useAuthStore from '@/store/authStore';
 
 export default function ProtectedLayout({
   children,
@@ -11,12 +15,56 @@ export default function ProtectedLayout({
   children: React.ReactNode;
   pageTitle?: string;
 }) {
+  const router = useRouter();
+  const { user, isLoading, loadUser } = useAuthStore();
+
+  useEffect(() => {
+    const token = Cookies.get('app-emit-token');
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    if (!Cookies.get('app-emit-token') && !isLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isLoading]);
+
+  if (isLoading || !user) return null;
+
   return (
-    <div className="flex h-screen bg-zinc-50 overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Topbar pageTitle={pageTitle} />
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+    <div
+      className={css({
+        h: 'screen',
+        display: 'flex',
+        flexDirection: 'column',
+        bg: 'bg.canvas',
+        overflow: 'hidden',
+      })}
+    >
+      <TopNavbar pageTitle={pageTitle} />
+      <div
+        className={css({
+          display: 'flex',
+          flex: '1',
+          overflow: 'hidden',
+          pt: '14',
+        })}
+      >
+        <Sidebar />
+        <main
+          className={css({
+            flex: '1',
+            overflowY: 'auto',
+            p: '6',
+            bg: 'bg.canvas',
+          })}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
