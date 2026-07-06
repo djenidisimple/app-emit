@@ -1,57 +1,36 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+'use client'
+import { ark } from '@ark-ui/react/factory'
+import { type ComponentProps, forwardRef } from 'react'
+import { cx } from 'styled-system/css'
+import { button, type ButtonVariantProps } from 'styled-system/recipes'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
-  icon?: React.ElementType;
-  children: React.ReactNode;
+type ButtonProps = ComponentProps<typeof ark.button> & ButtonVariantProps & {
+  loading?: boolean
+  loadingText?: React.ReactNode
 }
 
-const variants: Record<string, string> = {
-  primary:
-    'bg-[#0052FF] text-white hover:bg-blue-700',
-  secondary:
-    'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50',
-  success:
-    'bg-emerald-600 text-white hover:bg-emerald-700',
-  danger:
-    'bg-red-600 text-white hover:bg-red-700',
-  outline:
-    'bg-transparent text-[#0052FF] border border-[#0052FF] hover:bg-blue-50',
-  ghost:
-    'bg-transparent text-blue-500 border border-transparent hover:bg-blue-50',
-};
-
-const sizes: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-5 py-2.5 text-sm',
-  lg: 'px-7 py-3.5 text-base',
-};
-
-export default function Button({
-  variant = 'primary',
-  size = 'md',
-  isLoading,
-  icon: Icon,
-  children,
-  className = '',
-  disabled,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(props, ref) {
+  const { loading, loadingText, variant, size, className, children, ...rest } = props
+  const recipeClass = button({ variant, size })
   return (
-    <button
-      className={`inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={disabled || isLoading}
-      {...props}
+    <ark.button
+      ref={ref}
+      className={cx(recipeClass, className)}
+      data-loading={loading ? '' : undefined}
+      disabled={loading || rest.disabled}
+      {...rest}
     >
-      {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        Icon && <Icon className="w-4 h-4" />
-      )}
-      {children}
-    </button>
-  );
-}
+      {loading ? (
+        <span style={{ display: 'contents' }}>
+          <span style={{ position: 'absolute', display: 'inline-flex' }}>
+            <svg width="1em" height="1em" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25" />
+              <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" />
+            </svg>
+          </span>
+          <span style={{ visibility: 'hidden', display: 'contents' }}>{children}</span>
+        </span>
+      ) : children}
+    </ark.button>
+  )
+})
