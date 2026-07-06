@@ -19,7 +19,7 @@ Chaque module est indépendant et peut être réalisé en parallèle par chaque 
 
 ---
 
-## ⬜ Module B — DemandeEchange (Brunel → Samson)
+## ✅ Module B — DemandeEchange (Brunel → Samson)
 
 **Dépendance :** Brunel livre l'entité d'abord, puis Samson fait l'API et le frontend.
 
@@ -51,7 +51,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module C — Niveaux (Brunel + Romuald)
+## ✅ Module C — Niveaux (Brunel + Romuald)
 
 **Indépendant.** Brunel et Romuald peuvent travailler en parallèle.
 
@@ -67,7 +67,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module D — Filieres (Brunel + Romuald)
+## ✅ Module D — Filieres (Brunel + Romuald)
 
 **Indépendant.** Brunel et Romuald peuvent travailler en parallèle.
 
@@ -83,7 +83,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module E — Salles Admin CRUD (Mickael)
+## ✅ Module E — Salles Admin CRUD (Mickael)
 
 **Indépendant.** Le backend est déjà prêt (Full CRUD).
 
@@ -95,7 +95,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module F — Utilisateurs Admin CRUD (Mickael)
+## ✅ Module F — Utilisateurs Admin CRUD (Mickael)
 
 **Indépendant.** Le backend est déjà prêt (Full CRUD).
 
@@ -106,7 +106,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module G — Professeur : Marquer terminée (Mickael)
+## ✅ Module G — Professeur : Marquer terminée (Mickael)
 
 **Indépendant.** Le backend est déjà prêt (`PATCH /api/SeanceCours/{id}/terminer`).
 
@@ -117,7 +117,7 @@ Créer la table `DemandeEchanges` :
 
 ---
 
-## ⬜ Module H — Générateur de Séance (Samson → Romuald)
+## ✅ Module H — Générateur de Séance (Samson → Romuald)
 
 **Dépendance :** Samson livre l'API d'abord, puis Romuald fait le formulaire.
 
@@ -160,21 +160,21 @@ Mickael et Romuald (C2, D2) sont 100% indépendants
 ## Récapitulatif par Membre
 
 ### Brunel (3 tâches — backend pur)
-- [ ] **B1** — DemandeEchange : Entité + Repository + Migration
-- [ ] **C1** — Niveaux : endpoint PUT
-- [ ] **D1** — Filieres : endpoint PUT
+- [x] **B1** — DemandeEchange : Entité + Repository + Migration
+- [x] **C1** — Niveaux : endpoint PUT
+- [x] **D1** — Filieres : endpoint PUT
 
 ### Samson (3 tâches — backend + frontend)
-- [ ] **H1** — Générateur de Séance : backend endpoint
-- [ ] **B2** — DemandeEchange : DTOs + Service + Controller
-- [ ] **B3** — DemandeEchange : Frontend UI
+- [x] **H1** — Générateur de Séance : backend endpoint
+- [x] **B2** — DemandeEchange : DTOs + Service + Controller
+- [x] **B3** — DemandeEchange : Frontend UI
 
 ### Mickael (3 tâches — frontend pur)
-- [ ] **E** — Salles Admin : Create/Edit/Delete
-- [ ] **F** — Utilisateurs Admin : Create/Edit
-- [ ] **G** — Professeur : bouton "Marquer terminée"
+- [x] **E** — Salles Admin : Create/Edit/Delete
+- [x] **F** — Utilisateurs Admin : Create/Edit
+- [x] **G** — Professeur : bouton "Marquer terminée"
 
 ### Romuald (3 tâches — frontend pur)
-- [ ] **C2** — Niveaux : bouton Edit
-- [ ] **D2** — Filieres : bouton Edit
-- [ ] **H2** — Générateur de Séance : formulaire frontend
+- [x] **C2** — Niveaux : bouton Edit
+- [x] **D2** — Filieres : bouton Edit
+- [x] **H2** — Générateur de Séance : formulaire frontend

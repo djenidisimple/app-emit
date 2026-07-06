@@ -5,5 +5,27 @@
 .env.local
 *.env
 
-
 backend.log
+
+# Generated files
+frontend/styled-system/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build output
+backend/AppEmit.API/bin/
+backend/AppEmit.API/obj/
+frontend/.next/
+frontend/out/
+
+# Logs
+*.log

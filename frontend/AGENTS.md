@@ -4,54 +4,71 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Progress Log — Neo-brutalism → Modern blue/rounded theme
+# Progress Log — Hubstaff-inspired Top-Nav Dashboard Design
 
-## Completed (all 100% done)
-- Rewrote **Sidebar.tsx** — dark → light blue, rounded, white bg, blue active states
-- Rewrote **Topbar.tsx** — removed nav links, light blue, rounded
-- Created **`/interface` page** — full demo with calendar/rooms/modal/components all light/blue/rounded
-- Renamed route: `/neo-brutalism` → `/interface`
-- Cleaned **globals.css** — removed all nb-* utilities, tricolor palette
-- Updated **dashboard/page.tsx** — StatCards, tables, modals, toasts, filters, view toggle, SortBtn, loading/empty states
-- Updated **planning/page.tsx** — nav bar, table, legend, cards, error banners
-- Updated **notifications/page.tsx** — stat cards, buttons, error, notification items
-- Updated **salles/page.tsx** — search, stats, cards, skyline
-- Updated **admin/page.tsx** — all nav cards
-- Updated **admin/filieres/page.tsx** — full rewrite
-- Updated **admin/niveaux/page.tsx** — full rewrite
-- Updated **admin/parcours/page.tsx** — full rewrite
-- Updated **admin/matieres/page.tsx** — full rewrite
-- Updated **admin/reservations/page.tsx** — batch replace gray → blue
-- Updated **admin/salles/page.tsx** — batch replace gray → blue
-- Updated **admin/utilisateurs/page.tsx** — batch replace gray → blue
-- Updated **admin/generateur-seance/page.tsx** — link colors
-- Updated **GenerateurSeanceForm.tsx** — full rewrite (blue/rounded)
-- Updated **login/page.tsx** — full rewrite (blue/rounded)
-- Updated **register/page.tsx** — full rewrite (blue/rounded)
-- Updated **page.tsx** (landing) — full rewrite (blue/rounded)
-- Updated **about/page.tsx** — full rewrite (blue/rounded)
-- Updated **SalleCard.tsx** — blue theme, rounded
-- Updated **SeanceCard.tsx** — blue theme, rounded
-- Updated **CalendarWeek.tsx** — blue theme, rounded
-- Updated **FilterBar.tsx** — blue theme, rounded
-- Updated **ReservationModal.tsx** — blue theme, rounded
-- Updated **ExceptionModal.tsx** — blue theme, rounded
-- Updated **EmptyState.tsx** — blue theme, rounded
-- Updated **LoadingSkeleton.tsx** — blue theme, rounded
-- Updated **Button.tsx** — blue theme, rounded
-- Updated **Input.tsx** — blue theme, rounded
-- Updated **Badge.tsx** — blue theme, rounded
+## Layout Architecture
+- **TopNavbar.tsx**: Fixed horizontal navbar at viewport top (h-14, z-50). Left: hamburger menu toggler, logo (GS badge + "G-Salles"), page title. Right: search, notifications (bell with unread badge), apps grid icon, user avatar (initials + green online dot) with dropdown chevron.
+- **Sidebar.tsx**: Slim sidebar (collapsible: w-14 collapsed, w-56 expanded) below top navbar. Indigo active state with left border bar (3px), light indigo bg (#F0F1FF). Supports nested children (e.g., Planning > EDT Globale, Mes séances). Toggle via hamburger in TopNavbar.
+- **ProtectedLayout.tsx**: Flex column layout: TopNavbar fixed top → flex row of [SlimSidebar | main content]. Content area has bg-bg-secondary (#F7F8FA) with p-5 padding.
 
-## Remaining (nothing)
-- No `border-ink`, `shadow-hard`, `bg-midnight`, or `text-ink` remain in any `.tsx` file
-- 0 occurrences of these patterns across the entire frontend
+## Color Palette (defined in globals.css via `@theme inline`)
+- **Primary accent**: #4F5EFF (indigo/blue-purple) — active states, primary buttons, selected filters
+- **Secondary future**: #3B82F6 (light blue) — future/upcoming blocks
+- **Late/warning**: #F59E0B (orange/amber) — late status badges
+- **Danger**: #EF4444 (red) — missed/cancelled indicators
+- **Success**: #10B981 (green) — confirmed/completed
+- **Special**: #8B5CF6 (violet) — special statuses
+- **Neutrals**: #FFFFFF bg, #F7F8FA secondary bg, #F3F4F6 tertiary, #E5E7EB borders, #1F2937 text, #6B7280 secondary text, #9CA3AF tertiary
 
-## Patterns
-- `rounded-2xl` / `rounded-xl` / `rounded-lg` instead of `rounded-none` or `border-2 border-ink`
-- `border border-blue-100` / `border-blue-200` instead of `border-2 border-ink`
-- `shadow-sm` / `shadow-lg` instead of `shadow-hard` / `shadow-hard-sm` / `shadow-hard-lg`
-- `bg-blue-50` instead of `bg-canvas` / `bg-[#F8F9FA]` / `bg-midnight`
-- `text-blue-900` / `text-blue-500` / `text-blue-400` instead of `text-ink` / `text-muted`
-- `hover:bg-blue-50` instead of `hover:bg-canvas` / `hover:bg-[#F8F9FA]`
-- `bg-[#0052FF]` instead of `bg-primary` / `bg-[#1B3A6B]`
-- `focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]` for input focus states
+## Typography
+- **Font**: Inter (variable), loaded in layout.tsx via `next/font/google`
+- Page titles: `text-base font-semibold` (16px)
+- Section headers: `text-xs font-semibold uppercase tracking-wider`
+- Body: `text-sm` (14px) or `text-xs` (12px)
+
+## Component Design Tokens
+
+### Buttons (Button.tsx)
+- Sizes: sm (8px rounded), md/lg (12px rounded)
+- Primary: `bg-accent text-white hover:bg-accent-dark shadow-sm hover:shadow-md`
+- Secondary: `bg-white text-text border border-border hover:bg-bg-tertiary`
+- Success: `bg-success text-white hover:bg-emerald-600`
+- Danger: `bg-danger text-white hover:bg-red-700`
+- Outline/ghost exist
+
+### Inputs (Input.tsx)
+- `rounded-xl` (12px), white bg, border-border, 10-12px padding
+- Focus: `focus:border-accent focus:ring-2 focus:ring-accent/20`
+- Labels: `text-xs font-medium text-text-secondary`
+- Error: red border + glow
+
+### Badge/Badge.tsx
+- Pill-style with colored dot indicator + text
+- Confirmed: green bg + dot, Cancelled: gray, Late/En attente: amber, Terminé: violet
+
+### Cards (used throughout pages)
+- White bg, `border border-border`, `rounded-xl` (12px), shadow-card (subtle)
+- Internal padding 16-24px
+
+### FilterBar.tsx
+- `rounded-xl` container, `shadow-card`
+- Filter toggle button: `bg-accent text-white` active, `bg-bg-tertiary text-text-secondary` inactive
+- Sort select: bordered dropdown with chevron
+
+### Filters & Toggles
+- View toggle (List/Calendar): pill-style group in a border container, active item is `bg-accent text-white` with overflow-hidden
+- Show/hide toggle: standard `bg-accent` when active, `bg-gray-200` when inactive
+
+## Semantic color classes preserved
+- ROLE_COLORS: Admin (red), Professeur (blue), Etudiant (green), Responsable (purple) — kept for role differentiation
+- Avatar color palette: diverse colors for user avatars — kept
+- PDF export inline CSS: updated to use accent color (#3B82F6)
+
+## Key files
+- `app/globals.css` — all design tokens
+- `app/layout.tsx` — Inter font, NotificationProvider
+- `components/layout/TopNavbar.tsx` — top nav bar
+- `components/layout/Sidebar.tsx` — slim sidebar
+- `components/layout/ProtectedLayout.tsx` — layout wrapper
+- `components/ui/Button.tsx`, `Input.tsx`, `Badge.tsx` — UI primitives
+- `components/FilterBar.tsx`, `CalendarWeek.tsx` — feature components
