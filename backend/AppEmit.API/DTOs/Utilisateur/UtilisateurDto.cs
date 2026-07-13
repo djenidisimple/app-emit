@@ -17,10 +17,15 @@ namespace AppEmit.API.DTOs.Utilisateur
         public string Nom { get; set; } = string.Empty;
         public string Prenom { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string MotDePasse { get; set; } = string.Empty;
+        public string? MotDePasse { get; set; }
         public string? Matricule { get; set; }
         public string? Role { get; set; }
         public int? NiveauId { get; set; }
+    }
+
+    public class UtilisateurCreatedDto : UtilisateurDto
+    {
+        public string? MotDePasse { get; set; }
     }
 
     public class UtilisateurUpdateDto

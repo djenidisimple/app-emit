@@ -27,5 +27,8 @@ namespace AppEmit.API.DTOs.SeanceCours
         public DateTime DateFinAnnee { get; set; }
 
         public string CouleurAffichage { get; set; } = "#3B82F6";
+
+        public TimeSpan? HeureDebutCustom { get; set; }
+        public TimeSpan? HeureFinCustom { get; set; }
     }
 }

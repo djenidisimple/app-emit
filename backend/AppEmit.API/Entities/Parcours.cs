@@ -11,6 +11,8 @@ public class Parcours
     [Required, StringLength(100)]
     public string Nom { get; set; } = string.Empty;
 
+    public string? Description { get; set; }
+
     [Required]
     public int FiliereId { get; set; }
 

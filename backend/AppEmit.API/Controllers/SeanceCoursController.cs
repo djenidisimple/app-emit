@@ -92,6 +92,8 @@ namespace AppEmit.API.Controllers
                 DateDebutAnnee = dto.DateDebut,
                 DateFinAnnee = dto.DateFin,
                 CouleurAffichage = dto.CouleurAffichage ?? "#3B82F6",
+                HeureDebutCustom = dto.HeureDebutCustom,
+                HeureFinCustom = dto.HeureFinCustom,
             };
 
             var created = await _seanceCoursService.CreateAsync(createDto);

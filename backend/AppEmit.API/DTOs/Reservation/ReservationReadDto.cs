@@ -12,5 +12,10 @@ namespace AppEmit.API.DTOs.Reservation
         public string DemandeurNom { get; set; } = string.Empty;
         public int SalleId { get; set; }
         public string SalleLibelle { get; set; } = string.Empty;
+        public int? ParcoursId { get; set; }
+        public string? ParcoursNom { get; set; }
+        public int? NiveauId { get; set; }
+        public string? NiveauCode { get; set; }
+        public string? HeureDebut { get; set; }
     }
 }

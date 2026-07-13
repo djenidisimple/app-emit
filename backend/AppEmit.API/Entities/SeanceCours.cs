@@ -43,6 +43,9 @@ public class SeanceCours
 
     public string? CouleurAffichage { get; set; }
 
+    public TimeSpan? HeureDebutCustom { get; set; }
+    public TimeSpan? HeureFinCustom { get; set; }
+
     // Lien vers les annulations/reports
     public ICollection<ExceptionPlanning> Exceptions { get; set; } = new List<ExceptionPlanning>();
 }

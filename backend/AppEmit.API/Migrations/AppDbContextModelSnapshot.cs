@@ -57,10 +57,10 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DateDemande")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateReponse")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("DemandeurId")
                         .HasColumnType("integer");
@@ -130,7 +130,7 @@ namespace AppEmit.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateExamen")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -180,10 +180,10 @@ namespace AppEmit.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateDebut")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateFin")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Motif")
                         .HasColumnType("text");
@@ -216,6 +216,9 @@ namespace AppEmit.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -239,6 +242,12 @@ namespace AppEmit.API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("NiveauId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("text");
@@ -247,6 +256,8 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NiveauId");
 
                     b.ToTable("Matieres");
                 });
@@ -345,6 +356,9 @@ namespace AppEmit.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<int>("FiliereId")
                         .HasColumnType("integer");
 
@@ -381,6 +395,39 @@ namespace AppEmit.API.Migrations
                     b.ToTable("Permissions");
                 });
 
+            modelBuilder.Entity("AppEmit.API.Entities.ProfesseurMatiere", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MatiereId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("NiveauId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ParcoursId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProfesseurId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatiereId");
+
+                    b.HasIndex("NiveauId");
+
+                    b.HasIndex("ParcoursId");
+
+                    b.HasIndex("ProfesseurId");
+
+                    b.ToTable("ProfesseursMatieres");
+                });
+
             modelBuilder.Entity("AppEmit.API.Entities.Reservation", b =>
                 {
                     b.Property<int>("Id")
@@ -393,6 +440,16 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("EvenementId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("HeureDebut")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int?>("NiveauId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ParcoursId")
                         .HasColumnType("integer");
 
                     b.Property<int>("SalleId")
@@ -413,6 +470,10 @@ namespace AppEmit.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EvenementId");
+
+                    b.HasIndex("NiveauId");
+
+                    b.HasIndex("ParcoursId");
 
                     b.HasIndex("SalleId");
 
@@ -503,13 +564,19 @@ namespace AppEmit.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DateDebutAnnee")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateFinAnnee")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("EstTerminee")
                         .HasColumnType("boolean");
+
+                    b.Property<TimeSpan?>("HeureDebutCustom")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan?>("HeureFinCustom")
+                        .HasColumnType("interval");
 
                     b.Property<int>("MatiereId")
                         .HasColumnType("integer");
@@ -718,8 +785,7 @@ namespace AppEmit.API.Migrations
                 {
                     b.HasOne("AppEmit.API.Entities.Salle", "NouvelleSalle")
                         .WithMany()
-                        .HasForeignKey("NouvelleSalleId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("NouvelleSalleId");
 
                     b.HasOne("AppEmit.API.Entities.SeanceCours", "SeanceOriginale")
                         .WithMany("Exceptions")
@@ -730,6 +796,17 @@ namespace AppEmit.API.Migrations
                     b.Navigation("NouvelleSalle");
 
                     b.Navigation("SeanceOriginale");
+                });
+
+            modelBuilder.Entity("AppEmit.API.Entities.Matiere", b =>
+                {
+                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
+                        .WithMany("Matieres")
+                        .HasForeignKey("NiveauId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Niveau");
                 });
 
             modelBuilder.Entity("AppEmit.API.Entities.Niveau", b =>
@@ -776,6 +853,39 @@ namespace AppEmit.API.Migrations
                     b.Navigation("Filiere");
                 });
 
+            modelBuilder.Entity("AppEmit.API.Entities.ProfesseurMatiere", b =>
+                {
+                    b.HasOne("AppEmit.API.Entities.Matiere", "Matiere")
+                        .WithMany()
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
+                        .WithMany()
+                        .HasForeignKey("NiveauId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AppEmit.API.Entities.Parcours", "Parcours")
+                        .WithMany()
+                        .HasForeignKey("ParcoursId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AppEmit.API.Entities.Utilisateur", "Professeur")
+                        .WithMany()
+                        .HasForeignKey("ProfesseurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Matiere");
+
+                    b.Navigation("Niveau");
+
+                    b.Navigation("Parcours");
+
+                    b.Navigation("Professeur");
+                });
+
             modelBuilder.Entity("AppEmit.API.Entities.Reservation", b =>
                 {
                     b.HasOne("AppEmit.API.Entities.Evenement", "Evenement")
@@ -783,6 +893,16 @@ namespace AppEmit.API.Migrations
                         .HasForeignKey("EvenementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("AppEmit.API.Entities.Niveau", "Niveau")
+                        .WithMany()
+                        .HasForeignKey("NiveauId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AppEmit.API.Entities.Parcours", "Parcours")
+                        .WithMany()
+                        .HasForeignKey("ParcoursId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AppEmit.API.Entities.Salle", "Salle")
                         .WithMany()
@@ -797,6 +917,10 @@ namespace AppEmit.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Evenement");
+
+                    b.Navigation("Niveau");
+
+                    b.Navigation("Parcours");
 
                     b.Navigation("Salle");
 
@@ -836,7 +960,7 @@ namespace AppEmit.API.Migrations
                     b.HasOne("AppEmit.API.Entities.Salle", "Salle")
                         .WithMany("Seances")
                         .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Creneau");
@@ -904,6 +1028,8 @@ namespace AppEmit.API.Migrations
 
             modelBuilder.Entity("AppEmit.API.Entities.Niveau", b =>
                 {
+                    b.Navigation("Matieres");
+
                     b.Navigation("Seances");
 
                     b.Navigation("Utilisateurs");

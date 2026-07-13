@@ -5,6 +5,7 @@ using AppEmit.API.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 
 namespace AppEmit.API.Services
 {
@@ -39,13 +40,33 @@ namespace AppEmit.API.Services
             return utilisateur == null ? null : _mapper.Map<UtilisateurDto>(utilisateur);
         }
 
-        public async Task<UtilisateurDto> CreateAsync(UtilisateurCreateDto dto)
+        public async Task<UtilisateurCreatedDto> CreateAsync(UtilisateurCreateDto dto)
         {
+            var motDePasse = dto.MotDePasse;
+            if (string.IsNullOrWhiteSpace(motDePasse))
+            {
+                motDePasse = GeneratePassword(8);
+            }
+
             var entity = _mapper.Map<Utilisateur>(dto);
-            entity.MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(dto.MotDePasse);
+            entity.MotDePasseHash = BCrypt.Net.BCrypt.HashPassword(motDePasse);
             var created = await _repository.AddAsync(entity);
             _logger.LogInformation("Utilisateur {Id} créé.", created.Id);
-            return _mapper.Map<UtilisateurDto>(created);
+
+            var result = _mapper.Map<UtilisateurCreatedDto>(created);
+            result.MotDePasse = motDePasse;
+            return result;
+        }
+
+        private static string GeneratePassword(int length)
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$";
+            var data = new byte[length];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(data);
+            }
+            return new string(data.Select(b => chars[b % chars.Length]).ToArray());
         }
 
         public async Task<UtilisateurDto?> UpdateAsync(int id, UtilisateurUpdateDto dto)

@@ -15,5 +15,8 @@ namespace AppEmit.API.DTOs
 
         /// <summary>Filtrer par niveau d'étude</summary>
         public int? NiveauId { get; set; }
+
+        /// <summary>Filtrer par parcours</summary>
+        public int? ParcoursId { get; set; }
     }
 }

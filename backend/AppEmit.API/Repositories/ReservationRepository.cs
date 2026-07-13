@@ -16,6 +16,8 @@ namespace AppEmit.API.Repositories
                 .Include(r => r.Utilisateur)
                 .Include(r => r.Evenement)
                 .Include(r => r.Salle)
+                .Include(r => r.Parcours)
+                .Include(r => r.Niveau)
                 .ToListAsync();
         }
 
@@ -26,6 +28,8 @@ namespace AppEmit.API.Repositories
                 .Include(r => r.Utilisateur)
                 .Include(r => r.Evenement)
                 .Include(r => r.Salle)
+                .Include(r => r.Parcours)
+                .Include(r => r.Niveau)
                 .ToListAsync();
         }
 
@@ -35,6 +39,8 @@ namespace AppEmit.API.Repositories
                 .Include(r => r.Utilisateur)
                 .Include(r => r.Evenement)
                 .Include(r => r.Salle)
+                .Include(r => r.Parcours)
+                .Include(r => r.Niveau)
                 .ToListAsync();
         }
 
@@ -44,6 +50,8 @@ namespace AppEmit.API.Repositories
                 .Include(r => r.Utilisateur)
                 .Include(r => r.Evenement)
                 .Include(r => r.Salle)
+                .Include(r => r.Parcours)
+                .Include(r => r.Niveau)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 

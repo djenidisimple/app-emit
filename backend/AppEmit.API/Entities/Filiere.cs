@@ -10,6 +10,8 @@ public class Filiere
     [Required, StringLength(100)]
     public string Nom { get; set; } = string.Empty;
 
+    public string? Description { get; set; }
+
     // Navigation
     public virtual ICollection<Parcours> Parcours { get; set; } = new HashSet<Parcours>();
 }

@@ -182,6 +182,7 @@ namespace AppEmit.API
             builder.Services.AddScoped<ISeanceCoursRepository, SeanceCoursRepository>();
             builder.Services.AddScoped<IExceptionPlanningRepository, ExceptionPlanningRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+            builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
@@ -198,6 +199,7 @@ namespace AppEmit.API
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<IDemandeEchangeService, DemandeEchangeService>();
             builder.Services.AddScoped<IExamenService, ExamenService>();
+            builder.Services.AddScoped<IAffectationService, AffectationService>();
             builder.Services.AddHttpContextAccessor();
 
             // (Les services Matière & Parcours sont déjà enregistrés ci-dessus)

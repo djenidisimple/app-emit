@@ -12,6 +12,13 @@ namespace AppEmit.API.Entities
         [Required]
         public string Nom { get; set; } = string.Empty;
 
+        public string? Description { get; set; }
+
         public string? Type { get; set; }
+
+        public int NiveauId { get; set; }
+
+        [ForeignKey("NiveauId")]
+        public virtual Niveau Niveau { get; set; } = null!;
     }
 }

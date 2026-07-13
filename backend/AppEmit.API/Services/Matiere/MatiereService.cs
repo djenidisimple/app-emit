@@ -29,6 +29,12 @@ public class MatiereService : IMatiereService
         return m == null ? null : _mapper.Map<MatiereDto>(m);
     }
 
+    public async Task<IEnumerable<MatiereDto>> GetByNiveauAsync(int niveauId)
+    {
+        var matieres = await _repo.GetByNiveauAsync(niveauId);
+        return _mapper.Map<IEnumerable<MatiereDto>>(matieres);
+    }
+
     public async Task<MatiereDto> CreateAsync(MatiereCreateDto dto)
     {
         if (await _repo.ExistsByCodeAsync(dto.Code))

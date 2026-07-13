@@ -13,7 +13,7 @@ namespace AppEmit.API.Repositories
     {
         public SeanceCoursRepository(AppDbContext context) : base(context) { }
 
-        public async Task<List<SeanceCours>> GetSeancesForWeekAsync(DateTime monday, DateTime saturday, int? professeurId, int? salleId, int? niveauId)
+        public async Task<List<SeanceCours>> GetSeancesForWeekAsync(DateTime monday, DateTime saturday, int? professeurId, int? salleId, int? niveauId, int? parcoursId = null)
         {
             var query = _context.SeancesCours
                 .Include(s => s.Matiere)
@@ -25,6 +25,7 @@ namespace AppEmit.API.Repositories
             if (professeurId.HasValue) query = query.Where(s => s.ProfesseurId == professeurId.Value);
             if (salleId.HasValue) query = query.Where(s => s.SalleId == salleId.Value);
             if (niveauId.HasValue) query = query.Where(s => s.NiveauId == niveauId.Value);
+            if (parcoursId.HasValue) query = query.Where(s => s.ParcoursId == parcoursId.Value);
             return await query.ToListAsync();
         }
 

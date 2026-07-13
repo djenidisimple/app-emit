@@ -28,6 +28,7 @@ namespace AppEmit.API.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<DemandeEchange> DemandesEchange { get; set; }
         public DbSet<Examen> Examens { get; set; }
+        public DbSet<ProfesseurMatiere> ProfesseursMatieres { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -123,6 +124,20 @@ namespace AppEmit.API.Data
                 .WithMany(e => e.Reservations)
                 .HasForeignKey(r => r.EvenementId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Parcours)
+                .WithMany()
+                .HasForeignKey(r => r.ParcoursId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Niveau)
+                .WithMany()
+                .HasForeignKey(r => r.NiveauId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
 
             modelBuilder.Entity<Reservation>()
                 .Property(r => r.Session)
@@ -253,6 +268,48 @@ namespace AppEmit.API.Data
                 entity.Property(e => e.DateExamen)
                     .HasColumnType("timestamp without time zone");
             });
+
+            // =========================
+            // MATIERE -> NIVEAU
+            // =========================
+            modelBuilder.Entity<Matiere>()
+                .HasOne(m => m.Niveau)
+                .WithMany(n => n.Matieres)
+                .HasForeignKey(m => m.NiveauId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Matiere>()
+                .Property(m => m.NiveauId)
+                .IsRequired();
+
+            // =========================
+            // PROFESSEUR MATIERE (Affectation)
+            // =========================
+            modelBuilder.Entity<ProfesseurMatiere>()
+                .HasOne(pm => pm.Professeur)
+                .WithMany()
+                .HasForeignKey(pm => pm.ProfesseurId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProfesseurMatiere>()
+                .HasOne(pm => pm.Matiere)
+                .WithMany()
+                .HasForeignKey(pm => pm.MatiereId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProfesseurMatiere>()
+                .HasOne(pm => pm.Parcours)
+                .WithMany()
+                .HasForeignKey(pm => pm.ParcoursId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            modelBuilder.Entity<ProfesseurMatiere>()
+                .HasOne(pm => pm.Niveau)
+                .WithMany()
+                .HasForeignKey(pm => pm.NiveauId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
 
         }
     }

@@ -20,4 +20,5 @@ public class Niveau
     // Relations
     public virtual ICollection<Utilisateur> Utilisateurs { get; set; } = new HashSet<Utilisateur>();
     public virtual ICollection<SeanceCours> Seances { get; set; } = new HashSet<SeanceCours>();
+    public virtual ICollection<Matiere> Matieres { get; set; } = new HashSet<Matiere>();
 }

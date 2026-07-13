@@ -56,6 +56,11 @@ namespace AppEmit.API.Services
 
             seance.EstTerminee = dto.EstTermine;
 
+            if (dto.HeureDebutCustom.HasValue)
+                seance.HeureDebutCustom = dto.HeureDebutCustom;
+            if (dto.HeureFinCustom.HasValue)
+                seance.HeureFinCustom = dto.HeureFinCustom;
+
             await _repository.UpdateAsync(seance);
 
             _logger.LogInformation(
@@ -106,6 +111,8 @@ namespace AppEmit.API.Services
                 DateDebutAnnee = dto.DateDebutAnnee,
                 DateFinAnnee = dto.DateFinAnnee,
                 CouleurAffichage = dto.CouleurAffichage,
+                HeureDebutCustom = dto.HeureDebutCustom,
+                HeureFinCustom = dto.HeureFinCustom,
                 EstTerminee = false
             };
 

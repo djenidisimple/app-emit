@@ -29,7 +29,9 @@ namespace AppEmit.API.Services
             if (existe)
                 throw new Exceptions.ConflictException("Un compte avec cet email existe déjà.");
 
-            var roleEntity = await _context.Roles.FirstOrDefaultAsync(r => r.Nom == dto.Role);
+            var roleEntity = await _context.Roles
+                .Include(r => r.Permissions)
+                .FirstOrDefaultAsync(r => r.Nom == dto.Role);
             if (roleEntity == null)
             {
                 throw new Exceptions.ValidationException($"Le rôle '{dto.Role}' n'existe pas.");
@@ -57,6 +59,8 @@ namespace AppEmit.API.Services
         {
             var emailNormalise = dto.Email.ToLower().Trim();
             var utilisateur = await _context.Utilisateurs
+                .Include(u => u.Roles)
+                    .ThenInclude(r => r.Permissions)
                 .FirstOrDefaultAsync(u => u.Email == emailNormalise);
 
             if (utilisateur == null) {

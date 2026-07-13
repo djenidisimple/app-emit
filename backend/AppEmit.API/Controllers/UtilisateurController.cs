@@ -30,7 +30,7 @@ namespace AppEmit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UtilisateurDto>> Create([FromBody] UtilisateurCreateDto dto)
+        public async Task<ActionResult<UtilisateurCreatedDto>> Create([FromBody] UtilisateurCreateDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

@@ -56,7 +56,7 @@ namespace AppEmit.API.Services
             return _mapper.Map<IEnumerable<ReservationReadDto>>(reservations);
         }
 
-        public async Task<ReservationReadDto> CreateAsync(int demandeurId, ReservationCreateDto dto)
+        public async Task<ReservationReadDto> CreateAsync(int demandeurId, ReservationCreateDto dto, bool estAutoValidee = false)
         {
             var salle = await _salleRepository.GetByIdAsync(dto.SalleId);
             if (salle == null)
@@ -82,7 +82,10 @@ namespace AppEmit.API.Services
                 SalleId = dto.SalleId,
                 DateReservation = DateTime.UtcNow,
                 Session = dto.Session,
-                Statut = "En attente"
+                Statut = estAutoValidee ? "Confirmée" : "En attente",
+                ParcoursId = dto.ParcoursId,
+                NiveauId = dto.NiveauId,
+                HeureDebut = dto.HeureDebut
             };
             var createdReservation = await _reservationRepository.AddAsync(reservation);
 

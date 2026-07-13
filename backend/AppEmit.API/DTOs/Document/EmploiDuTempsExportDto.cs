@@ -6,6 +6,8 @@ namespace AppEmit.API.DTOs.Document
         public int? NiveauId { get; set; }
         public int? ParcoursId { get; set; }
         public int? FiliereId { get; set; }
+        public int? ProfesseurId { get; set; }
+        public int? UtilisateurId { get; set; }
         public string AnneeUniversitaire { get; set; } = "2025-2026";
         public string? Mention { get; set; }
         public string? ParcoursNom { get; set; }

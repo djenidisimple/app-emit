@@ -21,6 +21,13 @@ namespace AppEmit.API.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("niveau/{niveauId}")]
+        public async Task<ActionResult<IEnumerable<MatiereDto>>> GetByNiveau(int niveauId)
+        {
+            return Ok(await _service.GetByNiveauAsync(niveauId));
+        }
+
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<MatiereDto>> GetById(int id)
         {

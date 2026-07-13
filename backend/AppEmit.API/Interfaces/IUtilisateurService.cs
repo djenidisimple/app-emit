@@ -7,7 +7,7 @@ namespace AppEmit.API.Interfaces
         Task<IEnumerable<UtilisateurDto>> GetAllAsync();
         Task<IEnumerable<UtilisateurDto>> GetByRoleAsync(string role);
         Task<UtilisateurDto?> GetByIdAsync(int id);
-        Task<UtilisateurDto> CreateAsync(UtilisateurCreateDto dto);
+        Task<UtilisateurCreatedDto> CreateAsync(UtilisateurCreateDto dto);
         Task<UtilisateurDto?> UpdateAsync(int id, UtilisateurUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }

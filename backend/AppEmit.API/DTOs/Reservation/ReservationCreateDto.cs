@@ -18,4 +18,10 @@ public class ReservationCreateDto
 
     [Required]
     public int SalleId { get; set; }
+
+    public int? ParcoursId { get; set; }
+
+    public int? NiveauId { get; set; }
+
+    public string? HeureDebut { get; set; } // HH:mm — pour les examens
 }

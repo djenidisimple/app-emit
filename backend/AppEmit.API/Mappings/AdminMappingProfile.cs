@@ -16,6 +16,12 @@ namespace AppEmit.API.Mappings
                 .ForMember(dest => dest.NiveauCode, opt => opt.MapFrom(src =>
                     src.Niveau != null ? src.Niveau.Code : null));
 
+            CreateMap<Utilisateur, UtilisateurCreatedDto>()
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src =>
+                    src.Roles != null && src.Roles.Any() ? src.Roles.First().Nom : src.Role))
+                .ForMember(dest => dest.NiveauCode, opt => opt.MapFrom(src =>
+                    src.Niveau != null ? src.Niveau.Code : null));
+
             CreateMap<UtilisateurCreateDto, Utilisateur>();
             CreateMap<UtilisateurUpdateDto, Utilisateur>()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));

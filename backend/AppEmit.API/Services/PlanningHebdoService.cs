@@ -37,7 +37,7 @@ namespace AppEmit.API.Services
             var saturday = monday.AddDays(5); // samedi
 
             // 2. Récupérer les séances actives sur la période (avec filtres)
-            var seances = await _seanceRepo.GetSeancesForWeekAsync(monday, saturday, request.ProfesseurId, request.SalleId, request.NiveauId);
+            var seances = await _seanceRepo.GetSeancesForWeekAsync(monday, saturday, request.ProfesseurId, request.SalleId, request.NiveauId, request.ParcoursId);
 
             // 3. Récupérer les exceptions associées à ces séances
             var seanceIds = seances.Select(s => s.Id).ToList();

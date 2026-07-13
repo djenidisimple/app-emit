@@ -57,7 +57,8 @@ namespace AppEmit.API.Controllers
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
-            var created = await _reservationService.CreateAsync(userId, dto);
+            var isAdmin = User.IsInRole("Admin");
+            var created = await _reservationService.CreateAsync(userId, dto, isAdmin);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 

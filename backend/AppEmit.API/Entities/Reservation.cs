@@ -28,5 +28,16 @@ public class Reservation
     [Required, StringLength(50)]
     public string Statut { get; set; } = "En attente"; // En attente, Approuvé, Rejeté
 
+    public int? ParcoursId { get; set; }
+    [ForeignKey("ParcoursId")]
+    public virtual Parcours? Parcours { get; set; }
+
+    public int? NiveauId { get; set; }
+    [ForeignKey("NiveauId")]
+    public virtual Niveau? Niveau { get; set; }
+
+    [StringLength(10)]
+    public string? HeureDebut { get; set; } // HH:mm — utilisé pour les examens
+
     public virtual ICollection<Paiement> Paiements { get; set; } = new List<Paiement>();
 }
