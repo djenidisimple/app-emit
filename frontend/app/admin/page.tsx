@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { css } from 'styled-system/css';
 import { Search, X, MapPin, AlertTriangle, CalendarPlus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
@@ -160,23 +159,15 @@ export default function AdminDashboardPage() {
   const terminees = seances.filter((s) => s.statut === 'Terminee' || s.statut === 'Terminé').length;
   const conflits = conflicts.length;
 
-  const selectCls = css({
-    w: 'full', border: '1px solid', borderColor: 'border.default', rounded: 'lg',
-    px: '3', py: '2', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface',
-    outline: 'none', _focus: { borderColor: 'accent.default' },
-  });
-  const labelCls = css({ display: 'block', fontSize: 'sm', fontWeight: 'medium', color: 'fg.muted', mb: '1' });
-  const inputCls = css({
-    w: 'full', px: '3', py: '2', border: '1px solid', borderColor: 'border.default',
-    rounded: 'lg', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none',
-    _focus: { borderColor: 'accent.default' },
-  });
+  const selectCls = 'w-full border border-border rounded-lg px-3 py-2 text-sm text-fg-default bg-surface outline-none focus:border-accent';
+  const labelCls = 'block text-sm font-medium text-fg-muted mb-1';
+  const inputCls = 'w-full px-3 py-2 border border-border rounded-lg text-sm text-fg-default bg-surface outline-none focus:border-accent';
 
   return (
     <ProtectedLayout pageTitle="Gestion des séances">
-      <div className={css({ display: 'grid', gridTemplateColumns: { lg: '1fr 360px' }, gap: '6', alignItems: 'start' })}>
-        <div className={css({ spaceY: '5', minW: '0' })}>
-          <div className={css({ display: 'grid', gridTemplateColumns: { base: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: '3' })}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+        <div className="space-y-5 min-w-0">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatCard label="Séances totales" value={total} />
             <StatCard label="En cours" value={enCours} variant="success" />
             <StatCard label="Terminées" value={terminees} variant="warning" />
@@ -185,46 +176,46 @@ export default function AdminDashboardPage() {
 
           <ConflictBanner conflicts={conflicts} />
 
-          <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '4', spaceY: '4' })}>
-            <div className={css({ display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap' })}>
-              <div className={css({ position: 'relative', flex: '1', minW: '200px' })}>
-                <Search size={14} className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', pointerEvents: 'none' })} />
+          <div className="bg-surface border border-neutral-200 rounded-[8px] p-4 space-y-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle pointer-events-none" />
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder="Rechercher matière, professeur..."
                   className={inputCls} style={{ paddingLeft: '2.25rem' }} />
                 {search && (
-                  <button onClick={() => setSearch('')} className={css({ position: 'absolute', right: '3', top: '50%', transform: 'translateY(-50%)', color: 'fg.subtle', _hover: { color: 'fg.muted' } })}>
+                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-subtle hover:text-fg-muted">
                     <X size={13} />
                   </button>
                 )}
               </div>
-              <select value={filters.salleId} onChange={(e) => setFilters((f) => ({ ...f, salleId: e.target.value }))} className={css({ w: 'auto', minW: '32', border: '1px solid', borderColor: 'border.default', rounded: 'lg', px: '3', py: '2', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', _focus: { borderColor: 'accent.default' } })}>
+              <select value={filters.salleId} onChange={(e) => setFilters((f) => ({ ...f, salleId: e.target.value }))} className="w-auto min-w-32 border border-border rounded-lg px-3 py-2 text-sm text-fg-default bg-surface outline-none focus:border-accent">
                 <option value="">Toutes les salles</option>
                 {salles.map((s) => <option key={s.id} value={s.nom}>{s.nom}</option>)}
               </select>
-              <select value={filters.professeurId} onChange={(e) => setFilters((f) => ({ ...f, professeurId: e.target.value }))} className={css({ w: 'auto', minW: '36', border: '1px solid', borderColor: 'border.default', rounded: 'lg', px: '3', py: '2', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', _focus: { borderColor: 'accent.default' } })}>
+              <select value={filters.professeurId} onChange={(e) => setFilters((f) => ({ ...f, professeurId: e.target.value }))} className="w-auto min-w-36 border border-border rounded-lg px-3 py-2 text-sm text-fg-default bg-surface outline-none focus:border-accent">
                 <option value="">Tous les professeurs</option>
                 {enseignants.map((e) => <option key={e.id} value={e.id}>{e.nom} {e.prenom}</option>)}
               </select>
             </div>
 
             {isLoading ? (
-              <div className={css({ p: '12', display: 'flex', justifyContent: 'center' })}>
-                <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'border.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
+              <div className="p-12 flex justify-center">
+                <div className="w-8 h-8 border-3 border-border border-t-accent rounded-full animate-spin" style={{ borderWidth: '3px' }} />
               </div>
             ) : filtered.length === 0 ? (
-              <div className={css({ p: '12', textAlign: 'center' })}>
-                <CalendarPlus size={28} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
-                <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance</p>
-                <p className={css({ color: 'fg.muted', fontSize: 'sm' })}>Aucune séance planifiée cette semaine.</p>
+              <div className="p-12 text-center">
+                <CalendarPlus size={28} className="text-fg-subtle mx-auto mb-3" />
+                <p className="text-fg-default font-semibold mb-1">Aucune séance</p>
+                <p className="text-fg-muted text-sm">Aucune séance planifiée cette semaine.</p>
               </div>
             ) : (
-              <div className={css({ overflowX: 'auto' })}>
-                <table className={css({ w: 'full', fontSize: 'sm' })}>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className={css({ bg: 'bg.muted' })}>
+                    <tr className="bg-[#F7F7FA]">
                       {['Matière', 'Professeur', 'Salle', 'Créneau', 'Statut'].map((h) => (
-                        <th key={h} className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>{h}</th>
+                        <th key={h} className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -233,29 +224,27 @@ export default function AdminDashboardPage() {
                       const isConflict = conflicts.some((c) => c.seanceId === seance.id);
                       return (
                         <tr key={seance.id}
-                          className={css({
-                            borderTop: '1px solid', borderColor: 'border.subtle',
-                            bg: isConflict ? 'rgba(239,68,68,0.06)' : 'transparent',
-                            _hover: { bg: isConflict ? 'rgba(239,68,68,0.1)' : 'bg.muted' },
-                          })}>
-                          <td className={css({ px: '4', py: '3', fontWeight: 'medium', color: 'fg.default' })}>
+                          className={`border-t border-neutral-200 ${
+                            isConflict ? 'bg-[rgba(239,68,68,0.06)] hover:bg-[rgba(239,68,68,0.1)]' : 'hover:bg-[#F7F7FA]'
+                          }`}>
+                          <td className="px-4 py-3 font-medium text-[13px] text-[#111827]">
                             {seance.matiereNom}
                           </td>
-                          <td className={css({ px: '4', py: '3', color: 'fg.muted', fontSize: 'xs' })}>
+                          <td className="px-4 py-3 text-[#555A6E] text-[12px]">
                             {seance.professeurNomComplet}
                           </td>
-                          <td className={css({ px: '4', py: '3' })}>
-                            <span className={css({ display: 'flex', alignItems: 'center', gap: '1', color: 'accent.default', fontSize: 'xs', fontWeight: 'medium' })}>
+                          <td className="px-4 py-3">
+                            <span className="flex items-center gap-1 text-[#5A55F2] text-[12px] font-medium">
                               <MapPin size={11} />{seance.salleNom}
                             </span>
                           </td>
-                          <td className={css({ px: '4', py: '3', color: 'fg.default', fontSize: 'xs', fontWeight: 'medium' })}>
+                          <td className="px-4 py-3 text-[#111827] text-[12px] font-medium">
                             {seance.jour}<br />
-                            <span className={css({ color: 'fg.muted', fontWeight: 'normal' })}>
+                            <span className="text-[#555A6E] font-normal">
                               {formatHeure(seance.heureDebut)} – {formatHeure(seance.heureFin)}
                             </span>
                           </td>
-                          <td className={css({ px: '4', py: '3' })}>
+                          <td className="px-4 py-3">
                             <StatusBadge status={isConflict ? 'conflit' : seance.statut === 'Normal' ? 'actif' : seance.statut} />
                           </td>
                         </tr>
@@ -268,15 +257,12 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className={css({ spaceY: '4', position: 'sticky', top: '6' })}>
-          <div className={css({
-            bg: 'bg.surface', border: '1px solid', borderColor: 'border.default',
-            rounded: 'lg', p: '5',
-          })}>
-            <h2 className={css({ fontSize: 'base', fontWeight: 'semibold', color: 'fg.default', mb: '4' })}>
+        <div className="space-y-4 sticky top-6">
+          <div className="bg-surface border border-neutral-200 rounded-[8px] p-5">
+            <h2 className="text-base font-semibold text-fg-default mb-4">
               Générer une séance
             </h2>
-            <form onSubmit={handleSubmit(onGenerateSubmit)} className={css({ spaceY: '3.5' })}>
+            <form onSubmit={handleSubmit(onGenerateSubmit)} className="space-y-3.5">
               <div>
                 <label className={labelCls}>Parcours</label>
                 <select {...register('parcoursId', { required: true })} className={selectCls}>
@@ -321,7 +307,7 @@ export default function AdminDashboardPage() {
                   <AvailabilityCheck salleId={Number(watchedSalleId)} creneauId={Number(watchedCreneauId)} />
                 ) : null}
               </div>
-              <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3' })}>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Début</label>
                   <input type="date" {...register('dateDebut', { required: true })} className={inputCls} />
@@ -333,24 +319,17 @@ export default function AdminDashboardPage() {
               </div>
 
               {resultMsg && (
-                <div className={css({
-                  p: '2.5', rounded: 'lg', fontSize: 'xs', fontWeight: 'medium',
-                  bg: resultMsg.type === 'success' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-                  color: resultMsg.type === 'success' ? '#10b981' : '#ef4444',
-                  border: '1px solid',
-                  borderColor: resultMsg.type === 'success' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
-                })}>
+                <div className={`p-2.5 rounded-lg text-xs font-medium border ${
+                  resultMsg.type === 'success'
+                    ? 'bg-[rgba(16,185,129,0.15)] text-[#10b981] border-[rgba(16,185,129,0.2)]'
+                    : 'bg-[rgba(239,68,68,0.15)] text-[#ef4444] border-[rgba(239,68,68,0.2)]'
+                }`}>
                   {resultMsg.text}
                 </div>
               )}
 
               <button type="submit" disabled={genLoading}
-                className={css({
-                  w: 'full', py: '2.5', rounded: 'lg', fontSize: 'sm', fontWeight: 'semibold',
-                  bg: 'accent.default', color: 'white', border: 'none',
-                  _hover: { opacity: 0.9 }, _disabled: { opacity: 0.5 },
-                  transition: 'all 0.15s',
-                })}>
+                className="w-full py-2.5 rounded-lg text-sm font-semibold bg-accent text-white border-none hover:opacity-90 disabled:opacity-50 transition-all duration-150">
                 {genLoading ? 'Génération...' : 'Créer la séance'}
               </button>
             </form>

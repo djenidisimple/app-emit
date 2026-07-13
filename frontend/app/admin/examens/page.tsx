@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X, CheckCircle, AlertCircle, Calendar, BookOpen } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, CheckCircle, AlertCircle, Calendar, BookOpen, Download } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import { Button } from '@/components/ui/button';
 import { api } from '@/services/api';
 import { examenService } from '@/services/examens';
 import { ExamenReadDto, ExamenCreateDto, ExamenUpdateDto, Matiere, Utilisateur, Salle, Niveau, Parcours } from '@/types';
-import { css } from 'styled-system/css';
 
 interface ExamenForm {
   matiereId: string;
@@ -35,18 +34,11 @@ const EMPTY_FORM: ExamenForm = {
   dateExamen: '', heureDebut: '08:00', heureFin: '10:00', description: '',
 };
 
-const inputCls = css({
-  w: 'full', px: '3', py: '2', border: '1px solid', borderColor: 'border.default',
-  rounded: 'md', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none',
-  _focus: { borderColor: 'accent.default', boxShadow: '0 0 0 2px rgba(109,93,255,0.15)' },
-});
+const inputCls = 'w-full px-3 py-2 border border-border rounded-md text-sm text-fg-default bg-surface outline-none focus:border-accent';
 
-const errorInputCls = css({
-  w: 'full', px: '3', py: '2', border: '1px solid', borderColor: '#ef4444',
-  rounded: 'md', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none',
-});
+const errorInputCls = 'w-full px-3 py-2 border border-[#ef4444] rounded-md text-sm text-fg-default bg-surface outline-none';
 
-const labelCls = css({ fontSize: 'xs', fontWeight: 'bold', color: 'accent.default', textTransform: 'uppercase', letterSpacing: 'wide' });
+const labelCls = 'text-xs font-bold text-accent uppercase tracking-wide';
 
 function ToastItem({ toast, onRemove }: { toast: { id: number; type: string; message: string }; onRemove: (id: number) => void }) {
   useEffect(() => {
@@ -55,16 +47,10 @@ function ToastItem({ toast, onRemove }: { toast: { id: number; type: string; mes
   }, [toast.id, onRemove]);
 
   return (
-    <div className={css({
-      display: 'flex', alignItems: 'center', gap: '3', px: '4', py: '3', rounded: 'lg', shadow: 'lg',
-      fontSize: 'sm', fontWeight: 'medium', minW: '280px',
-      bg: 'bg.surface', border: '1px solid',
-      borderColor: toast.type === 'success' ? '#10b981' : '#ef4444',
-      color: toast.type === 'success' ? '#10b981' : '#ef4444',
-    })}>
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium min-w-[280px] bg-surface border ${toast.type === 'success' ? 'border-[#10b981] text-[#10b981]' : 'border-[#ef4444] text-[#ef4444]'}`}>
       {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-      <span className={css({ flex: '1' })}>{toast.message}</span>
-      <button onClick={() => onRemove(toast.id)} className={css({ opacity: 0.5, _hover: { opacity: 1 } })}>
+      <span className="flex-1">{toast.message}</span>
+      <button onClick={() => onRemove(toast.id)} className="opacity-50 hover:opacity-100">
         <X size={14} />
       </button>
     </div>
@@ -87,24 +73,24 @@ function ExamenModal({
   );
 
   return (
-    <div className={css({ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', p: '4' })}>
-      <div className={css({ position: 'absolute', inset: 0, bg: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' })} onClick={onClose} />
-      <div className={css({ position: 'relative', bg: 'bg.elevated', rounded: 'lg', shadow: '2xl', w: 'full', maxW: 'lg', border: '1px solid', borderColor: 'border.default' })}>
-        <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: '6', py: '4', borderBottom: '1px solid', borderColor: 'border.default' })}>
-          <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
-            <div className={css({ w: '8', h: '8', bg: 'bg.muted', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
-              <BookOpen size={16} className={css({ color: 'accent.default' })} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur" onClick={onClose} />
+      <div className="relative bg-elevated rounded-lg w-full max-w-lg border border-border">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-bg-muted rounded-lg flex items-center justify-center">
+              <BookOpen size={16} className="text-accent" />
             </div>
-            <h2 className={css({ fontSize: 'base', fontWeight: 'bold', color: 'accent.default' })}>
+            <h2 className="text-base font-bold text-accent">
               {mode === 'create' ? 'Planifier un examen' : 'Modifier l\'examen'}
             </h2>
           </div>
-          <button onClick={onClose} className={css({ p: '1.5', color: 'fg.subtle', _hover: { color: 'fg.default', bg: 'bg.muted' }, rounded: 'md' })}>
+          <button onClick={onClose} className="p-1.5 text-fg-subtle hover:text-fg-default hover:bg-bg-muted rounded-md">
             <X size={18} />
           </button>
         </div>
-        <div className={css({ px: '6', py: '5', spaceY: '4' })}>
-          <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4' })}>
+        <div className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Matière *</label>
               <select value={form.matiereId} onChange={(e) => onChange('matiereId', e.target.value)}
@@ -112,7 +98,7 @@ function ExamenModal({
                 <option value="">Choisir...</option>
                 {matieres.map((m) => <option key={m.id} value={m.id}>{m.code} — {m.nom}</option>)}
               </select>
-              {errors.matiereId && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.matiereId}</p>}
+              {errors.matiereId && <p className="text-xs text-[#ef4444] mt-1">{errors.matiereId}</p>}
             </div>
             <div>
               <label className={labelCls}>Professeur *</label>
@@ -121,10 +107,10 @@ function ExamenModal({
                 <option value="">Choisir...</option>
                 {professeurs.map((p) => <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>)}
               </select>
-              {errors.professeurId && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.professeurId}</p>}
+              {errors.professeurId && <p className="text-xs text-[#ef4444] mt-1">{errors.professeurId}</p>}
             </div>
           </div>
-          <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4' })}>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Niveau</label>
               <select value={form.niveauId} onChange={(e) => onChange('niveauId', e.target.value)}
@@ -149,36 +135,36 @@ function ExamenModal({
               <option value="">Choisir...</option>
               {salles.map((s) => <option key={s.id} value={s.id}>{s.libelle || s.nom} — {s.capacite} places</option>)}
             </select>
-            {errors.salleId && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.salleId}</p>}
+            {errors.salleId && <p className="text-xs text-[#ef4444] mt-1">{errors.salleId}</p>}
           </div>
           <div>
             <label className={labelCls}>Date *</label>
             <input type="date" value={form.dateExamen} onChange={(e) => onChange('dateExamen', e.target.value)}
               className={errors.dateExamen ? errorInputCls : inputCls} />
-            {errors.dateExamen && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.dateExamen}</p>}
+            {errors.dateExamen && <p className="text-xs text-[#ef4444] mt-1">{errors.dateExamen}</p>}
           </div>
-          <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4' })}>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Heure début *</label>
               <input type="time" value={form.heureDebut} onChange={(e) => onChange('heureDebut', e.target.value)}
                 className={errors.heureDebut ? errorInputCls : inputCls} />
-              {errors.heureDebut && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.heureDebut}</p>}
+              {errors.heureDebut && <p className="text-xs text-[#ef4444] mt-1">{errors.heureDebut}</p>}
             </div>
             <div>
               <label className={labelCls}>Heure fin *</label>
               <input type="time" value={form.heureFin} onChange={(e) => onChange('heureFin', e.target.value)}
                 className={errors.heureFin ? errorInputCls : inputCls} />
-              {errors.heureFin && <p className={css({ fontSize: 'xs', color: '#ef4444', mt: '1' })}>{errors.heureFin}</p>}
+              {errors.heureFin && <p className="text-xs text-[#ef4444] mt-1">{errors.heureFin}</p>}
             </div>
           </div>
           <div>
             <label className={labelCls}>Description (optionnelle)</label>
             <textarea value={form.description} onChange={(e) => onChange('description', e.target.value)}
               rows={2} placeholder="Informations supplémentaires..."
-              className={css({ w: 'full', px: '3', py: '2', border: '1px solid', borderColor: 'border.default', rounded: 'md', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', resize: 'none', _focus: { borderColor: 'accent.default' } })} />
+              className="w-full px-3 py-2 border border-border rounded-md text-sm text-fg-default bg-surface outline-none resize-none focus:border-accent" />
           </div>
         </div>
-        <div className={css({ px: '6', py: '4', borderTop: '1px solid', borderColor: 'border.default', display: 'flex', justifyContent: 'flex-end', gap: '2' })}>
+        <div className="px-6 py-4 border-t border-border flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>Annuler</Button>
           <Button onClick={onSubmit} loading={isSubmitting}>
             {mode === 'create' ? 'Planifier l\'examen' : 'Enregistrer'}
@@ -194,22 +180,22 @@ function DeleteModal({
 }: { examen: ExamenReadDto | null; isDeleting: boolean; onConfirm: () => void; onCancel: () => void }) {
   if (!examen) return null;
   return (
-    <div className={css({ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', p: '4' })}>
-      <div className={css({ position: 'absolute', inset: 0, bg: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' })} onClick={onCancel} />
-      <div className={css({ position: 'relative', bg: 'bg.elevated', rounded: 'lg', shadow: '2xl', w: 'full', maxW: 'sm', border: '1px solid', borderColor: '#ef4444', p: '6' })}>
-        <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', w: '12', h: '12', bg: 'rgba(239,68,68,0.1)', rounded: 'full', mx: 'auto', mb: '4' })}>
-          <Trash2 size={22} className={css({ color: '#ef4444' })} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur" onClick={onCancel} />
+      <div className="relative bg-elevated rounded-lg w-full max-w-sm border border-[#ef4444] p-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-[rgba(239,68,68,0.1)] rounded-full mx-auto mb-4">
+          <Trash2 size={22} className="text-[#ef4444]" />
         </div>
-        <h3 className={css({ fontSize: 'base', fontWeight: 'bold', color: 'fg.default', textAlign: 'center', mb: '1' })}>Supprimer l'examen ?</h3>
-        <p className={css({ fontSize: 'sm', color: 'fg.muted', textAlign: 'center', mb: '5' })}>
+        <h3 className="text-base font-bold text-fg-default text-center mb-1">Supprimer l'examen ?</h3>
+        <p className="text-sm text-fg-muted text-center mb-5">
           L'examen <strong>{examen.matiereNom}</strong> du {new Date(examen.dateExamen).toLocaleDateString('fr-FR')} sera supprimé.
         </p>
-        <div className={css({ display: 'flex', gap: '2' })}>
+        <div className="flex gap-2">
           <button onClick={onCancel} disabled={isDeleting}
-            className={css({ flex: '1', py: '2', border: '1px solid', borderColor: 'border.default', rounded: 'md', fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', _hover: { bg: 'bg.muted' } })}>
+            className="flex-1 py-2 border border-border rounded-md text-sm font-semibold text-fg-default hover:bg-bg-muted">
             Annuler
           </button>
-          <Button onClick={onConfirm} loading={isDeleting} className={css({ bg: '#ef4444', color: 'white', _hover: { bg: '#dc2626' } })}>Supprimer</Button>
+          <Button onClick={onConfirm} loading={isDeleting} className="bg-[#ef4444] text-white hover:bg-[#dc2626]">Supprimer</Button>
         </div>
       </div>
     </div>
@@ -371,97 +357,113 @@ export default function AdminExamensPage() {
 
   return (
     <ProtectedLayout pageTitle="Gestion des examens">
-      <div className={css({ position: 'fixed', bottom: '5', right: '5', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '2' })}>
+      <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2">
         {toasts.map((t) => <ToastItem key={t.id} toast={t} onRemove={removeToast} />)}
       </div>
 
-      <div className={css({ display: 'flex', flexDirection: { base: 'column', sm: 'row' }, alignItems: { sm: 'center' }, justifyContent: 'space-between', gap: '4', mb: '6' })}>
-        <div>
-          <h1 className={css({ fontSize: '2xl', fontWeight: 'bold', color: 'accent.default' })}>Gestion des Examens</h1>
-          <p className={css({ color: 'fg.muted', mt: '1', fontSize: 'sm' })}>Planifiez et gérez les examens.</p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus size={14} className={css({ mr: '1' })} /> Planifier un examen
-        </Button>
-      </div>
+       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+         <div>
+           <h1 className="text-2xl font-bold text-accent">Gestion des Examens</h1>
+           <p className="text-fg-muted mt-1 text-sm">Planifiez et gérez les examens.</p>
+         </div>
+         <div className="flex gap-2">
+           <button
+             onClick={async () => {
+               const payload = { 
+                 AnneeUniversitaire: '2025-2026', 
+                 DateDebut: new Date().toISOString(), 
+                 DateFin: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
+               };
+               try {
+                 const blob = await api.postBlob('/Document/export/examens', payload);
+                 const url = URL.createObjectURL(blob);
+                 const a = document.createElement('a');
+                 a.href = url; a.download = 'planning_examens.pdf'; a.click();
+                 URL.revokeObjectURL(url);
+               } catch (e) { console.error(e); }
+             }}
+             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border text-fg-default hover:bg-bg-muted transition-all duration-150">
+             <Download size={14} /> Exporter EDT Examens
+           </button>
+           <Button onClick={openCreate}>
+             <Plus size={14} className="mr-1" /> Planifier un examen
+           </Button>
+         </div>
+       </div>
 
       {error && (
-        <div className={css({ mb: '4', px: '4', py: '3', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', fontSize: 'sm', fontWeight: 'medium', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2', rounded: 'lg' })}>
+        <div className="mb-4 px-4 py-3 bg-[rgba(239,68,68,0.1)] border border-[#ef4444] text-sm font-medium text-[#ef4444] flex items-center gap-2 rounded-lg">
           <AlertCircle size={15} /> {error}
         </div>
       )}
 
-      <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '3', mb: '4' })}>
-        <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', alignItems: 'center' })}>
+      <div className="bg-surface border border-border rounded-lg p-3 mb-4">
+        <div className="flex gap-2 flex-wrap items-center">
           <select value={filterNiveau} onChange={(e) => setFilterNiveau(e.target.value)}
-            className={css({ border: '1px solid', borderColor: 'border.default', rounded: 'md', px: '2', py: '1.5', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none' })}>
+            className="border border-border rounded-md px-2 py-1.5 text-sm text-fg-default bg-surface outline-none">
             <option value="">Tous niveaux</option>
             {niveaux.map((n) => <option key={n.id} value={n.id}>{n.code}</option>)}
           </select>
           <input type="date" value={filterDateDebut} onChange={(e) => setFilterDateDebut(e.target.value)}
-            className={css({ border: '1px solid', borderColor: 'border.default', rounded: 'md', px: '2', py: '1.5', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none' })} />
-          <span className={css({ color: 'fg.subtle', fontSize: 'xs' })}>→</span>
+            className="border border-border rounded-md px-2 py-1.5 text-sm text-fg-default bg-surface outline-none" />
+          <span className="text-fg-subtle text-xs">→</span>
           <input type="date" value={filterDateFin} onChange={(e) => setFilterDateFin(e.target.value)}
-            className={css({ border: '1px solid', borderColor: 'border.default', rounded: 'md', px: '2', py: '1.5', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none' })} />
+            className="border border-border rounded-md px-2 py-1.5 text-sm text-fg-default bg-surface outline-none" />
         </div>
       </div>
 
       {isLoading ? (
-        <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', py: '24' })}>
-          <div className={css({ w: '10', h: '10', border: '4px solid', borderColor: 'accent.default', borderTopColor: 'transparent', rounded: 'full', animation: 'spin 1s linear infinite' })} />
+        <div className="flex items-center justify-center py-24">
+          <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className={css({ textAlign: 'center', py: '20', color: 'fg.subtle' })}>
-          <Calendar size={40} className={css({ mx: 'auto', mb: '3', opacity: 0.3 })} />
-          <p className={css({ fontWeight: 'medium' })}>
+        <div className="text-center py-20 text-fg-subtle">
+          <Calendar size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="font-medium">
             {examens.length === 0 ? 'Aucun examen planifié.' : 'Aucun résultat pour ces filtres.'}
           </p>
           {examens.length === 0 && (
-            <button onClick={openCreate} className={css({ mt: '3', fontSize: 'sm', color: 'accent.default', fontWeight: 'semibold', _hover: { textDecoration: 'underline' } })}>
+            <button onClick={openCreate} className="mt-3 text-sm text-accent font-semibold hover:underline">
               + Planifier le premier examen
             </button>
           )}
         </div>
       ) : (
-        <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', overflow: 'hidden' })}>
-          <table className={css({ w: 'full', fontSize: 'sm' })}>
+        <div className="bg-white border border-neutral-200 rounded-[8px] overflow-hidden">
+          <table className="w-full text-sm">
             <thead>
-              <tr className={css({ borderBottom: '1px solid', borderColor: 'border.default', bg: 'bg.muted' })}>
+              <tr className="border-b border-neutral-200 bg-[#F7F7FA]">
                 {['Matière', 'Professeur', 'Salle', 'Date', 'Horaire', 'Niveau', 'Actions'].map((h) => (
-                  <th key={h} className={css({ p: '3', pl: '4', textAlign: 'left', fontWeight: 'bold', color: 'accent.default', fontSize: 'xs', textTransform: 'uppercase', letterSpacing: 'wide' })}>{h}</th>
+                  <th key={h} className="p-3 pl-4 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map((examen) => (
-                <tr key={examen.id} className={css({ borderBottom: '1px solid', borderColor: 'border.default', _hover: { bg: 'bg.muted' }, transition: 'background 0.15s' })}>
-                  <td className={css({ p: '3', pl: '4' })}>
+                <tr key={examen.id} className="border-b border-neutral-200 hover:bg-[#F7F7FA] transition-colors duration-150">
+                  <td className="p-3 pl-4">
                     <div>
-                      <span className={css({ fontWeight: 'semibold', color: 'fg.default' })}>{examen.matiereNom}</span>
-                      <span className={css({ color: 'fg.subtle', fontSize: 'xs', ml: '1' })}>({examen.matiereCode})</span>
+                      <span className="font-semibold text-[13px] text-[#111827]">{examen.matiereNom}</span>
+                      <span className="text-[#8A8FA3] text-[12px] ml-1">({examen.matiereCode})</span>
                     </div>
                   </td>
-                  <td className={css({ p: '3', color: 'fg.muted', fontSize: 'xs' })}>{examen.professeurNom}</td>
-                  <td className={css({ p: '3', color: 'fg.muted', fontSize: 'xs' })}>{examen.salleNom}</td>
-                  <td className={css({ p: '3', color: 'fg.default', fontSize: 'xs', fontWeight: 'medium' })}>{formatDate(examen.dateExamen)}</td>
-                  <td className={css({ p: '3', color: 'fg.default', fontSize: 'xs' })}>{examen.heureDebut} — {examen.heureFin}</td>
-                  <td className={css({ p: '3' })}>
-                    <span className={css({
-                      display: 'inline-flex', alignItems: 'center', px: '2', py: '0.5',
-                      fontSize: 'xs', fontWeight: 'semibold', rounded: 'full',
-                      bg: 'bg.muted', color: 'accent.default',
-                    })}>
+                  <td className="p-3 text-[#555A6E] text-[12px]">{examen.professeurNom}</td>
+                  <td className="p-3 text-[#555A6E] text-[12px]">{examen.salleNom}</td>
+                  <td className="p-3 text-[#111827] text-[12px] font-medium">{formatDate(examen.dateExamen)}</td>
+                  <td className="p-3 text-[#111827] text-[12px]">{examen.heureDebut} — {examen.heureFin}</td>
+                  <td className="p-3">
+                    <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#F7F7FA] text-[#5A55F2]">
                       {niveaux.find((n) => n.id === examen.niveauId)?.code || '—'}
                     </span>
                   </td>
-                  <td className={css({ p: '3', pr: '4', textAlign: 'right' })}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '1', justifyContent: 'flex-end' })}>
+                  <td className="p-3 pr-4 text-right">
+                    <div className="flex items-center gap-1 justify-end">
                       <button onClick={() => openEdit(examen)} title="Modifier"
-                        className={css({ p: '1.5', color: 'accent.default', rounded: 'md', _hover: { bg: 'bg.muted' }, transition: 'colors 0.15s' })}>
+                        className="p-1.5 text-[#5A55F2] rounded-md hover:bg-[#F7F7FA] transition-colors duration-150">
                         <Pencil size={15} />
                       </button>
                       <button onClick={() => setDeleteTarget(examen)} title="Supprimer"
-                        className={css({ p: '1.5', color: '#ef4444', rounded: 'md', _hover: { bg: 'rgba(239,68,68,0.1)' }, transition: 'colors 0.15s' })}>
+                        className="p-1.5 text-[#ef4444] rounded-md hover:bg-[rgba(239,68,68,0.1)] transition-colors duration-150">
                         <Trash2 size={15} />
                       </button>
                     </div>

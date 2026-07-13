@@ -1,40 +1,79 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, BookOpen, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Pencil, Trash2, BookOpen, AlertCircle, Filter } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
-import { MatiereDto } from '@/types';
+import { MatiereDto, FiliereDto, Parcours, Niveau } from '@/types';
 import { api } from '@/services/api';
-import { css } from 'styled-system/css';
 
-const inputCls = css({ w: 'full', px: '3', py: '2', border: '1px solid', borderColor: 'border.default', rounded: 'md', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', _focus: { borderColor: 'accent.default' } });
+const inputCls = 'w-full px-3 py-2.5 border border-border rounded-xl text-sm text-fg-default bg-white outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors';
 
 export default function AdminMatieresPage() {
   const [items, setItems] = useState<MatiereDto[]>([]);
+  const [niveaux, setNiveaux] = useState<Niveau[]>([]);
+  const [filieres, setFilieres] = useState<FiliereDto[]>([]);
+  const [parcoursList, setParcoursList] = useState<Parcours[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [code, setCode] = useState('');
   const [nom, setNom] = useState('');
+  const [description, setDescription] = useState('');
+  const [niveauId, setNiveauId] = useState('');
+  const [formFiliereId, setFormFiliereId] = useState('');
+  const [formParcoursId, setFormParcoursId] = useState('');
+
+  const [filterFiliereId, setFilterFiliereId] = useState('');
+  const [filterParcoursId, setFilterParcoursId] = useState('');
+  const [filterNiveauId, setFilterNiveauId] = useState('');
+
+  const filteredParcours = useMemo(() =>
+    parcoursList.filter(p => !formFiliereId || p.filiereId === parseInt(formFiliereId)),
+    [parcoursList, formFiliereId]
+  );
+
+  const filteredNiveaux = useMemo(() =>
+    niveaux.filter(n => !formParcoursId || n.parcoursId === parseInt(formParcoursId)),
+    [niveaux, formParcoursId]
+  );
+
+  const tableFilteredItems = useMemo(() => {
+    if (!filterNiveauId) return items;
+    return items.filter(i => i.niveauId === parseInt(filterNiveauId));
+  }, [items, filterNiveauId]);
 
   const fetchData = async () => {
     setIsLoading(true); setError('');
-    try { const res = await api.get<MatiereDto[]>('/matieres'); setItems(res); }
-    catch { setError('Impossible de charger les matières.'); }
+    try {
+      const [res, nv, fil, parc] = await Promise.all([
+        api.get<MatiereDto[]>('/matieres'),
+        api.get<Niveau[]>('/niveaux'),
+        api.get<FiliereDto[]>('/filieres'),
+        api.get<Parcours[]>('/parcours'),
+      ]);
+      setItems(res); setNiveaux(nv || []); setFilieres(fil || []); setParcoursList(parc || []);
+    } catch { setError('Impossible de charger les données.'); }
     finally { setIsLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, []);
 
+  const resetForm = () => {
+    setCode(''); setNom(''); setDescription(''); setNiveauId('');
+    setFormFiliereId(''); setFormParcoursId('');
+    setEditId(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editId) await api.put(`/matieres/${editId}`, { code, nom });
-      else await api.post('/matieres', { code, nom });
-      setShowForm(false); setEditId(null); setCode(''); setNom(''); fetchData();
+      const body = { code, nom, description, niveauId: parseInt(niveauId) };
+      if (editId) await api.put(`/matieres/${editId}`, body);
+      else await api.post('/matieres', body);
+      setShowForm(false); resetForm(); fetchData();
     } catch { setError('Erreur lors de l\'enregistrement.'); }
   };
 
@@ -46,57 +85,142 @@ export default function AdminMatieresPage() {
 
   return (
     <ProtectedLayout pageTitle="Matières">
-      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '5' })}>
-        <button onClick={() => { setShowForm(true); setEditId(null); setCode(''); setNom(''); }}
-          className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', display: 'flex', alignItems: 'center', gap: '2', _hover: { opacity: 0.9 } })}>
-          <Plus className={css({ w: '4', h: '4' })} /> Ajouter
+      {/* Filter bar */}
+      <div className="bg-white rounded-xl border border-border p-4 shadow-sm mb-5">
+        <div className="flex items-center gap-2 mb-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
+          <Filter className="w-3.5 h-3.5" /> Filtrer par
+        </div>
+        <div className="flex gap-4">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-text-secondary">Filière</label>
+            <select value={filterFiliereId} onChange={e => { setFilterFiliereId(e.target.value); setFilterParcoursId(''); setFilterNiveauId(''); }} className={inputCls}>
+              <option value="">Toutes les filières</option>
+              {filieres.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
+            </select>
+          </div>
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-text-secondary">Parcours</label>
+            <select value={filterParcoursId} onChange={e => { setFilterParcoursId(e.target.value); setFilterNiveauId(''); }}
+              className={inputCls} disabled={!filterFiliereId}>
+              <option value="">Tous les parcours</option>
+              {parcoursList.filter(p => !filterFiliereId || p.filiereId === parseInt(filterFiliereId)).map(p =>
+                <option key={p.id} value={p.id}>{p.nom}</option>
+              )}
+            </select>
+          </div>
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-text-secondary">Niveau</label>
+            <select value={filterNiveauId} onChange={e => setFilterNiveauId(e.target.value)}
+              className={inputCls} disabled={!filterParcoursId}>
+              <option value="">Tous les niveaux</option>
+              {niveaux.filter(n => !filterParcoursId || n.parcoursId === parseInt(filterParcoursId)).map(n =>
+                <option key={n.id} value={n.id}>{n.code}</option>
+              )}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-5">
+        <button onClick={() => { setShowForm(true); resetForm(); }}
+          className="bg-accent text-white font-medium text-sm px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90">
+          <Plus className="w-4 h-4" /> Ajouter
         </button>
       </div>
-      {error && <div className={css({ mb: '4', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', rounded: 'lg', px: '4', py: '2.5', fontSize: 'sm', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}><AlertCircle className={css({ w: '4', h: '4' })} />{error}</div>}
+      {error && <div className="mb-4 bg-[rgba(239,68,68,0.1)] border border-[#ef4444] rounded-lg px-4 py-2.5 text-sm text-[#ef4444] flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
       {showForm && (
-        <form onSubmit={handleSubmit} className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5', mb: '5' })}>
-          <div className={css({ display: 'flex', gap: '4', alignItems: 'flex-end' })}>
-            <div className={css({ flex: '1', display: 'flex', flexDirection: 'column', gap: '1' })}>
-              <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Code</label>
-              <input type="text" placeholder="Ex: MATH101" value={code} onChange={e => setCode(e.target.value)} className={inputCls} required />
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-border p-6 shadow-sm mb-5">
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4 items-end">
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Code</label>
+                <input type="text" placeholder="Ex: MATH101" value={code} onChange={e => setCode(e.target.value)} className={inputCls} required />
+              </div>
+              <div className="flex-[2] flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Nom</label>
+                <input type="text" placeholder="Ex: Mathématiques" value={nom} onChange={e => setNom(e.target.value)} className={inputCls} required />
+              </div>
             </div>
-            <div className={css({ flex: '2', display: 'flex', flexDirection: 'column', gap: '1' })}>
-              <label className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Nom</label>
-              <input type="text" placeholder="Ex: Mathématiques" value={nom} onChange={e => setNom(e.target.value)} className={inputCls} required />
+            <div className="flex gap-4 items-end">
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Filière</label>
+                <select value={formFiliereId} onChange={e => { setFormFiliereId(e.target.value); setFormParcoursId(''); setNiveauId(''); }} className={inputCls} required>
+                  <option value="">Sélectionner...</option>
+                  {filieres.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
+                </select>
+              </div>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Parcours</label>
+                <select value={formParcoursId} onChange={e => { setFormParcoursId(e.target.value); setNiveauId(''); }}
+                  className={inputCls} required disabled={!formFiliereId}>
+                  <option value="">Sélectionner...</option>
+                  {filteredParcours.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
+                </select>
+              </div>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Niveau</label>
+                <select value={niveauId} onChange={e => setNiveauId(e.target.value)}
+                  className={inputCls} required disabled={!formParcoursId}>
+                  <option value="">Sélectionner...</option>
+                  {filteredNiveaux.map(n => <option key={n.id} value={n.id}>{n.code}</option>)}
+                </select>
+              </div>
             </div>
-            <div className={css({ display: 'flex', gap: '2' })}>
-              <button type="submit" className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { opacity: 0.9 } })}>{editId ? 'Modifier' : 'Créer'}</button>
-              <button type="button" onClick={() => setShowForm(false)} className={css({ border: '1px solid', borderColor: 'border.default', color: 'fg.muted', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', _hover: { bg: 'bg.muted' } })}>Annuler</button>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Description</label>
+              <textarea 
+                placeholder="Description de la matière..." 
+                value={description} 
+                onChange={e => setDescription(e.target.value)} 
+                className={`${inputCls} py-2.5 h-20 resize-none`} 
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border mt-2">
+              <button type="submit" className="bg-accent text-white font-medium text-sm px-4 py-2.5 rounded-xl hover:opacity-90 shadow-sm transition-all">{editId ? 'Modifier' : 'Créer'}</button>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="border border-border text-text-secondary font-medium text-sm px-4 py-2.5 rounded-xl hover:bg-bg-muted transition-colors">Annuler</button>
             </div>
           </div>
         </form>
       )}
       {isLoading ? (
-        <LoadingSkeleton lines={5} className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5' })} />
-      ) : items.length === 0 ? (
-        <EmptyState icon={BookOpen} title="Aucune matière" description="Aucune matière enregistrée." />
+        <LoadingSkeleton lines={5} className="bg-surface rounded-lg border border-border p-5" />
+      ) : tableFilteredItems.length === 0 ? (
+        <EmptyState icon={BookOpen} title="Aucune matière" description="Aucune matière trouvée pour les filtres sélectionnés." />
       ) : (
-        <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', overflow: 'hidden' })}>
-          <table className={css({ w: 'full', fontSize: 'sm' })}>
-            <thead className={css({ bg: 'bg.muted', borderBottom: '1px solid', borderColor: 'border.default' })}>
-              <tr>
-                <th className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Code</th>
-                <th className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Nom</th>
-                <th className={css({ px: '4', py: '2.5', textAlign: 'right', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>Actions</th>
-              </tr>
+        <div className="bg-white border border-neutral-200 rounded-[8px] overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F7F7FA] border-b border-neutral-200">
+               <tr>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">Code</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">Nom</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">Niveau</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">Description</th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">Actions</th>
+               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
-                <tr key={item.id} className={css({ borderBottom: '1px solid', borderColor: 'border.default', _hover: { bg: 'bg.muted' } })}>
-                  <td className={css({ px: '4', py: '3', fontFamily: 'mono', fontSize: 'xs', color: 'fg.default' })}>{item.code}</td>
-                  <td className={css({ px: '4', py: '3', fontWeight: 'medium', color: 'fg.default' })}>{item.nom}</td>
-                  <td className={css({ px: '4', py: '3', textAlign: 'right' })}>
-                    <button onClick={() => { setEditId(item.id); setCode(item.code); setNom(item.nom); setShowForm(true); }}
-                      className={css({ p: '1.5', color: 'accent.default', rounded: 'md', _hover: { bg: 'bg.muted' } })}><Pencil className={css({ w: '4', h: '4' })} /></button>
-                    <button onClick={() => handleDelete(item.id)} className={css({ p: '1.5', color: '#ef4444', rounded: 'md', ml: '1', _hover: { bg: 'rgba(239,68,68,0.1)' } })}><Trash2 className={css({ w: '4', h: '4' })} /></button>
-                  </td>
-                </tr>
-              ))}
+               {tableFilteredItems.map(item => (
+                 <tr key={item.id} className="border-b border-neutral-200 hover:bg-[#F7F7FA]">
+                  <td className="px-4 py-3 font-mono text-[12px] text-[#111827]">{item.code}</td>
+                    <td className="px-4 py-3 text-[13px] font-medium text-[#111827]">{item.nom}</td>
+                    <td className="px-4 py-3 text-[12px] text-[#555A6E]">{item.niveauCode || `Niveau #${item.niveauId}`}</td>
+                    <td className="px-4 py-3 text-[12px] text-fg-muted truncate max-w-[200px]">{item.description || '-'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => {
+                        const niveau = niveaux.find(n => n.id === item.niveauId);
+                        const parc = niveau ? parcoursList.find(p => p.id === niveau.parcoursId) : null;
+                        const fil = parc ? filieres.find(f => f.id === parc.filiereId) : null;
+                        setEditId(item.id); setCode(item.code); setNom(item.nom);
+                        setDescription(item.description || ''); setNiveauId(String(item.niveauId));
+                        setFormParcoursId(parc ? String(parc.id) : '');
+                        setFormFiliereId(fil ? String(fil.id) : '');
+                        setShowForm(true);
+                      }}
+                       className="p-1.5 text-[#5A55F2] rounded-md hover:bg-[#F7F7FA]"><Pencil className="w-4 h-4" /></button>
+                     <button onClick={() => handleDelete(item.id)} className="p-1.5 text-[#ef4444] rounded-md ml-1 hover:bg-[rgba(239,68,68,0.1)]"><Trash2 className="w-4 h-4" /></button>
+                   </td>
+                 </tr>
+               ))}
             </tbody>
           </table>
         </div>

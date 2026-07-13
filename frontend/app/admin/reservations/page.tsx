@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Check, X, AlertCircle, Calendar, User, MapPin, Clock } from 'lucide-react';
+import { Check, X, AlertCircle, Calendar, User, MapPin, Clock, Download } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import StatutBadge from '@/components/global/StatutBadge';
 import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import { ReservationReadDto } from '@/types';
 import { api } from '@/services/api';
-import { css } from 'styled-system/css';
 
 export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<ReservationReadDto[]>([]);
@@ -41,81 +40,91 @@ export default function AdminReservationsPage() {
 
   return (
     <ProtectedLayout pageTitle="Demandes de réservation">
-      <div className={css({ display: 'flex', gap: '2', mb: '5' })}>
+      <div className="flex gap-2 mb-5">
         {['En attente', 'Confirmée', 'Annulée'].map(s => (
           <button key={s} onClick={() => setFilter(s)}
-            className={css({
-              px: '4', py: '1.5', rounded: 'md', fontSize: 'sm', fontWeight: 'medium', transition: 'all 0.15s',
-              bg: filter === s ? 'accent.default' : 'bg.surface',
-              color: filter === s ? '#fff' : 'fg.muted',
-              border: filter === s ? 'none' : '1px solid',
-              borderColor: 'border.default',
-            })}>{s}</button>
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150 ${
+              filter === s
+                ? 'bg-accent text-white border-none'
+                : 'bg-surface text-fg-muted border border-border'
+            }`}>{s}</button>
         ))}
       </div>
 
-      {error && <div className={css({ mb: '4', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', rounded: 'lg', px: '4', py: '2.5', fontSize: 'sm', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}><AlertCircle className={css({ w: '4', h: '4' })} />{error}</div>}
+      {error && <div className="mb-4 bg-[rgba(239,68,68,0.1)] border border-[#ef4444] rounded-lg px-4 py-2.5 text-sm text-[#ef4444] flex items-center gap-2"><AlertCircle className="w-4 h-4" />{error}</div>}
 
       {isLoading ? (
-        <LoadingSkeleton lines={5} className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5' })} />
+        <LoadingSkeleton lines={5} className="bg-surface rounded-lg border border-border p-5" />
       ) : reservations.length === 0 ? (
         <EmptyState icon={Calendar} title="Aucune réservation" description={`Aucune réservation ${filter.toLowerCase()}.`} />
       ) : (
-        <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', overflow: 'hidden' })}>
-          <table className={css({ w: 'full', fontSize: 'sm' })}>
-            <thead className={css({ bg: 'bg.muted', borderBottom: '1px solid', borderColor: 'border.default' })}>
+        <div className="bg-white border border-neutral-200 rounded-[8px] overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F7F7FA] border-b border-neutral-200">
               <tr>
                 {['Demandeur', 'Salle', 'Date', 'Créneau', 'Statut', 'Actions'].map(h => (
-                  <th key={h} className={css({ px: '4', py: '2.5', textAlign: 'left', fontSize: 'xs', fontWeight: 'medium', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' })}>{h}</th>
+                  <th key={h} className="px-4 py-2.5 text-left text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {reservations.map(r => (
-                <tr key={r.id} className={css({ borderBottom: '1px solid', borderColor: 'border.default', _hover: { bg: 'bg.muted' } })}>
-                  <td className={css({ px: '4', py: '3' })}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
-                      <User className={css({ w: '4', h: '4', color: 'fg.subtle' })} />
-                      <span className={css({ color: 'fg.default', fontWeight: 'medium' })}>{r.demandeurNom}</span>
+                <tr key={r.id} className="border-b border-neutral-200 hover:bg-[#F7F7FA]">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-[#8A8FA3]" />
+                      <span className="text-[13px] font-medium text-[#111827]">{r.demandeurNom}</span>
                     </div>
                   </td>
-                  <td className={css({ px: '4', py: '3' })}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
-                      <MapPin className={css({ w: '4', h: '4', color: 'fg.subtle' })} />
-                      <span>{r.salleLibelle}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-[#8A8FA3]" />
+                      <span className="text-[13px] text-[#555A6E]">{r.salleLibelle}</span>
                     </div>
                   </td>
-                  <td className={css({ px: '4', py: '3' })}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
-                      <Calendar className={css({ w: '4', h: '4', color: 'fg.subtle' })} />
-                      <span>{formatDate(r.datePrecise)}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-[#8A8FA3]" />
+                      <span className="text-[13px] text-[#555A6E]">{formatDate(r.datePrecise)}</span>
                     </div>
                   </td>
-                  <td className={css({ px: '4', py: '3' })}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
-                      <Clock className={css({ w: '4', h: '4', color: 'fg.subtle' })} />
-                      <span>{r.type}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-[#8A8FA3]" />
+                      <span className="text-[13px] text-[#555A6E]">{r.type}</span>
                     </div>
                   </td>
-                  <td className={css({ px: '4', py: '3' })}>
+                  <td className="px-4 py-3">
                     <StatutBadge statut={r.statut} />
                   </td>
-                  <td className={css({ px: '4', py: '3' })}>
-                    <div className={css({ display: 'flex', gap: '2' })}>
-                      {r.statut === 'En attente' && (
-                        <>
-                          <button onClick={() => setConfirmAction({ id: r.id, action: 'Confirmée' })}
-                            className={css({ bg: '#10b981', color: '#fff', fontSize: 'xs', fontWeight: 'medium', px: '3', py: '1.5', rounded: 'md', display: 'flex', alignItems: 'center', gap: '1', _hover: { opacity: 0.9 } })}>
-                            <Check className={css({ w: '3', h: '3' })} /> Valider
-                          </button>
-                          <button onClick={() => setConfirmAction({ id: r.id, action: 'Annulée' })}
-                            className={css({ bg: '#ef4444', color: '#fff', fontSize: 'xs', fontWeight: 'medium', px: '3', py: '1.5', rounded: 'md', display: 'flex', alignItems: 'center', gap: '1', _hover: { opacity: 0.9 } })}>
-                            <X className={css({ w: '3', h: '3' })} /> Rejeter
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+                   <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        {r.statut === 'En attente' && (
+                          <>
+                            <button onClick={() => setConfirmAction({ id: r.id, action: 'Confirmée' })}
+                              className="bg-[#10b981] text-white text-[12px] font-medium px-3 py-1.5 rounded-md flex items-center gap-1 hover:opacity-90">
+                              <Check className="w-3 h-3" /> Valider
+                            </button>
+                            <button onClick={() => setConfirmAction({ id: r.id, action: 'Annulée' })}
+                              className="bg-[#ef4444] text-white text-[12px] font-medium px-3 py-1.5 rounded-md flex items-center gap-1 hover:opacity-90">
+                              <X className="w-3 h-3" /> Rejeter
+                            </button>
+                          </>
+                        )}
+                        <button onClick={async () => {
+                          try {
+                            const blob = await api.get(`/Document/export/reservation/${r.id}`, { responseType: 'blob' });
+                            const url = URL.createObjectURL(blob as Blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = `reservation_${r.id}.pdf`; a.click();
+                            URL.revokeObjectURL(url);
+                          } catch (e) { console.error(e); }
+                        }}
+                        className="bg-[#F7F7FA] text-[#111827] text-[12px] font-medium px-3 py-1.5 rounded-md flex items-center gap-1 hover:bg-[#EEF0F4]">
+                          <Download className="w-3 h-3" /> PDF
+                        </button>
+                      </div>
+                    </td>
                 </tr>
               ))}
             </tbody>
@@ -124,20 +133,21 @@ export default function AdminReservationsPage() {
       )}
 
       {confirmAction && (
-        <div className={css({ position: 'fixed', inset: 0, bg: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 })}>
-          <div className={css({ bg: 'bg.elevated', rounded: 'lg', shadow: 'lg', p: '6', maxW: 'sm', w: 'full', mx: '4', border: '1px solid', borderColor: 'border.default' })}>
-            <h3 className={css({ fontSize: 'base', fontWeight: 'semibold', color: 'fg.default', mb: '2' })}>Confirmer</h3>
-            <p className={css({ fontSize: 'sm', color: 'fg.muted', mb: '4' })}>
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur flex items-center justify-center z-50">
+          <div className="bg-elevated rounded-lg p-6 max-w-sm w-full mx-4 border border-border">
+            <h3 className="text-base font-semibold text-fg-default mb-2">Confirmer</h3>
+            <p className="text-sm text-fg-muted mb-4">
               Voulez-vous {confirmAction.action === 'Confirmée' ? 'valider' : 'rejeter'} cette réservation ?
             </p>
-            <div className={css({ display: 'flex', gap: '2' })}>
+            <div className="flex gap-2">
               <button onClick={() => setConfirmAction(null)}
-                className={css({ flex: '1', border: '1px solid', borderColor: 'border.default', color: 'fg.muted', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'md', _hover: { bg: 'bg.muted' } })}>
+                className="flex-1 border border-border text-fg-muted font-medium text-sm px-4 py-2 rounded-md hover:bg-bg-muted">
                 Annuler
               </button>
               <button onClick={() => handleStatus(confirmAction.id, confirmAction.action)}
-                className={css({ flex: '1', color: '#fff', fontWeight: 'medium', fontSize: 'sm', px: '4', py: '2', rounded: 'md',
-                  bg: confirmAction.action === 'Confirmée' ? '#10b981' : '#ef4444', _hover: { opacity: 0.9 } })}>
+                className={`flex-1 text-white font-medium text-sm px-4 py-2 rounded-md hover:opacity-90 ${
+                  confirmAction.action === 'Confirmée' ? 'bg-[#10b981]' : 'bg-[#ef4444]'
+                }`}>
                 Confirmer
               </button>
             </div>
