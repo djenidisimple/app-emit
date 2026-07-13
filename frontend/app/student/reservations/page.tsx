@@ -6,7 +6,6 @@ import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import { api } from '@/services/api';
 import { Salle, Creneau } from '@/types';
 import { useRouter } from 'next/navigation';
-import { css } from 'styled-system/css';
 
 type Step = 1 | 2 | 3;
 
@@ -52,17 +51,17 @@ export default function StudentReservationsPage() {
   if (submitted) {
     return (
       <ProtectedLayout pageTitle="Demander une réservation">
-        <div className={css({ maxW: 'lg', mx: 'auto', textAlign: 'center' })}>
-          <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '8' })}>
-            <div className={css({ w: '16', h: '16', bg: 'rgba(16,185,129,0.1)', rounded: 'full', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: '4' })}>
-              <CheckCircle className={css({ w: '8', h: '8', color: '#10b981' })} />
+        <div className="max-w-lg mx-auto text-center">
+          <div className="bg-surface rounded-lg border border-border p-8">
+            <div className="w-16 h-16 bg-[rgba(16,185,129,0.1)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-[#10b981]" />
             </div>
-            <h2 className={css({ fontSize: 'xl', fontWeight: 'bold', color: 'fg.default', mb: '2' })}>Demande soumise !</h2>
-            <p className={css({ fontSize: 'sm', color: 'fg.subtle', mb: '6' })}>
-              Votre demande est en attente de validation par l'administrateur.
-            </p>
+            <h2 className="text-xl font-bold text-fg-default mb-2">Demande soumise !</h2>
+              <p className="text-sm text-fg-subtle mb-6">
+                Votre demande est en attente de validation par l&apos;administrateur.
+              </p>
             <button onClick={() => router.push('/student/reservations')}
-              className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'semibold', fontSize: 'sm', px: '6', py: '2.5', rounded: 'lg', _hover: { opacity: 0.9 } })}>
+              className="bg-accent text-white font-semibold text-sm px-6 py-2.5 rounded-lg hover:opacity-90">
               Voir mes réservations
             </button>
           </div>
@@ -73,7 +72,7 @@ export default function StudentReservationsPage() {
 
   return (
     <ProtectedLayout pageTitle="Demander une réservation">
-      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4', mb: '8' })}>
+      <div className="flex items-center justify-center gap-4 mb-8">
         <h1>Student Reservation Page</h1>
       </div>
     </ProtectedLayout>

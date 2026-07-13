@@ -6,43 +6,22 @@ import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import { api } from '@/services/api';
 import { Salle, Creneau } from '@/types';
 import { useRouter } from 'next/navigation';
-import { css } from 'styled-system/css';
 
 type Step = 1 | 2 | 3;
 
-const inputCls = css({ w: 'full', px: '3', py: '2.5', border: '1px solid', borderColor: 'border.default', rounded: 'lg', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', _focus: { borderColor: 'accent.default' } });
-const labelCls = css({ fontSize: 'xs', fontWeight: 'semibold', color: 'fg.subtle', textTransform: 'uppercase', letterSpacing: 'wide' });
+const inputCls = 'w-full px-3 py-2.5 border border-border rounded-lg text-sm text-fg-default bg-surface outline-none focus:border-accent';
+const labelCls = 'text-xs font-semibold text-fg-subtle uppercase tracking-wide';
+
+const StepCircle = ({ num, label, active, done }: { num: Step; label: string; active: boolean; done: boolean }) => (
+  <div className="flex items-center gap-2">
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-150 ${done || active ? 'bg-accent text-white' : 'bg-bg-muted text-fg-subtle'}`}>
+      {done ? <Check className="w-4 h-4" /> : num}
+    </div>
+    <span className={`text-sm ${active || done ? 'font-bold text-fg-default' : 'font-medium text-fg-subtle'}`}>{label}</span>
+  </div>
+);
 
 export default function NouvelleReservationPage() {
-  const [step, setStep] = useState<Step>(1);
-  const [date, setDate] = useState('');
-  const [creneaux, setCreneaux] = useState<Creneau[]>([]);
-  const [creneauId, setCreneauId] = useState('');
-  const [salles, setSalles] = useState<Salle[]>([]);
-  const [selectedSalleId, setSelectedSalleId] = useState<number | null>(null);
-  const [titre, setTitre] = useState('');
-  const [type, setType] = useState('Cours');
-  const [motif, setMotif] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  useEffect(() => { api.get<Creneau[]>('/creneaux').then(setCreneaux).catch(() => {}); }, []);
-
-  const StepCircle = ({ num, label, active, done }: { num: Step; label: string; active: boolean; done: boolean }) => (
-    <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
-      <div className={css({
-        w: '8', h: '8', rounded: 'full', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 'sm', fontWeight: 'bold', transition: 'colors 0.15s',
-        bg: done || active ? 'accent.default' : 'bg.muted',
-        color: done || active ? '#fff' : 'fg.subtle',
-      })}>
-        {done ? <Check className={css({ w: '4', h: '4' })} /> : num}
-      </div>
-      <span className={css({ fontSize: 'sm', fontWeight: active || done ? 'bold' : 'medium', color: active || done ? 'fg.default' : 'fg.subtle' })}>{label}</span>
-    </div>
-  );
 
   const handleStep1 = async () => {
     if (!date || !creneauId) { setError('Veuillez remplir tous les champs.'); return; }
@@ -69,17 +48,17 @@ export default function NouvelleReservationPage() {
   if (submitted) {
     return (
       <ProtectedLayout pageTitle="Nouvelle réservation">
-        <div className={css({ maxW: 'lg', mx: 'auto', textAlign: 'center' })}>
-          <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '8' })}>
-            <div className={css({ w: '16', h: '16', bg: 'rgba(16,185,129,0.1)', rounded: 'full', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: '4' })}>
-              <CheckCircle className={css({ w: '8', h: '8', color: '#10b981' })} />
+        <div className="max-w-lg mx-auto text-center">
+          <div className="bg-surface rounded-lg border border-border p-8">
+            <div className="w-16 h-16 bg-[rgba(16,185,129,0.1)] rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-[#10b981]" />
             </div>
-            <h2 className={css({ fontSize: 'xl', fontWeight: 'bold', color: 'fg.default', mb: '2' })}>Demande soumise !</h2>
-            <p className={css({ fontSize: 'sm', color: 'fg.subtle', mb: '6' })}>
+            <h2 className="text-xl font-bold text-fg-default mb-2">Demande soumise !</h2>
+            <p className="text-sm text-fg-subtle mb-6">
               Votre demande est en attente de validation par l&apos;administrateur.
             </p>
             <button onClick={() => router.push('/reservations')}
-              className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'semibold', fontSize: 'sm', px: '6', py: '2.5', rounded: 'lg', _hover: { opacity: 0.9 } })}>
+              className="bg-accent text-white font-semibold text-sm px-6 py-2.5 rounded-lg hover:opacity-90">
               Voir mes réservations
             </button>
           </div>
@@ -92,18 +71,18 @@ export default function NouvelleReservationPage() {
 
   return (
     <ProtectedLayout pageTitle="Nouvelle réservation">
-      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4', mb: '8' })}>
+      <div className="flex items-center justify-center gap-4 mb-8">
         <StepCircle num={1} label="Date & Créneau" active={step === 1} done={step > 1} />
-        <div className={css({ w: '12', h: 'px', bg: 'bg.muted' })} />
+        <div className="w-12 h-px bg-bg-muted" />
         <StepCircle num={2} label="Choisir une salle" active={step === 2} done={step > 2} />
-        <div className={css({ w: '12', h: 'px', bg: 'bg.muted' })} />
+        <div className="w-12 h-px bg-bg-muted" />
         <StepCircle num={3} label="Détails" active={step === 3} done={step > 3} />
       </div>
 
-      {error && <div className={css({ mb: '4', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', rounded: 'lg', px: '4', py: '3', fontSize: 'sm', color: '#ef4444' })}>{error}</div>}
+      {error && <div className="mb-4 bg-[rgba(239,68,68,0.1)] border border-[#ef4444] rounded-lg px-4 py-3 text-sm text-[#ef4444]">{error}</div>}
 
       {step === 1 && (
-        <div className={css({ maxW: 'lg', mx: 'auto', bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '6', spaceY: '4' })}>
+        <div className="max-w-lg mx-auto bg-surface rounded-lg border border-border p-6 space-y-4">
           <div><label className={labelCls}>Date souhaitée</label>
             <input type="date" value={date} onChange={e => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className={inputCls} /></div>
           <div><label className={labelCls}>Créneau horaire</label>
@@ -113,60 +92,56 @@ export default function NouvelleReservationPage() {
             </select>
           </div>
           <button onClick={handleStep1} disabled={loading}
-            className={css({ w: 'full', bg: 'accent.default', color: '#fff', fontWeight: 'semibold', fontSize: 'sm', px: '4', py: '2.5', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2', _hover: { opacity: 0.9 } })}>
-            Voir les salles disponibles <ArrowRight className={css({ w: '4', h: '4' })} />
+            className="w-full bg-accent text-white font-semibold text-sm px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:opacity-90">
+            Voir les salles disponibles <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {step === 2 && (
         <div>
-          <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: '4', mb: '6' })}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             {salles.map(salle => (
               <button key={salle.id} onClick={() => setSelectedSalleId(salle.id)}
-                className={css({
-                  bg: 'bg.surface', rounded: 'lg', border: '2px solid', p: '5', textAlign: 'left', transition: 'all 0.15s',
-                  borderColor: selectedSalleId === salle.id ? 'accent.default' : 'border.default',
-                  _hover: { shadow: 'md' },
-                })}>
-                <div className={css({ display: 'flex', alignItems: 'center', gap: '3', mb: '3' })}>
-                  <div className={css({ w: '10', h: '10', bg: 'bg.muted', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
-                    <Building2 className={css({ w: '5', h: '5', color: 'accent.default' })} />
+                className={`bg-surface rounded-lg border-2 p-5 text-left transition-all duration-150 ${selectedSalleId === salle.id ? 'border-accent' : 'border-border'}`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-bg-muted rounded-lg flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <p className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default' })}>{salle.libelle || salle.nom}</p>
-                    <p className={css({ fontSize: 'xs', color: 'fg.subtle' })}>{salle.capacite} places · {salle.type}</p>
+                    <p className="text-sm font-semibold text-fg-default">{salle.libelle || salle.nom}</p>
+                    <p className="text-xs text-fg-subtle">{salle.capacite} places · {salle.type}</p>
                   </div>
                 </div>
                 {selectedSalleId === salle.id && (
-                  <div className={css({ display: 'flex', alignItems: 'center', gap: '1', fontSize: 'xs', color: '#10b981', fontWeight: 'semibold' })}>
-                    <Check className={css({ w: '3', h: '3' })} /> Sélectionnée
+                  <div className="flex items-center gap-1 text-xs text-[#10b981] font-semibold">
+                    <Check className="w-3 h-3" /> Sélectionnée
                   </div>
                 )}
               </button>
             ))}
           </div>
-          <div className={css({ display: 'flex', gap: '3' })}>
+          <div className="flex gap-3">
             <button onClick={() => setStep(1)}
-              className={css({ border: '1px solid', borderColor: 'accent.default', color: 'accent.default', fontWeight: 'semibold', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', display: 'flex', alignItems: 'center', gap: '2', _hover: { bg: 'bg.muted' } })}>
-              <ArrowLeft className={css({ w: '4', h: '4' })} /> Retour
+              className="border border-accent text-accent font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-bg-muted">
+              <ArrowLeft className="w-4 h-4" /> Retour
             </button>
             <button onClick={() => setStep(3)} disabled={!selectedSalleId}
-              className={css({ bg: 'accent.default', color: '#fff', fontWeight: 'semibold', fontSize: 'sm', px: '4', py: '2', rounded: 'lg', display: 'flex', alignItems: 'center', gap: '2', _hover: { opacity: 0.9 }, _disabled: { opacity: 0.5 } })}>
-              Continuer <ArrowRight className={css({ w: '4', h: '4' })} />
+              className="bg-accent text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 disabled:opacity-50">
+              Continuer <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
       {step === 3 && (
-        <div className={css({ maxW: 'lg', mx: 'auto', spaceY: '4' })}>
-          <div className={css({ bg: 'bg.muted', rounded: 'lg', p: '4', spaceY: '2', fontSize: 'sm', color: 'fg.default' })}>
+        <div className="max-w-lg mx-auto space-y-4">
+          <div className="bg-bg-muted rounded-lg p-4 space-y-2 text-sm text-fg-default">
             <p><strong>Date :</strong> {new Date(date).toLocaleDateString('fr-FR')}</p>
             <p><strong>Créneau :</strong> {creneaux.find(c => c.id === parseInt(creneauId))?.jour} — {creneaux.find(c => c.id === parseInt(creneauId))?.heureDebut?.slice(0,5)} - {creneaux.find(c => c.id === parseInt(creneauId))?.heureFin?.slice(0,5)}</p>
             <p><strong>Salle :</strong> {selectedSalle?.libelle || selectedSalle?.nom}</p>
           </div>
-          <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '6', spaceY: '4' })}>
+          <div className="bg-surface rounded-lg border border-border p-6 space-y-4">
             <div><label className={labelCls}>Titre</label>
               <input type="text" value={titre} onChange={e => setTitre(e.target.value)} placeholder="Ex: Réunion club" className={inputCls} /></div>
             <div><label className={labelCls}>Type</label>
@@ -176,10 +151,10 @@ export default function NouvelleReservationPage() {
             </div>
             <div><label className={labelCls}>Motif (optionnel)</label>
               <textarea value={motif} onChange={e => setMotif(e.target.value)} rows={3}
-                className={css({ w: 'full', px: '3', py: '2.5', border: '1px solid', borderColor: 'border.default', rounded: 'lg', fontSize: 'sm', color: 'fg.default', bg: 'bg.surface', outline: 'none', resize: 'none', _focus: { borderColor: 'accent.default' } })} />
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm text-fg-default bg-surface outline-none resize-none focus:border-accent" />
             </div>
             <button onClick={handleSubmit} disabled={loading}
-              className={css({ w: 'full', bg: 'accent.default', color: '#fff', fontWeight: 'semibold', fontSize: 'sm', px: '4', py: '2.5', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2', _hover: { opacity: 0.9 } })}>
+              className="w-full bg-accent text-white font-semibold text-sm px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:opacity-90">
               {loading ? 'Envoi...' : '✓ Soumettre la demande'}
             </button>
           </div>

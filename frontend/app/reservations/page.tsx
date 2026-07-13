@@ -8,7 +8,6 @@ import EmptyState from '@/components/global/EmptyState';
 import { LoadingSkeleton } from '@/components/global/LoadingSkeleton';
 import useAuthStore from '@/store/authStore';
 import { api } from '@/services/api';
-import { css } from 'styled-system/css';
 import Link from 'next/link';
 
 interface Reservation {
@@ -62,22 +61,13 @@ export default function ReservationsPage() {
 
   return (
     <ProtectedLayout pageTitle="Mes réservations">
-      <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2', mb: '4' })}>
+      <div className="flex flex-wrap gap-2 mb-4">
         {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={css({
-              px: '3', py: '1.5', fontSize: 'xs', fontWeight: 'medium', rounded: 'lg', transition: 'colors 0.15s',
-              bg: activeTab === tab ? 'accent.default' : 'bg.surface',
-              color: activeTab === tab ? '#fff' : 'fg.muted',
-              border: activeTab === tab ? 'none' : '1px solid',
-              borderColor: 'border.default',
-            })}>
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-150 ${activeTab === tab ? 'bg-accent text-white border-none' : 'bg-surface text-fg-muted border border-border'}`}>
             {tab}
             {counts[tab] > 0 && (
-              <span className={css({ ml: '1.5', px: '1', py: '0.5', fontSize: '9px', fontWeight: 'semibold', rounded: 'sm',
-                bg: activeTab === tab ? 'rgba(255,255,255,0.2)' : 'bg.muted',
-                color: activeTab === tab ? '#fff' : 'fg.default',
-              })}>
+              <span className={`ml-1.5 px-1 py-0.5 text-[9px] font-semibold rounded-sm ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-bg-muted text-fg-default'}`}>
                 {counts[tab]}
               </span>
             )}
@@ -85,51 +75,46 @@ export default function ReservationsPage() {
         ))}
       </div>
 
-      <div className={css({ my: '4' })}>
+      <div className="my-4">
         <Link href="/reservations/nouvelle"
-          className={css({
-            display: 'inline-flex', alignItems: 'center', gap: '1',
-            border: '1px solid', borderColor: 'accent.default', color: 'accent.default',
-            fontSize: 'xs', fontWeight: 'medium', py: '2', px: '4', rounded: 'lg',
-            _hover: { bg: 'accent.default', color: '#fff' }, transition: 'all 0.15s',
-          })}>
+          className="inline-flex items-center gap-1 border border-accent text-accent text-xs font-medium py-2 px-4 rounded-lg hover:bg-accent hover:text-white transition-all duration-150">
           <Plus size={14} /> Nouvelle réservation
         </Link>
       </div>
 
       {error && (
-        <div className={css({ mb: '4', px: '4', py: '3', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', fontSize: 'sm', fontWeight: 'medium', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2', rounded: 'lg' })}>
+        <div className="mb-4 px-4 py-3 bg-[rgba(239,68,68,0.1)] border border-[#ef4444] text-sm font-medium text-[#ef4444] flex items-center gap-2 rounded-lg">
           <AlertCircle size={15} /> {error}
         </div>
       )}
 
       {loading ? (
-        <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '5' })}>
+        <div className="bg-surface border border-border rounded-lg p-5">
           <LoadingSkeleton lines={6} />
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState icon={Calendar} title="Aucune réservation" description="Vous n'avez pas encore de réservations." />
       ) : (
-        <div className={css({ display: 'grid', gap: '4', gridTemplateColumns: { base: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, mt: '5' })}>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-5">
           {filtered.map((res) => (
-            <div key={res.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '5', transition: 'box-shadow 0.15s', _hover: { shadow: 'md' } })}>
-              <div className={css({ mb: '3' })}>
-                <div className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '2' })}>
-                  <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs' })}>
-                    <span className={css({ fontWeight: 'medium', color: 'fg.muted' })}>{res.titre}</span>
-                    <span className={css({ color: 'fg.subtle' })}>·</span>
-                    <span className={css({ color: 'fg.muted' })}>{res.salleLibelle}</span>
+            <div key={res.id} className="bg-surface border border-border rounded-lg p-5">
+              <div className="mb-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-medium text-fg-muted">{res.titre}</span>
+                    <span className="text-fg-subtle">·</span>
+                    <span className="text-fg-muted">{res.salleLibelle}</span>
                   </div>
                   <StatutBadge statut={res.statut} />
                 </div>
               </div>
-              <div className={css({ spaceY: '2' })}>
-                <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs', color: 'fg.subtle' })}>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs text-fg-subtle">
                   <Calendar size={12} />
                   <span>{new Date(res.datePrecise).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
                 {res.session && (
-                  <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs', color: 'fg.subtle' })}>
+                  <div className="flex items-center gap-2 text-xs text-fg-subtle">
                     <Clock size={12} />
                     <span>{res.session}</span>
                   </div>
