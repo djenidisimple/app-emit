@@ -3,8 +3,6 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { css } from 'styled-system/css';
-import TopNavbar from './TopNavbar';
 import RoleSidebar, { etudiantNav } from './RoleSidebar';
 import useAuthStore from '@/store/authStore';
 
@@ -32,17 +30,11 @@ export default function EtudiantLayout({ children, pageTitle = '' }: EtudiantLay
   if (isLoading || !user) return null;
 
   return (
-    <div className={css({ h: 'screen', display: 'flex', flexDirection: 'column', bg: 'bg.canvas', overflow: 'hidden' })}>
-      <TopNavbar pageTitle={pageTitle} />
-      <div className={css({ display: 'flex', flex: '1', overflow: 'hidden', pt: '14' })}>
-        <RoleSidebar links={etudiantNav} />
-        <main className={css({
-          flex: '1', overflowY: 'auto', p: { base: '4', md: '6' },
-          bg: 'bg.canvas', maxW: '4xl', mx: 'auto', w: 'full',
-        })}>
+    <div className="h-screen flex overflow-hidden bg-white">
+      <RoleSidebar links={etudiantNav} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 md:pr-10 bg-white max-w-4xl mx-auto w-full">
           {children}
         </main>
-      </div>
     </div>
   );
 }

@@ -3,9 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { css } from 'styled-system/css';
-import TopNavbar from './TopNavbar';
-import RoleSidebar, { professeurNav } from './RoleSidebar';
+import ProfesseurSidebar from './ProfesseurSidebar';
 import useAuthStore from '@/store/authStore';
 
 interface ProfesseurLayoutProps {
@@ -32,16 +30,12 @@ export default function ProfesseurLayout({ children, pageTitle = '' }: Professeu
   if (isLoading || !user) return null;
 
   return (
-    <div className={css({ h: 'screen', display: 'flex', flexDirection: 'column', bg: 'bg.canvas', overflow: 'hidden' })}>
-      <TopNavbar pageTitle={pageTitle} />
-      <div className={css({ display: 'flex', flex: '1', overflow: 'hidden', pt: '14' })}>
-        <RoleSidebar links={professeurNav} />
-        <main className={css({
-          flex: '1', overflowY: 'auto', p: { base: '4', md: '6' },
-          bg: 'bg.canvas', maxW: '5xl', mx: 'auto', w: 'full',
-        })}>
-          {children}
-        </main>
+    <div className="h-screen bg-white flex justify-center">
+      <div className="h-full w-full max-w-[1560px] flex overflow-hidden gap-3.5">
+        <ProfesseurSidebar />
+          <main className="flex-1 overflow-y-auto p-3.5 pr-10 bg-white">
+            {children}
+          </main>
       </div>
     </div>
   );

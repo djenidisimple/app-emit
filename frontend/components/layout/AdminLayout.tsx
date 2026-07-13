@@ -3,9 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { css } from 'styled-system/css';
-import TopNavbar from './TopNavbar';
-import RoleSidebar, { adminNav } from './RoleSidebar';
+import ScolariteSidebar from './ScolariteSidebar';
 import useAuthStore from '@/store/authStore';
 
 interface AdminLayoutProps {
@@ -32,13 +30,12 @@ export default function AdminLayout({ children, pageTitle = '' }: AdminLayoutPro
   if (isLoading || !user) return null;
 
   return (
-    <div className={css({ h: 'screen', display: 'flex', flexDirection: 'column', bg: 'bg.canvas', overflow: 'hidden' })}>
-      <TopNavbar pageTitle={pageTitle} />
-      <div className={css({ display: 'flex', flex: '1', overflow: 'hidden', pt: '14' })}>
-        <RoleSidebar links={adminNav} />
-        <main className={css({ flex: '1', overflowY: 'auto', p: '6', bg: 'bg.canvas' })}>
-          {children}
-        </main>
+    <div className="h-screen bg-white flex justify-center">
+      <div className="h-full w-full max-w-[1560px] flex overflow-hidden gap-3.5">
+        <ScolariteSidebar />
+          <main className="flex-1 overflow-y-auto p-3.5 pr-10 bg-white">
+            {children}
+          </main>
       </div>
     </div>
   );

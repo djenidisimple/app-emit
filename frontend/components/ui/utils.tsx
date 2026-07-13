@@ -1,8 +1,9 @@
 'use client'
 import { createContext, useContext } from 'react'
-import { css, cx } from 'styled-system/css'
 
-export function createStyleContext(recipe: any) {
+const cx = (...args: (string | undefined | null | false)[]) => args.filter(Boolean).join(' ')
+
+export function createStyleContext(recipe: (props: any) => Record<string, string>) {
   const StyleContext = createContext<Record<string, string>>({})
 
   function withProvider<P extends { className?: string }>(
@@ -10,8 +11,8 @@ export function createStyleContext(recipe: any) {
     slot: string,
   ) {
     return function WithProvider(props: P) {
-      const { className, ...rest } = props as any
-      const styles = recipe(rest)
+      const { className, ...rest } = props as unknown as P;
+      const styles = recipe(rest);
       return (
         <StyleContext.Provider value={styles}>
           <Component {...rest} className={cx(styles[slot], className)} />
@@ -26,7 +27,7 @@ export function createStyleContext(recipe: any) {
   ) {
     return function WithContext(props: P) {
       const ctx = useContext(StyleContext)
-      const { className, ...rest } = props as any
+      const { className, ...rest } = props as unknown as P;
       return <Component {...rest} className={cx(ctx[slot] || '', className)} />
     }
   }

@@ -1,8 +1,6 @@
 'use client'
 import { ark } from '@ark-ui/react/factory'
 import { type ComponentProps, forwardRef } from 'react'
-import { cx } from 'styled-system/css'
-import { table } from 'styled-system/recipes'
 
 type TableRootProps = ComponentProps<typeof ark.table>
 type TableHeaderProps = ComponentProps<typeof ark.thead>
@@ -11,40 +9,44 @@ type TableRowProps = ComponentProps<typeof ark.tr>
 type TableCellProps = ComponentProps<typeof ark.td>
 type TableHeadProps = ComponentProps<typeof ark.th>
 
+const tableStyles = {
+  root: "w-full caption-bottom text-sm",
+  header: "border-b border-neutral-200",
+  body: "",
+  row: "border-b border-neutral-200 transition-colors hover:bg-[#F7F7FA]",
+  cell: "p-3 align-middle text-[13px] text-[#555A6E]",
+  head: "p-3 align-middle text-[11px] font-bold text-[#8A8FA3] uppercase tracking-wider",
+  footer: "border-t border-neutral-200 bg-[#F7F7FA] font-medium",
+}
+
 const TableRoot = forwardRef<HTMLTableElement, TableRootProps>(function Table(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.table ref={ref} className={cx(styles.root, className)} {...rest} />
+  return <ark.table ref={ref} className={`${tableStyles.root}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(function TableHeader(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.thead ref={ref} className={cx(styles.header, className)} {...rest} />
+  return <ark.thead ref={ref} className={`${tableStyles.header}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TableBody(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.tbody ref={ref} className={cx(styles.body, className)} {...rest} />
+  return <ark.tbody ref={ref} className={`${tableStyles.body}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.tr ref={ref} className={cx(styles.row, className)} {...rest} />
+  return <ark.tr ref={ref} className={`${tableStyles.row}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.td ref={ref} className={cx(styles.cell, className)} {...rest} />
+  return <ark.td ref={ref} className={`${tableStyles.cell}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(function TableHead(props, ref) {
   const { className, ...rest } = props
-  const styles = table()
-  return <ark.th ref={ref} className={cx(styles.head, className)} {...rest} />
+  return <ark.th ref={ref} className={`${tableStyles.head}${className ? ` ${className}` : ''}`} {...rest} />
 })
 
 export const Table = Object.assign(TableRoot, {

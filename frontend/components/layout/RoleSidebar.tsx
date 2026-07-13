@@ -4,12 +4,12 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Calendar, Building2, Bookmark,
   ArrowLeftRight, Users, Bell, CalendarDays,
-  ChevronRight, FileText, GraduationCap,
+  ChevronRight, FileText, GraduationCap, Search,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { css } from 'styled-system/css';
 import { useUIStore } from '@/store/uiStore';
+import useAuthStore from '@/store/authStore';
 
 export interface NavItem {
   name: string;
@@ -25,14 +25,14 @@ interface RoleSidebarProps {
 function isActive(path: string, pathname: string): boolean {
   if (path === '/echanges') return pathname.startsWith('/echanges');
   if (path === '/referentiel') return pathname.startsWith('/admin/');
-  if (path === '/mes-seances') return pathname === '/mes-seances' || pathname === '/planning';
+  if (path === '/edt-globale') return pathname === '/edt-globale' || pathname === '/mes-seances' || pathname === '/planning';
   return pathname === path || pathname.startsWith(path + '/');
 }
 
 export const adminNav: NavItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   {
-    name: 'Planning', path: '/planning', icon: Calendar,
+    name: 'Planning', path: '/edt-globale', icon: Calendar,
     children: [
       { name: 'EDT globale', path: '/edt-globale', icon: Calendar },
       { name: 'Mes séances', path: '/mes-seances', icon: CalendarDays },
@@ -51,12 +51,12 @@ export const adminNav: NavItem[] = [
   {
     name: 'Référentiel', path: '/referentiel', icon: GraduationCap,
     children: [
-      { name: 'Filières', path: '/admin/filieres', icon: GraduationCap },
       { name: 'Parcours', path: '/admin/parcours', icon: GraduationCap },
       { name: 'Niveaux', path: '/admin/niveaux', icon: GraduationCap },
       { name: 'Matières', path: '/admin/matieres', icon: GraduationCap },
     ],
   },
+  { name: 'Présences', path: '/admin/attendance', icon: CalendarDays },
   { name: 'Utilisateurs', path: '/admin/utilisateurs', icon: Users },
   { name: 'Examens', path: '/admin/examens', icon: FileText },
   { name: 'Notifications', path: '/notifications', icon: Bell },
@@ -88,6 +88,7 @@ export default function RoleSidebar({ links }: RoleSidebarProps) {
   const pathname = usePathname();
   const { sidebarCollapsed } = useUIStore();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+  const { user } = useAuthStore();
 
   const toggleGroup = (path: string) => {
     setExpandedGroups((prev) =>
@@ -95,98 +96,135 @@ export default function RoleSidebar({ links }: RoleSidebarProps) {
     );
   };
 
-  return (
-    <aside className={css({
-      bg: 'white', h: 'full', display: 'flex', flexDirection: 'column',
-      borderRight: '1px solid', borderColor: 'border.default',
-      transition: 'width 300ms ease',
-      width: sidebarCollapsed ? '14' : '60',
-      flexShrink: '0', overflow: 'hidden',
-    })}>
-      <nav className={css({ flex: '1', py: '4', px: '3', overflowY: 'auto' })}>
-        <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
-          {links.map((item) => {
-            const active = isActive(item.path, pathname);
-            const isExpanded = expandedGroups.includes(item.path);
-            const hasChildren = item.children && item.children.length > 0;
+  const displayName = user ? `${user.prenom ?? ''} ${user.nom ?? ''}` : 'Utilisateur';
+  const email = user?.email ?? 'user@emit.mg';
 
-            return (
-              <div key={item.path}>
-                {hasChildren ? (
-                  <>
-                    <button onClick={() => !sidebarCollapsed && toggleGroup(item.path)}
-                      className={css({
-                        display: 'flex', alignItems: 'center', gap: '3', w: 'full',
-                        px: sidebarCollapsed ? '0' : '2.5', py: '2',
-                        fontSize: 'sm', fontWeight: 'medium', rounded: 'xl',
-                        transition: 'all 200ms',
-                        justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                        bg: active ? 'accent.default' : 'transparent',
-                        color: active ? 'white' : 'fg.muted',
-                        _hover: { bg: active ? 'accent.default' : 'bg.muted', color: active ? 'white' : 'fg.default' },
-                      })}
+  return (
+    <aside className={`bg-white h-full flex flex-col border-r border-[#EEF0F4] shrink-0 transition-[width] duration-300 ${sidebarCollapsed ? 'overflow-y-hidden w-14' : 'overflow-hidden w-[220px]'}`}>
+      {!sidebarCollapsed && (
+        <div className="px-4 pt-5 pb-2 flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center gap-2 mb-5 px-1">
+            <div className="w-5 h-5 rounded-[6px] bg-[#5A55F2] relative shrink-0">
+              <div className="absolute inset-[6px] bg-white rounded-[3px] opacity-90" />
+            </div>
+            <span className="font-bold text-base text-[#111827]">App-EMIT.</span>
+          </div>
+
+          {/* Workspace */}
+          <div className="flex items-center gap-2.5 bg-[#F7F7FA] rounded-[10px] p-2.5 mb-3.5">
+            <div className="w-7 h-7 rounded-[8px] bg-[#FF6A3D] shrink-0" />
+            <div className="leading-tight">
+              <div className="font-semibold text-[12px] text-[#111827]">Scolarité Workspace</div>
+              <div className="text-[11px] text-[#8A8FA3]">Project Team</div>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="flex items-center gap-2 bg-[#F7F7FA] rounded-[10px] p-2 text-[#8A8FA3] text-[12px] mb-4.5">
+            <Search size={15} className="shrink-0" />
+            <span>Search</span>
+            <span className="ml-auto text-[10px] text-[#B4B8C6] border border-[#E7E8EE] rounded-[4px] px-1 py-0.5">⌘F</span>
+          </div>
+
+          <div className="text-[10px] tracking-wide text-[#B4B8C6] font-bold uppercase mb-2 mx-1.5">Main menu</div>
+          
+          <nav className="flex-1 py-0 px-0 overflow-y-auto flex flex-col gap-0.5">
+            {links.map((item) => {
+              const active = isActive(item.path, pathname);
+              const isExpanded = expandedGroups.includes(item.path);
+              const hasChildren = item.children && item.children.length > 0;
+
+              return (
+                <div key={item.path}>
+                  {hasChildren ? (
+                    <>
+                      <button onClick={() => !sidebarCollapsed && toggleGroup(item.path)}
+                        className={`flex items-center gap-2.5 w-full text-[13px] font-medium rounded-[10px] transition-all duration-200 ${
+                          sidebarCollapsed ? 'px-0 justify-center' : 'px-2.5 py-2 justify-start'
+                        } ${
+                          active
+                            ? 'bg-[#5A55F2] text-white'
+                            : 'bg-transparent text-[#555A6E] hover:bg-[#F7F7FA] hover:text-[#111827]'
+                        }`}
+                        title={sidebarCollapsed ? item.name : undefined}
+                      >
+                        <item.icon size={17} className={`shrink-0 ${active ? 'opacity-100' : 'opacity-75'}`} />
+                        {!sidebarCollapsed && (
+                          <>
+                            <span className="flex-1 truncate text-left">{item.name}</span>
+                            <ChevronRight size={14} className={`shrink-0 transition-transform duration-200 text-[#B4B8C6] ${isExpanded ? 'rotate-90' : ''}`} style={active ? { color: 'rgba(255,255,255,0.7)' } : undefined} />
+                          </>
+                        )}
+                      </button>
+                      {!sidebarCollapsed && isExpanded && (
+                        <div className="ml-7 mt-1 flex flex-col gap-0.5 border-l-2 border-[#EEF0F4] pl-3">
+                          {item.children!.map((child) => {
+                            const childActive = isActive(child.path, pathname);
+                            return (
+                              <Link key={child.path} href={child.path}
+                               className={`flex items-center gap-2 w-full px-2.5 py-1.5 text-[12px] font-medium rounded-lg transition-all duration-150 ${
+                                 childActive
+                                   ? 'bg-[#F0EFFE] text-[#5A55F2]'
+                                   : 'bg-transparent text-[#555A6E] hover:bg-[#F7F7FA] hover:text-[#111827]'
+                               }`}
+                              >
+                                <child.icon size={14} className="shrink-0" />
+                                <span className="truncate">{child.name}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link href={item.path}
+                      className={`flex items-center gap-2.5 w-full text-[13px] font-medium rounded-[10px] transition-all duration-200 ${
+                        sidebarCollapsed ? 'px-0 justify-center' : 'px-2.5 py-2 justify-start'
+                      } ${
+                        active
+                          ? 'bg-[#5A55F2] text-white'
+                          : 'bg-transparent text-[#555A6E] hover:bg-[#F7F7FA] hover:text-[#111827]'
+                      }`}
                       title={sidebarCollapsed ? item.name : undefined}
                     >
-                      <item.icon size={18} className={css({ flexShrink: '0' })} />
+                      <item.icon size={17} className={`shrink-0 ${active ? 'opacity-100' : 'opacity-75'}`} />
                       {!sidebarCollapsed && (
-                        <>
-                          <span className={css({ flex: '1', truncate: 'true', textAlign: 'left' })}>{item.name}</span>
-                          <ChevronRight size={14} className={css({
-                            color: active ? 'rgba(255,255,255,0.7)' : 'fg.subtle',
-                            transition: 'transform 200ms',
-                            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                          })} />
-                        </>
+                        <span className="flex-1 truncate">{item.name}</span>
                       )}
-                    </button>
-                    {!sidebarCollapsed && isExpanded && (
-                      <div className={css({ ml: '7', mt: '1', display: 'flex', flexDirection: 'column', gap: '0.5', borderLeft: '2px solid', borderColor: 'border.default', pl: '3' })}>
-                        {item.children!.map((child) => {
-                          const childActive = isActive(child.path, pathname);
-                          return (
-                            <Link key={child.path} href={child.path}
-                              className={css({
-                                display: 'flex', alignItems: 'center', gap: '2', w: 'full',
-                                px: '2.5', py: '1.5', fontSize: 'xs', fontWeight: 'medium',
-                                rounded: 'lg', transition: 'all 150ms',
-                                bg: childActive ? 'accent.light' : 'transparent',
-                                color: childActive ? 'accent.default' : 'fg.muted',
-                                _hover: { bg: childActive ? 'accent.light' : 'bg.muted', color: 'fg.default' },
-                              })}
-                            >
-                              <child.icon size={14} className={css({ flexShrink: '0' })} />
-                              <span className={css({ truncate: 'true' })}>{child.name}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link href={item.path}
-                    className={css({
-                      display: 'flex', alignItems: 'center', gap: '3', w: 'full',
-                      px: sidebarCollapsed ? '0' : '2.5', py: '2',
-                      fontSize: 'sm', fontWeight: 'medium', rounded: 'xl',
-                      transition: 'all 200ms',
-                      justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                      bg: active ? 'accent.default' : 'transparent',
-                      color: active ? 'white' : 'fg.muted',
-                      _hover: { bg: active ? 'accent.default' : 'bg.muted', color: active ? 'white' : 'fg.default' },
-                    })}
-                    title={sidebarCollapsed ? item.name : undefined}
-                  >
-                    <item.icon size={18} className={css({ flexShrink: '0' })} />
-                    {!sidebarCollapsed && (
-                      <span className={css({ flex: '1', truncate: 'true' })}>{item.name}</span>
-                    )}
-                  </Link>
-                )}
-              </div>
-            );
-          })}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          <div className="border-t border-[#EEF0F4] pt-3.5 mt-2 flex flex-col gap-0.5">
+            <Link href="/help" className={`flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium text-[#555A6E] rounded-[10px] transition-all duration-200 hover:bg-[#F7F7FA] hover:text-[#111827] ${
+              sidebarCollapsed ? 'justify-center' : 'justify-start'
+            }`}>
+              <span className="text-[14px]">?</span>
+              {!sidebarCollapsed && <span>Help</span>}
+            </Link>
+            <Link href="/settings" className={`flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium text-[#555A6E] rounded-[10px] transition-all duration-200 hover:bg-[#F7F7FA] hover:text-[#111827] ${
+              sidebarCollapsed ? 'justify-center' : 'justify-start'
+            }`}>
+              <span className="text-[14px]">⚙</span>
+              {!sidebarCollapsed && <span>Settings</span>}
+            </Link>
+          </div>
         </div>
-      </nav>
+      )}
+
+      {!sidebarCollapsed && (
+        <div className="px-4 pb-5 pt-3 border-t border-[#EEF0F4] flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-[10px] bg-[#5A55F2] shrink-0" />
+          <div className="leading-tight">
+            <div className="font-semibold text-[12.5px] text-[#111827]">{displayName}</div>
+            <div className="text-[10.5px] text-[#8A8FA3]">{email}</div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

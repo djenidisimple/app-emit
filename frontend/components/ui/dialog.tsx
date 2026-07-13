@@ -1,6 +1,5 @@
 'use client'
 import { Dialog as ArkDialog } from '@ark-ui/react/dialog'
-import { css, cx } from 'styled-system/css'
 
 export const Dialog = Object.assign(
   ArkDialog.Root,
