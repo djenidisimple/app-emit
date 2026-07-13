@@ -9,7 +9,6 @@ import { Notification } from '@/types';
 import { api } from '@/services/api';
 import useAuthStore from '@/store/authStore';
 import { useNotificationStore } from '@/components/NotificationProvider';
-import { css } from 'styled-system/css';
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -28,7 +27,9 @@ export default function NotificationsPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchNotifications(); }, [user]);
+  useEffect(() => { 
+    setTimeout(() => { fetchNotifications(); }, 0); 
+  }, [user]);
 
   const handleMarkAsRead = async (id: number) => {
     try {
@@ -51,56 +52,47 @@ export default function NotificationsPage() {
 
   return (
     <ProtectedLayout pageTitle="Notifications">
-      <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '5', flexWrap: 'wrap', gap: '3' })}>
-        <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
-          <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', px: '4', py: '3', display: 'flex', alignItems: 'center', gap: '2' })}>
-            <span className={css({ fontSize: 'xl', fontWeight: 'bold', color: 'fg.default' })}>{unreadCount}</span>
-            <span className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>non lue{unreadCount > 1 ? 's' : ''}</span>
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <div className="bg-surface rounded-lg border border-border px-4 py-3 flex items-center gap-2">
+            <span className="text-xl font-bold text-fg-default">{unreadCount}</span>
+            <span className="text-xs font-medium text-fg-muted">non lue{unreadCount > 1 ? 's' : ''}</span>
           </div>
-          <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', px: '4', py: '3', display: 'flex', alignItems: 'center', gap: '2' })}>
-            <span className={css({ fontSize: 'xl', fontWeight: 'bold', color: 'accent.default' })}>{notifications.length}</span>
-            <span className={css({ fontSize: 'xs', fontWeight: 'medium', color: 'fg.muted' })}>totales</span>
+          <div className="bg-surface rounded-lg border border-border px-4 py-3 flex items-center gap-2">
+            <span className="text-xl font-bold text-accent">{notifications.length}</span>
+            <span className="text-xs font-medium text-fg-muted">totales</span>
           </div>
         </div>
         {unreadCount > 0 && (
           <button onClick={handleMarkAllAsRead}
-            className={css({ display: 'flex', alignItems: 'center', gap: '2', px: '4', py: '2', rounded: 'lg', bg: 'bg.surface', color: 'fg.muted', border: '1px solid', borderColor: 'border.default', fontSize: 'sm', fontWeight: 'medium', _hover: { bg: 'bg.muted' } })}>
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface text-fg-muted border border-border text-sm font-medium hover:bg-bg-muted">
             <CheckCheck size={15} /> Tout marquer comme lu
           </button>
         )}
       </div>
 
-      {error && <div className={css({ mb: '4', px: '4', py: '2.5', rounded: 'lg', bg: 'rgba(239,68,68,0.1)', border: '1px solid', borderColor: '#ef4444', fontSize: 'sm', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}><AlertCircle size={15} /> {error}</div>}
+      {error && <div className="mb-4 px-4 py-2.5 rounded-lg bg-[rgba(239,68,68,0.1)] border border-[#ef4444] text-sm text-[#ef4444] flex items-center gap-2"><AlertCircle size={15} /> {error}</div>}
 
       {loading ? (
-        <div className={css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5' })}><LoadingSkeleton lines={6} /></div>
+        <div className="bg-surface rounded-lg border border-border p-5"><LoadingSkeleton lines={6} /></div>
       ) : notifications.length === 0 ? (
         <EmptyState icon={Bell} title="Aucune notification" description="Vous n'avez pas encore de notifications." />
       ) : (
-        <div className={css({ spaceY: '2' })}>
+        <div className="space-y-2">
           {notifications.map((n) => (
             <button key={n.id} onClick={() => handleMarkAsRead(n.id)}
-              className={css({
-                w: 'full', textAlign: 'left', rounded: 'lg', border: '1px solid', p: '4', transition: 'all 0.15s',
-                bg: !n.estLu ? 'rgba(109,93,255,0.05)' : 'bg.surface',
-                borderColor: !n.estLu ? 'rgba(109,93,255,0.2)' : 'border.default',
-                borderLeftWidth: !n.estLu ? '3px' : '1px',
-                borderLeftColor: !n.estLu ? 'accent.default' : 'border.default',
-              })}>
-              <div className={css({ display: 'flex', alignItems: 'flex-start', gap: '3' })}>
-                <div className={css({
-                  w: '7', h: '7', rounded: 'lg', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0',
-                  bg: !n.estLu ? 'accent.default' : 'bg.muted',
-                })}>
-                  <Bell size={13} className={css({ color: !n.estLu ? '#fff' : 'fg.subtle' })} />
+              className={`w-full text-left rounded-lg border p-4 transition-all duration-150 ${!n.estLu ? 'bg-[rgba(109,93,255,0.05)] border-[rgba(109,93,255,0.2)] border-l-[3px] border-l-accent' : 'bg-surface border-border border-l'}`}>
+              <div className="flex items-start gap-3">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${!n.estLu ? 'bg-accent' : 'bg-bg-muted'}`}>
+                  <Bell size={13} className={!n.estLu ? 'text-white' : 'text-fg-subtle'} />
                 </div>
-                <div className={css({ flex: '1', minWidth: '0' })}>
-                  <p className={css({ fontSize: 'sm', lineHeight: 'relaxed', color: !n.estLu ? 'fg.default' : 'fg.muted', fontWeight: !n.estLu ? 'medium' : 'normal' })}>{n.message}</p>
-                  <p className={css({ fontSize: 'xs', color: 'fg.subtle', mt: '1' })}>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm leading-relaxed ${!n.estLu ? 'text-fg-default font-medium' : 'text-fg-muted font-normal'}`}>{n.message}</p>
+                  <p className="text-xs text-fg-subtle mt-1">
                     {new Date(n.dateEnvoi).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-                {!n.estLu && <span className={css({ w: '2', h: '2', bg: 'accent.default', rounded: 'full', flexShrink: '0', mt: '1' })} />}
+                {!n.estLu && <span className="w-2 h-2 bg-accent rounded-full shrink-0 mt-1" />}
               </div>
             </button>
           ))}
