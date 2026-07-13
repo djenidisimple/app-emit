@@ -1,7 +1,5 @@
 'use client';
 
-import { css } from 'styled-system/css';
-
 interface StatCardProps {
   label: string;
   value: number | string;
@@ -21,32 +19,24 @@ export default function StatCard({ label, value, variant = 'default', icon: Icon
 
   return (
     <div
-      className={css({
-        bg: 'bg.surface',
-        border: '1px solid',
-        borderColor: 'border.default',
-        rounded: 'lg',
-        p: '4',
-        borderLeft: '3px solid',
-        borderLeftColor: accent,
-      })}
+      className="bg-surface border border-neutral-200 rounded-[8px] p-4"
+      style={{ borderLeft: `3px solid ${accent}` }}
     >
-      <div className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' })}>
+      <div className="flex items-start justify-between">
         <div>
-          <div className={css({ color: accent, fontSize: '2xl', fontWeight: 'bold', lineHeight: 'none' })}>
+          <div className="text-2xl font-bold leading-none" style={{ color: accent }}>
             {value}
           </div>
-          <div className={css({ color: 'fg.muted', fontSize: 'xs', fontWeight: 'medium', mt: '1' })}>
+          <div className="text-fg-muted text-xs font-medium mt-1">
             {label}
           </div>
         </div>
         {Icon && (
-          <div className={css({
-            w: '8', h: '8', rounded: 'lg',
-            bg: `${accent}15`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0',
-          })}>
-            <Icon size={15} className={css({ color: accent })} />
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${accent}15` }}
+          >
+            <Icon size={15} style={{ color: accent }} />
           </div>
         )}
       </div>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { css } from 'styled-system/css';
 import { api } from '@/services/api';
 
 interface AvailabilityCheckProps {
@@ -18,7 +17,7 @@ export default function AvailabilityCheck({ salleId, creneauId, date, debounceMs
 
   useEffect(() => {
     if (!salleId || !creneauId) {
-      setState('idle');
+      setTimeout(() => setState('idle'), 0);
       return;
     }
 
@@ -46,20 +45,17 @@ export default function AvailabilityCheck({ salleId, creneauId, date, debounceMs
   if (state === 'idle') return null;
 
   const styles = {
-    checking:  { icon: Loader2, color: 'fg.muted', text: 'Vérification...' },
-    available: { icon: CheckCircle, color: '#10b981', text: 'Salle disponible' },
-    conflict:  { icon: AlertCircle, color: '#ef4444', text: 'Conflit détecté sur ce créneau' },
+    checking:  { icon: Loader2, color: 'text-fg-muted', text: 'Vérification...' },
+    available: { icon: CheckCircle, color: 'text-[#10b981]', text: 'Salle disponible' },
+    conflict:  { icon: AlertCircle, color: 'text-[#ef4444]', text: 'Conflit détecté sur ce créneau' },
   };
 
   const s = styles[state];
   const Icon = s.icon;
 
   return (
-    <div className={css({
-      display: 'inline-flex', alignItems: 'center', gap: '1.5',
-      fontSize: 'xs', fontWeight: 'medium', color: s.color, mt: '1',
-    })}>
-      <Icon size={12} className={css({ animation: state === 'checking' ? 'spin 1s linear infinite' : 'none' })} />
+    <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${s.color} mt-1`}>
+      <Icon size={12} className={state === 'checking' ? 'animate-spin' : ''} />
       {s.text}
     </div>
   );

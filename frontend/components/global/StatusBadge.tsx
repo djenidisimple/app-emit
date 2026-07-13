@@ -1,7 +1,5 @@
 'use client';
 
-import { css } from 'styled-system/css';
-
 type StatusVariant =
   | 'actif' | 'conflit' | 'en-attente'
   | 'confirmee' | 'annulee' | 'terminee'
@@ -36,20 +34,10 @@ export default function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={css({
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '1.5',
-        px: '2',
-        py: '0.5',
-        fontSize: '11px',
-        fontWeight: 'medium',
-        rounded: 'md',
-        bg: style.bg,
-        color: style.color,
-      })}
+      className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium rounded-md"
+      style={{ backgroundColor: style.bg, color: style.color }}
     >
-      <span className={css({ w: '1.5', h: '1.5', rounded: 'full', bg: style.color, flexShrink: '0' })} />
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: style.color }} />
       {style.label}
     </span>
   );

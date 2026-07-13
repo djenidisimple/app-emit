@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { AlertTriangle, X, Building2, ArrowRight } from 'lucide-react';
-import { css } from 'styled-system/css';
 import { api } from '@/services/api';
 import { Salle } from '@/types';
 
@@ -49,27 +48,18 @@ export default function ConflictBanner({ conflicts, onResolve }: ConflictBannerP
   };
 
   return (
-    <div
-      className={css({
-        bg: 'rgba(239,68,68,0.08)',
-        border: '1px solid',
-        borderColor: 'rgba(239,68,68,0.25)',
-        rounded: 'lg',
-        p: '4',
-        mb: '5',
-      })}
-    >
-      <div className={css({ display: 'flex', alignItems: 'flex-start', gap: '3' })}>
-        <AlertTriangle size={16} className={css({ color: '#ef4444', mt: '0.5', flexShrink: '0' })} />
-        <div className={css({ flex: '1', spaceY: '2' })}>
-          <p className={css({ fontSize: 'sm', fontWeight: 'semibold', color: '#ef4444' })}>
+    <div className="bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.25)] rounded-lg p-4 mb-5">
+      <div className="flex items-start gap-3">
+        <AlertTriangle size={16} className="text-[#ef4444] mt-0.5 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <p className="text-sm font-semibold text-[#ef4444]">
             {conflicts.length} conflit{conflicts.length > 1 ? 's' : ''} détecté{conflicts.length > 1 ? 's' : ''}
           </p>
-          <div className={css({ spaceY: '1.5' })}>
+          <div className="space-y-1.5">
             {conflicts.map((c) => (
-              <div key={c.seanceId} className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2', flexWrap: 'wrap' })}>
-                <div className={css({ fontSize: 'xs', color: '#ef4444' })}>
-                  <span className={css({ fontWeight: 'medium' })}>{c.matiereNom}</span>
+              <div key={c.seanceId} className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="text-xs text-[#ef4444]">
+                  <span className="font-medium">{c.matiereNom}</span>
                   {' — salle '}
                   <strong>{c.salleNom}</strong>
                   {' double-réservée '}
@@ -77,16 +67,13 @@ export default function ConflictBanner({ conflicts, onResolve }: ConflictBannerP
                   {c.conflitAvec && <> avec <strong>{c.conflitAvec}</strong></>}
                 </div>
                 {resolvingId === c.seanceId ? (
-                  <div className={css({ display: 'flex', alignItems: 'center', gap: '2' })}>
+                  <div className="flex items-center gap-2">
                     {loadingSalles ? (
-                      <span className={css({ fontSize: 'xs', color: 'fg.muted' })}>Recherche...</span>
+                      <span className="text-xs text-fg-muted">Recherche...</span>
                     ) : (
                       <select
                         onChange={(e) => { const v = e.target.value; if (v) handleSelectSalle(Number(v)); }}
-                        className={css({
-                          border: '1px solid', borderColor: 'border.default', rounded: 'md',
-                          px: '2', py: '1', fontSize: 'xs', bg: 'white', outline: 'none',
-                        })}
+                        className="border border-border rounded-md px-2 py-1 text-xs bg-white outline-none"
                       >
                         <option value="">Salle disponible...</option>
                         {disponibles.map((s) => (
@@ -95,19 +82,13 @@ export default function ConflictBanner({ conflicts, onResolve }: ConflictBannerP
                       </select>
                     )}
                     <button onClick={() => setResolvingId(null)}
-                      className={css({ color: 'fg.muted', _hover: { color: 'fg.default' } })}>
+                      className="text-fg-muted hover:text-fg-default">
                       <X size={14} />
                     </button>
                   </div>
                 ) : (
                   <button onClick={() => handleResolve(c)}
-                    className={css({
-                      display: 'inline-flex', alignItems: 'center', gap: '1',
-                      px: '2.5', py: '1', rounded: 'md', fontSize: 'xs', fontWeight: 'medium',
-                      bg: '#ef4444', color: 'white',
-                      _hover: { bg: '#ef4444' },
-                      transition: 'colors 0.15s', flexShrink: '0',
-                    })}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#ef4444] text-white hover:bg-[#ef4444] transition-colors duration-150 shrink-0"
                   >
                     <Building2 size={12} /> Résoudre <ArrowRight size={12} />
                   </button>

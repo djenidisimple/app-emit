@@ -1,5 +1,3 @@
-import { css } from 'styled-system/css';
-
 export function LoadingSkeleton({
   lines = 3,
   className,
@@ -7,14 +5,12 @@ export function LoadingSkeleton({
   lines?: number;
   className?: string;
 }) {
-  const barCls = css({ h: '4', bg: 'bg.muted', rounded: 'md', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' });
-
   return (
-    <div className={css({ spaceY: '3', ...(className ? {} : {}) }) + (className ? ` ${className}` : '')}>
+    <div className={`space-y-3 ${className || ''}`}>
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className={barCls}
+          className="h-4 bg-bg-muted rounded-md animate-pulse"
           style={{ width: i === 0 ? '75%' : i === lines - 1 ? '50%' : '100%' }}
         />
       ))}
@@ -29,14 +25,12 @@ export function TableSkeleton({
   rows?: number;
   cols?: number;
 }) {
-  const barCls = css({ h: '5', bg: 'bg.muted', rounded: 'md', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' });
-
   return (
-    <div className={css({ animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' })}>
+    <div className="animate-pulse">
       {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} className={css({ display: 'flex', gap: '4', mb: '3' })}>
+        <div key={r} className="flex gap-4 mb-3">
           {Array.from({ length: cols }).map((_, c) => (
-            <div key={c} className={barCls} style={{ flex: 1 }} />
+            <div key={c} className="h-5 bg-bg-muted rounded-md" style={{ flex: 1 }} />
           ))}
         </div>
       ))}
@@ -45,16 +39,13 @@ export function TableSkeleton({
 }
 
 export function CardSkeleton({ count = 3 }: { count?: number }) {
-  const cardCls = css({ bg: 'bg.surface', rounded: 'lg', border: '1px solid', borderColor: 'border.default', p: '5', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' });
-  const barCls = css({ bg: 'bg.muted', rounded: 'md', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' });
-
   return (
-    <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: '5' })}>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className={cardCls}>
-          <div className={barCls} style={{ height: '20px', width: '66%', marginBottom: '16px' }} />
-          <div className={barCls} style={{ height: '16px', width: '50%', marginBottom: '8px' }} />
-          <div className={barCls} style={{ height: '16px', width: '75%' }} />
+        <div key={i} className="bg-surface rounded-lg border border-border p-5 animate-pulse">
+          <div className="bg-bg-muted rounded-md animate-pulse" style={{ height: '20px', width: '66%', marginBottom: '16px' }} />
+          <div className="bg-bg-muted rounded-md animate-pulse" style={{ height: '16px', width: '50%', marginBottom: '8px' }} />
+          <div className="bg-bg-muted rounded-md animate-pulse" style={{ height: '16px', width: '75%' }} />
         </div>
       ))}
     </div>

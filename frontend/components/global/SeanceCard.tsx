@@ -1,7 +1,6 @@
 'use client';
 
 import { Calendar, Clock, MapPin, User, CheckCheck } from 'lucide-react';
-import { css } from 'styled-system/css';
 import { SeancePlanningDto } from '@/types';
 import StatusBadge from './StatusBadge';
 
@@ -22,35 +21,18 @@ export default function SeanceCard({ seance, mode = 'etudiant', onTerminer, onCl
   return (
     <div
       onClick={() => onClick?.(seance)}
-      className={css({
-        bg: isDone ? 'bg.muted' : 'bg.surface',
-        border: '1px solid',
-        borderColor: isAnnule ? 'rgba(239,68,68,0.25)' : 'border.default',
-        rounded: 'lg',
-        overflow: 'hidden',
-        cursor: onClick ? 'pointer' : 'default',
-        opacity: isDone ? 0.55 : 1,
-        transition: 'all 0.15s',
-        _hover: onClick ? { borderColor: 'fg.subtle' } : {},
-      })}
+      className={`${isDone ? 'bg-bg-muted' : 'bg-surface'} border ${isAnnule ? 'border-[rgba(239,68,68,0.25)]' : 'border-border'} rounded-lg overflow-hidden ${onClick ? 'cursor-pointer' : 'cursor-default'} ${isDone ? 'opacity-55' : 'opacity-100'} transition-all duration-150 ${onClick ? 'hover:border-fg-subtle' : ''}`}
     >
-      <div className={css({
-        px: '4', py: '2.5',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid', borderColor: 'border.subtle',
-        bg: `${displayColor}08`,
-      })}>
-        <div className={css({ display: 'flex', alignItems: 'center', gap: '2', minWidth: '0' })}>
-          <span className={css({
-            fontSize: 'xs', fontWeight: 'semibold', color: displayColor, truncate: 'true',
-          })}>
+      <div
+        className="px-4 py-2.5 flex items-center justify-between border-b border-[var(--colors-border-subtle)]"
+        style={{ backgroundColor: `${displayColor}08` }}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs font-semibold truncate" style={{ color: displayColor }}>
             {seance.matiereNom}
           </span>
           {isAnnule && (
-            <span className={css({
-              fontSize: '9px', fontWeight: 'semibold', px: '1.5', py: '0.5',
-              rounded: 'md', bg: 'rgba(239,68,68,0.15)', color: '#ef4444',
-            })}>
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-[rgba(239,68,68,0.15)] text-[#ef4444]">
               ANNULÉ
             </span>
           )}
@@ -58,37 +40,31 @@ export default function SeanceCard({ seance, mode = 'etudiant', onTerminer, onCl
         <StatusBadge status={seance.statut === 'Normal' ? 'confirmee' : seance.statut} />
       </div>
 
-      <div className={css({ p: '3', spaceY: '2' })}>
-        <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs', color: 'fg.muted' })}>
-          <Calendar size={12} className={css({ color: 'fg.subtle', flexShrink: '0' })} />
+      <div className="p-3 space-y-2">
+        <div className="flex items-center gap-2 text-xs text-fg-muted">
+          <Calendar size={12} className="text-fg-subtle shrink-0" />
           <span>{seance.jour}</span>
-          <span className={css({ color: 'fg.subtle' })}>·</span>
+          <span className="text-fg-subtle">·</span>
           <span>{formatHeure(seance.heureDebut)} — {formatHeure(seance.heureFin)}</span>
         </div>
 
-        <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs', color: 'fg.muted' })}>
-          <MapPin size={12} className={css({ color: 'fg.subtle', flexShrink: '0' })} />
+        <div className="flex items-center gap-2 text-xs text-fg-muted">
+          <MapPin size={12} className="text-fg-subtle shrink-0" />
           <span>{seance.salleNom}</span>
         </div>
 
         {mode === 'etudiant' && seance.professeurNomComplet && (
-          <div className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'xs', color: 'fg.muted' })}>
-            <User size={12} className={css({ color: 'fg.subtle', flexShrink: '0' })} />
+          <div className="flex items-center gap-2 text-xs text-fg-muted">
+            <User size={12} className="text-fg-subtle shrink-0" />
             <span>{seance.professeurNomComplet}</span>
           </div>
         )}
 
         {mode === 'professeur' && onTerminer && !isDone && !isAnnule && (
-          <div className={css({ pt: '2' })}>
+          <div className="pt-2">
             <button
               onClick={(e) => { e.stopPropagation(); onTerminer(seance); }}
-              className={css({
-                display: 'inline-flex', alignItems: 'center', gap: '1.5',
-                px: '3', py: '1.5', rounded: 'md', fontSize: 'xs', fontWeight: 'medium',
-                bg: '#10b981', color: 'white',
-                _hover: { bg: '#059669' },
-                transition: 'colors 0.15s',
-              })}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-[#10b981] text-white hover:bg-[#059669] transition-colors duration-150"
             >
               <CheckCheck size={12} /> Terminer
             </button>
@@ -96,10 +72,7 @@ export default function SeanceCard({ seance, mode = 'etudiant', onTerminer, onCl
         )}
 
         {seance.motifException && (
-          <div className={css({
-            fontSize: 'xs', color: '#f59e0b', fontStyle: 'italic',
-            bg: 'rgba(245,158,11,0.08)', px: '2', py: '1', rounded: 'md',
-          })}>
+          <div className="text-xs text-[#f59e0b] italic bg-[rgba(245,158,11,0.08)] px-2 py-1 rounded-md">
             {seance.motifException}
           </div>
         )}

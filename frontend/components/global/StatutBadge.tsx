@@ -1,5 +1,3 @@
-import { css } from 'styled-system/css';
-
 const styles: Record<string, { bg: string; color: string }> = {
   En_Attente: { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
   Valide:     { bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
@@ -28,17 +26,8 @@ export default function StatutBadge({ statut }: { statut: string }) {
 
   return (
     <span
-      className={css({
-        display: 'inline-flex',
-        alignItems: 'center',
-        px: '2',
-        py: '0.5',
-        fontSize: '11px',
-        fontWeight: 'medium',
-        rounded: 'md',
-        bg: style.bg,
-        color: style.color,
-      })}
+      className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-md"
+      style={{ backgroundColor: style.bg, color: style.color }}
     >
       {labels[key] ?? statut}
     </span>

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { css } from 'styled-system/css';
-import { ArrowLeftRight, Download, CalendarDays, CheckCheck, X, AlertCircle, BookOpen, Clock, MapPin, Calendar } from 'lucide-react';
+import { Download, CalendarDays, AlertCircle, BookOpen, Clock, MapPin, Calendar } from 'lucide-react';
 import ProtectedLayout from '@/components/layout/ProtectedLayout';
 import SeanceCard from '@/components/global/SeanceCard';
 import StatusBadge from '@/components/global/StatusBadge';
 import StatCard from '@/components/global/StatCard';
+import { ScolariteDashboard } from '@/components/dashboard/ScolariteDashboard';
+import { ProfesseurDashboard } from '@/components/dashboard/ProfesseurDashboard';
 import { SeancePlanningDto, PlanningHebdoResponse, DemandeEchangeReadDto, ExamenReadDto, ReservationReadDto } from '@/types';
 import useAuthStore from '@/store/authStore';
 import { api } from '@/services/api';
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const { user } = useAuthStore();
   const role = user?.role || user?.roles?.[0] || '';
+  const isAdmin = role === 'Admin' || role === 'Scolarite';
   const isProf = role === 'Professeur';
   const isEtudiant = role === 'Etudiant';
 
@@ -49,22 +51,33 @@ export default function DashboardPage() {
     } catch { /* ignore */ }
   }, [user, isProf]);
 
+  const fetchExamens = useCallback(async () => {
+    if (!user || !isProf) return;
+    try {
+      const all = await examenService.getAll();
+      const miens = all.filter((e) => e.professeurId === user.id);
+      setExamens(miens);
+    } catch { /* ignore */ }
+  }, [user, isProf]);
+
   const fetchStarted = useRef(false);
   useEffect(() => {
     if (!fetchStarted.current) {
       fetchStarted.current = true;
-      fetchData();
-      if (isProf) fetchDemandes();
-      if (isEtudiant && user?.niveauId) {
-        examenService.getByNiveau(user.niveauId).then(setExamens).catch(() => {});
-        api.get<ReservationReadDto[]>(`/Reservation/utilisateur/${user.id}`).then(setReservations).catch(() => {});
-      }
+      setTimeout(() => {
+        fetchData();
+        if (isProf) { fetchDemandes(); fetchExamens(); }
+        if (isEtudiant && user?.niveauId) {
+          examenService.getByNiveau(user.niveauId).then(setExamens).catch(() => {});
+          api.get<ReservationReadDto[]>(`/Reservation/utilisateur/${user.id}`).then(setReservations).catch(() => {});
+        }
+      }, 0);
     }
-  }, [fetchData, fetchDemandes, isProf, isEtudiant, user]);
+  }, [fetchData, fetchDemandes, fetchExamens, isProf, isEtudiant, user]);
 
   const handleTerminer = async (seance: SeancePlanningDto) => {
     try {
-      await api.patch(`/SeanceCours/${seance.id}/terminer`);
+      await api.patch(`/seances/${seance.id}/terminer`);
       setSeances((prev) => prev.map((s) => s.id === seance.id ? { ...s, statut: 'Terminee' } : s));
     } catch { /* ignore */ }
   };
@@ -86,106 +99,27 @@ export default function DashboardPage() {
   const enCours = seances.filter((s) => s.statut !== 'Terminee' && s.statut !== 'Terminé' && s.statut !== 'Annule' && s.statut !== 'Annulé').length;
   const terminees = seances.filter((s) => s.statut === 'Terminee' || s.statut === 'Terminé').length;
 
+  if (isAdmin) {
+    return (
+      <ProtectedLayout pageTitle="Tableau de bord">
+        <ScolariteDashboard />
+      </ProtectedLayout>
+    );
+  }
+
   if (isProf) {
     return (
-      <ProtectedLayout pageTitle="Mes séances">
-        <div className={css({ spaceY: '6', maxW: '3xl', mx: 'auto' })}>
-          <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3', flexWrap: 'wrap' })}>
-            <div className={css({ display: 'flex', gap: '3', flexWrap: 'wrap' })}>
-              <StatCard label="En cours" value={enCours} variant="success" />
-              <StatCard label="Terminées" value={terminees} variant="warning" />
-              <StatCard label="Total" value={seances.length} />
-            </div>
-            <div className={css({ display: 'flex', gap: '2' })}>
-              <Link href="/echanges/nouvelle"
-                className={css({
-                  display: 'inline-flex', alignItems: 'center', gap: '1.5',
-                  px: '3', py: '2', rounded: 'lg', fontSize: 'xs', fontWeight: 'medium',
-                  border: '1px solid', borderColor: 'accent.default', color: 'accent.default',
-                  _hover: { bg: 'accent.light' }, transition: 'all 0.15s',
-                })}>
-                <ArrowLeftRight size={14} /> Échanger
-              </Link>
-              <button
-                className={css({
-                  display: 'inline-flex', alignItems: 'center', gap: '1.5',
-                  px: '3', py: '2', rounded: 'lg', fontSize: 'xs', fontWeight: 'medium',
-                  border: '1px solid', borderColor: 'border.default', color: 'fg.muted',
-                  _hover: { bg: 'bg.muted' }, transition: 'all 0.15s',
-                })}
-                onClick={() => api.postBlob('/Document/export/pdf', {}).then((blob) => {
-                  const url = URL.createObjectURL(blob);
-                  window.open(url, '_blank');
-                })}
-              >
-                <Download size={14} /> Exporter
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <div className={css({ px: '4', py: '3', rounded: 'lg', fontSize: 'sm', bg: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}>
-              <AlertCircle size={14} /> {error}
-            </div>
-          )}
-
-          <div>
-            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
-              Mes séances de la semaine
-            </h2>
-            {isLoading ? (
-              <div className={css({ p: '12', display: 'flex', justifyContent: 'center' })}>
-                <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'border.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
-              </div>
-            ) : triees.length === 0 ? (
-              <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center' })}>
-                <CalendarDays size={28} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
-                <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance cette semaine</p>
-              </div>
-            ) : (
-              <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
-                {triees.map((seance) => (
-                  <SeanceCard key={seance.id} seance={seance} mode="professeur" onTerminer={handleTerminer} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {demandesRecues.length > 0 && (
-            <div>
-              <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
-                Demandes d&apos;échange reçues ({demandesRecues.length})
-              </h2>
-              <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
-                {demandesRecues.map((d) => (
-                  <div key={d.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '4' })}>
-                    <div className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '3' })}>
-                      <div className={css({ spaceY: '1', fontSize: 'sm' })}>
-                        <p className={css({ fontWeight: 'medium', color: 'fg.default' })}>
-                          {d.nomDemandeur}
-                        </p>
-                        <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>
-                          {d.seanceDemandeurMatiere} ↔ {d.seanceCibleMatiere}
-                        </p>
-                        {d.motif && <p className={css({ fontSize: 'xs', color: 'fg.subtle', fontStyle: 'italic' })}>Motif : {d.motif}</p>}
-                      </div>
-                      <div className={css({ display: 'flex', gap: '2', flexShrink: '0' })}>
-                        <button onClick={() => handleEchangeAction(d.id, 'Acceptee')}
-                          className={css({ px: '3', py: '1.5', rounded: 'md', fontSize: 'xs', fontWeight: 'medium', bg: '#10b981', color: 'white', _hover: { bg: '#059669' }, transition: 'colors 0.15s' })}>
-                          <CheckCheck size={14} />
-                        </button>
-                        <button onClick={() => handleEchangeAction(d.id, 'Refusee')}
-                          className={css({ px: '3', py: '1.5', rounded: 'md', fontSize: 'xs', fontWeight: 'medium', bg: '#ef4444', color: 'white', _hover: { bg: '#dc2626' }, transition: 'colors 0.15s' })}>
-                          <X size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+      <ProtectedLayout pageTitle="Tableau de bord">
+        <ProfesseurDashboard
+          seances={seances}
+          demandesRecues={demandesRecues}
+          examens={examens}
+          isLoading={isLoading}
+          error={error}
+          user={user}
+          onTerminer={handleTerminer}
+          handleEchangeAction={handleEchangeAction}
+        />
       </ProtectedLayout>
     );
   }
@@ -204,27 +138,25 @@ export default function DashboardPage() {
 
   return (
     <ProtectedLayout pageTitle={isEtudiant ? 'Mon espace' : 'Mon planning'}>
-      <div className={css({ spaceY: '6', maxW: '3xl', mx: 'auto' })}>
+      <div className="space-y-6 max-w-3xl mx-auto">
         {isEtudiant && (
-          <div className={css({ spaceY: '4' })}>
+          <div className="space-y-4">
             {prochaineSeance && (
-              <div className={css({
-                bg: 'accent.default', rounded: 'lg', p: '5', color: 'white',
-              })}>
-                <p className={css({ fontSize: 'xs', fontWeight: 'medium', opacity: '0.8', mb: '1' })}>
+              <div className="bg-accent rounded-lg p-5 text-white">
+                <p className="text-xs font-medium opacity-80 mb-1">
                   Prochaine séance
                 </p>
-                <p className={css({ fontSize: 'lg', fontWeight: 'bold', mb: '1' })}>
+                <p className="text-lg font-bold mb-1">
                   {prochaineSeance.matiereNom}
                 </p>
-                <div className={css({ display: 'flex', alignItems: 'center', gap: '3', fontSize: 'sm', opacity: '0.9' })}>
-                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                <div className="flex items-center gap-3 text-sm opacity-90">
+                  <span className="flex items-center gap-1">
                     <Calendar size={13} /> {prochaineSeance.jour}
                   </span>
-                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                  <span className="flex items-center gap-1">
                     <Clock size={13} /> {prochaineSeance.heureDebut?.slice(0, 5)}
                   </span>
-                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
+                  <span className="flex items-center gap-1">
                     <MapPin size={13} /> {prochaineSeance.salleNom}
                   </span>
                 </div>
@@ -232,61 +164,72 @@ export default function DashboardPage() {
             )}
 
             {prochainExamen && (
-              <div className={css({
-                bg: 'rgba(245,158,11,0.12)', border: '1px solid', borderColor: 'rgba(245,158,11,0.3)',
-                rounded: 'lg', p: '4', display: 'flex', alignItems: 'flex-start', gap: '3',
-              })}>
-                <BookOpen size={18} className={css({ color: '#f59e0b', mt: '0.5', flexShrink: '0' })} />
-                <div className={css({ spaceY: '0.5', fontSize: 'sm' })}>
-                  <p className={css({ fontWeight: 'semibold', color: '#f59e0b' })}>
+              <div className="bg-[rgba(245,158,11,0.12)] border border-[rgba(245,158,11,0.3)] rounded-lg p-4 flex items-start gap-3">
+                <BookOpen size={18} className="text-[#f59e0b] mt-0.5 shrink-0" />
+                <div className="space-y-0.5 text-sm">
+                  <p className="font-semibold text-[#f59e0b]">
                     Examen à venir : {prochainExamen.matiereNom}
                   </p>
-                  <p className={css({ color: '#f59e0b', fontSize: 'xs' })}>
+                  <p className="text-[#f59e0b] text-xs">
                     {new Date(prochainExamen.dateExamen).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} — {prochainExamen.heureDebut?.slice(0, 5)}
                   </p>
-                  <p className={css({ color: '#f59e0b', fontSize: 'xs' })}>
+                  <p className="text-[#f59e0b] text-xs">
                     {prochainExamen.salleNom} · {prochainExamen.professeurNom}
                   </p>
                 </div>
               </div>
             )}
 
-            <div className={css({ display: 'flex', justifyContent: 'center' })}>
-              <Link href="/student/reservations/nouvelle"
-                className={css({
-                  display: 'inline-flex', alignItems: 'center', gap: '2',
-                  px: '6', py: '3', rounded: 'lg', fontSize: 'sm', fontWeight: 'semibold',
-                  bg: 'accent.default', color: 'white',
-                  _hover: { opacity: 0.9 },
-                })}>
-                Réserver une salle
-              </Link>
-            </div>
+             <div className="flex gap-2 justify-center">
+               <Link href="/student/reservations/nouvelle"
+                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold bg-accent text-white hover:opacity-90">
+                 Réserver une salle
+               </Link>
+               <button
+                 onClick={async () => {
+                   const payload = { 
+                     AnneeUniversitaire: '2025-2026', 
+                     DateDebut: new Date().toISOString(), 
+                     DateFin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                     UtilisateurId: user?.id 
+                   };
+                   try {
+                     const blob = await api.postBlob('/Document/export/pdf', payload);
+                     const url = URL.createObjectURL(blob);
+                     const a = document.createElement('a');
+                     a.href = url; a.download = 'mon_emploi_du_temps.pdf'; a.click();
+                     URL.revokeObjectURL(url);
+                   } catch (e) { console.error(e); }
+                 }}
+                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold bg-white text-fg-default border border-border hover:bg-bg-muted">
+                 <Download size={16} /> Exporter mon EDT
+               </button>
+             </div>
           </div>
         )}
 
         {error && (
-          <div className={css({ px: '4', py: '3', rounded: 'lg', fontSize: 'sm', bg: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '2' })}>
+          <div className="px-4 py-3 rounded-lg text-sm bg-[rgba(239,68,68,0.1)] text-[#ef4444] flex items-center gap-2">
             <AlertCircle size={14} /> {error}
           </div>
         )}
 
-        <div className={css({ display: 'grid', gridTemplateColumns: { base: '1fr', md: '1fr 1fr' }, gap: '3' })}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <StatCard label="Séances cette semaine" value={seances.length} />
           <StatCard label="Terminées" value={terminees} variant="success" />
         </div>
 
         {isLoading ? (
-          <div className={css({ p: '12', display: 'flex', justifyContent: 'center' })}>
-            <div className={css({ w: '8', h: '8', border: '3px solid', borderColor: 'border.default', borderTopColor: 'accent.default', rounded: 'full', animation: 'spin 1s linear infinite' })} />
+          <div className="p-12 flex justify-center">
+            <div className="w-8 h-8 border-3 border-border border-t-accent rounded-full animate-spin" style={{ borderWidth: '3px' }} />
           </div>
         ) : triees.length === 0 ? (
-          <div className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '12', textAlign: 'center' })}>
-            <CalendarDays size={28} className={css({ color: 'fg.subtle', mx: 'auto', mb: '3' })} />
-            <p className={css({ color: 'fg.default', fontWeight: 'semibold', mb: '1' })}>Aucune séance cette semaine</p>
+          <div className="bg-surface border border-border rounded-lg p-12 text-center">
+            <CalendarDays size={28} className="text-fg-subtle mx-auto mb-3" />
+            <p className="text-fg-default font-semibold mb-1">Aucune séance cette semaine</p>
           </div>
         ) : (
-          <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+          <div className="flex flex-col gap-3">
             {triees.map((seance) => (
               <SeanceCard key={seance.id} seance={seance} mode={isEtudiant ? 'etudiant' : 'professeur'} />
             ))}
@@ -295,15 +238,15 @@ export default function DashboardPage() {
 
         {isEtudiant && recentReservations.length > 0 && (
           <div>
-            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'fg.default', mb: '3' })}>
+            <h2 className="text-sm font-semibold text-fg-default mb-3">
               Dernières réservations
             </h2>
-            <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+            <div className="flex flex-col gap-2">
               {recentReservations.map((r) => (
-                <div key={r.id} className={css({ bg: 'bg.surface', border: '1px solid', borderColor: 'border.default', rounded: 'lg', p: '3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
-                  <div className={css({ fontSize: 'sm' })}>
-                    <p className={css({ fontWeight: 'medium', color: 'fg.default' })}>{r.titre}</p>
-                    <p className={css({ fontSize: 'xs', color: 'fg.muted' })}>
+                <div key={r.id} className="bg-surface border border-border rounded-lg p-3 flex items-center justify-between">
+                  <div className="text-sm">
+                    <p className="font-medium text-fg-default">{r.titre}</p>
+                    <p className="text-xs text-fg-muted">
                       {new Date(r.datePrecise).toLocaleDateString('fr-FR')} — {r.salleLibelle}
                     </p>
                   </div>
